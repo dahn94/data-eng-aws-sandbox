@@ -1,0 +1,27 @@
+name: aws-platform/pipelines/amazonsales CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "aws-platform/pipelines/amazonsales/**"
+      - "aws-platform/modules/glue-job/**"
+      - "aws-platform/modules/step-functions/**"
+      - .github/workflows/pipeline-amazonsales-ci.yml
+      - .github/workflows/terraform-reusable.yml
+  push:
+    branches: [develop, main]
+    paths:
+      - "aws-platform/pipelines/amazonsales/**"
+      - "aws-platform/modules/glue-job/**"
+      - "aws-platform/modules/step-functions/**"
+      - .github/workflows/pipeline-amazonsales-ci.yml
+      - .github/workflows/terraform-reusable.yml
+
+jobs:
+  terraform:
+    uses: ./.github/workflows/terraform-reusable.yml
+    secrets: inherit
+    with:
+      working_directory: aws-platform/pipelines/amazonsales
+

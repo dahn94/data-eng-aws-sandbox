@@ -1,0 +1,5 @@
+environment       = "dev"
+region            = "us-east-2"
+s3_bucket_raw     = "CHANGEME-lake-raw-dev"
+s3_bucket_curated = "CHANGEME-lake-curated-dev"
+s3_bucket_scripts = "CHANGEME-lake-configs"

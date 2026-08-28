@@ -1,0 +1,130 @@
+# Kafka + Debezium + Schema Registry para CDC do Postgres.
+#
+# Exige um .env (copie de .env.example) — as imagens usam ${DEBEZIUM_VERSION}
+# e o listener externo usa ${EC2_IP}.
+
+networks:
+  debezium_net:
+
+services:
+  zookeeper:
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks: [debezium_net]
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc -w 2 localhost 2181 | grep imok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  kafka:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092" # acesso de fora do Docker (job Glue, sua máquina)
+    networks: [debezium_net]
+    environment:
+      KAFKA_BROKER_ID: 1
+      ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_EXTERNAL://0.0.0.0:29092
+      # ${EC2_IP} precisa ser um endereço que o cliente externo consiga
+      # resolver: localhost para uso local, o IP público da EC2 se remoto.
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_EXTERNAL://${EC2_IP}:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    container_name: schema-registry
+    ports:
+      - "8081:8081"
+    networks: [debezium_net]
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  connect:
+    image: debezium/connect:${DEBEZIUM_VERSION}
+    container_name: connect
+    ports:
+      - "8083:8083"
+    networks: [debezium_net]
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
+      # Avro + Schema Registry: é o formato que o job Glue de streaming
+      # e a tabela Kafka do ClickHouse esperam.
+      KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      REST_ADVERTISED_HOST_NAME: connect
+      REST_PORT: 8083
+      # Permite que o JSON do connector referencie um arquivo de propriedades
+      # em vez de carregar a senha do Postgres em texto.
+      CONNECT_CONFIG_PROVIDERS: file
+      CONNECT_CONFIG_PROVIDERS_FILE_CLASS: org.apache.kafka.common.config.provider.FileConfigProvider
+    depends_on:
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_started
+    volumes:
+      # Jars do Avro/Schema Registry como um plugin, em um subdiretório do
+      # plugin.path. Montar em /kafka/libs sobrescreveria as bibliotecas do
+      # próprio Connect e o container não subiria.
+      - ./jars/debezium:/kafka/connect/confluent-avro:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS localhost:8083/connectors || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:v0.7.2
+    networks: [debezium_net]
+    ports:
+      - "8080:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: debezium-connect
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://connect:8083
+      DYNAMIC_CONFIG_ENABLED: "true"
+
+volumes:
+  zookeeper_data:
+  zookeeper_log:
+  kafka_data:

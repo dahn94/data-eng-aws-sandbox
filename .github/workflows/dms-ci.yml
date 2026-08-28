@@ -1,0 +1,25 @@
+name: aws-platform/dms CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "aws-platform/dms/**"
+      - "aws-platform/modules/dms/**"
+      - .github/workflows/dms-ci.yml
+      - .github/workflows/terraform-reusable.yml
+  push:
+    branches: [develop, main]
+    paths:
+      - "aws-platform/dms/**"
+      - "aws-platform/modules/dms/**"
+      - .github/workflows/dms-ci.yml
+      - .github/workflows/terraform-reusable.yml
+
+jobs:
+  terraform:
+    uses: ./.github/workflows/terraform-reusable.yml
+    secrets: inherit
+    with:
+      working_directory: aws-platform/dms
+      needs_rds_password: true

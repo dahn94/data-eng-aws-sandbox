@@ -1,0 +1,8 @@
+environment          = "local"
+region               = "us-east-1"
+s3_bucket_raw        = "sandbox-lake-raw-local"
+network_state_bucket = "sandbox-lake-configs"
+network_state_key    = "terraform/dataeng-sandbox/network/local/terraform.tfstate"
+rds_state_bucket     = "sandbox-lake-configs"
+rds_state_key        = "terraform/dataeng-sandbox/rds/local/terraform.tfstate"
+aws_endpoint_url     = "http://localhost:4566"

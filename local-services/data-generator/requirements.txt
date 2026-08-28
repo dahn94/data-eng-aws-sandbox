@@ -1,0 +1,5 @@
+# Versões fixas: o script roda igual hoje e daqui a um ano.
+pandas==2.2.3
+SQLAlchemy==2.0.36
+psycopg2-binary==2.9.10
+fake-web-events==0.3.2

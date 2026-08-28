@@ -1,0 +1,35 @@
+# LocalStack: emula os serviços da AWS na sua máquina.
+#
+# Diferente dos outros stacks desta pasta, ele não é uma peça da arquitetura de
+# dados — é um alvo de execução alternativo para o Terraform de aws-platform/.
+# Veja o README para como apontar os módulos para cá.
+
+services:
+  localstack:
+    image: localstack/localstack-pro:3.8
+    container_name: localstack
+    ports:
+      - "4566:4566"        # gateway único: todos os serviços respondem aqui
+      - "4510-4559:4510-4559"
+    environment:
+      # Token do LocalStack Pro. Sem ele a imagem pro sobe em modo community e
+      # RDS, DMS e Glue — o núcleo deste repositório — não funcionam.
+      LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN:?defina LOCALSTACK_AUTH_TOKEN no .env}
+      DEBUG: ${LOCALSTACK_DEBUG:-0}
+      PERSISTENCE: ${LOCALSTACK_PERSISTENCE:-1}
+      # Serviços que este repositório usa. Restringir acelera o boot.
+      SERVICES: s3,s3tables,iam,sts,ec2,rds,dms,glue,stepfunctions,lambda,ecr,logs,secretsmanager,ssm
+      # Necessário para os jobs Lambda em container e para o RDS do Pro.
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:4566/_localstack/health | grep -q '\"s3\": \"available\"\\|\"s3\": \"running\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
+
+volumes:
+  localstack_data:

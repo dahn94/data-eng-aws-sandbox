@@ -1,0 +1,93 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.env
+!.env.example
+.venv
+env/
+venv/
+ENV/
+.ruff_cache/
+.pypirc
+
+# Jupyter
+.ipynb_checkpoints
+
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+crash.log
+crash.*.log
+
+# AWS
+.aws/
+aws-exports.js
+awsconfiguration.json
+amplifyconfiguration.json
+amplify-build-config.json
+amplify-gradle-config.json
+amplifytools.xcconfig
+
+# Data files
+*.csv
+*.parquet
+*.avro
+*.orc
+*.json
+!package.json
+!package-lock.json
+!sfn_definition*.json
+!register-*-connector.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Great Expectations
+great_expectations/uncommitted/
+great_expectations/checkpoints/
+great_expectations/plugins/
+great_expectations/uncommitted_data_docs/
+
+# Local development
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Internal planning docs (not part of the published project)
+docs/
+# Jars: baixados por ./scripts/fetch-jars.sh, não versionados (~15 MB de binário)
+*.jar

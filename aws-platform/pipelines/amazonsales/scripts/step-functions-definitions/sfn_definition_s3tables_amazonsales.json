@@ -1,0 +1,339 @@
+{
+  "Comment": "Orquestracao ETL Glue Amazon Sales com S3Tables. Os jobs de Data Quality falham quando uma regra falha, interrompendo os passos seguintes.",
+  "StartAt": "stg_table",
+  "States": {
+    "stg_table": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "dataeng-sandbox-amazonsales-dw-table-stg-s3tables-${environment}",
+        "Arguments": {
+          "--input_path": "${raw_input}",
+          "--iceberg_table": "stg_amazonsales",
+          "--namespace": "staged",
+          "--s3_tables_bucket_arn": "${lakehouse_arn}",
+          "--primary_key": "product_id"
+        }
+      },
+      "Next": "parallel_dims",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Glue.AWSGlueException",
+            "States.TaskFailed"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "pipeline_failed",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "parallel_dims": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "dim_product",
+          "States": {
+            "dim_product": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "dataeng-sandbox-amazonsales-dw-dim-product-s3tables-${environment}",
+                "Arguments": {
+                  "--stg_table_sales": "staged.stg_amazonsales",
+                  "--output_table": "dim_product",
+                  "--namespace_destino": "datawarehouse",
+                  "--s3_tables_bucket_arn": "${lakehouse_arn}"
+                }
+              },
+              "End": true,
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Glue.AWSGlueException",
+                    "States.TaskFailed"
+                  ],
+                  "IntervalSeconds": 30,
+                  "MaxAttempts": 2,
+                  "BackoffRate": 2.0
+                }
+              ],
+              "Catch": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "Next": "pipeline_failed",
+                  "ResultPath": "$.error"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "StartAt": "dim_rating",
+          "States": {
+            "dim_rating": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "dataeng-sandbox-amazonsales-dw-dim-rating-s3tables-${environment}",
+                "Arguments": {
+                  "--stg_table_sales": "staged.stg_amazonsales",
+                  "--output_table": "dim_rating",
+                  "--namespace_destino": "datawarehouse",
+                  "--s3_tables_bucket_arn": "${lakehouse_arn}"
+                }
+              },
+              "End": true,
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Glue.AWSGlueException",
+                    "States.TaskFailed"
+                  ],
+                  "IntervalSeconds": 30,
+                  "MaxAttempts": 2,
+                  "BackoffRate": 2.0
+                }
+              ],
+              "Catch": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "Next": "pipeline_failed",
+                  "ResultPath": "$.error"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "StartAt": "dim_user",
+          "States": {
+            "dim_user": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "dataeng-sandbox-amazonsales-dw-dim-user-s3tables-${environment}",
+                "Arguments": {
+                  "--stg_table_sales": "staged.stg_amazonsales",
+                  "--output_table": "dim_user",
+                  "--namespace_destino": "datawarehouse",
+                  "--s3_tables_bucket_arn": "${lakehouse_arn}"
+                }
+              },
+              "End": true,
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Glue.AWSGlueException",
+                    "States.TaskFailed"
+                  ],
+                  "IntervalSeconds": 30,
+                  "MaxAttempts": 2,
+                  "BackoffRate": 2.0
+                }
+              ],
+              "Catch": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "Next": "pipeline_failed",
+                  "ResultPath": "$.error"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "Next": "dims_glue_data_quality",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "pipeline_failed",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "dims_glue_data_quality": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "dataeng-sandbox-amazonsales-dw-dims-s3tables-gdq-${environment}",
+        "Arguments": {
+          "--namespace": "datawarehouse",
+          "--s3_tables_bucket_arn": "${lakehouse_arn}",
+          "--dq_results_path": "${dq_results_path}"
+        }
+      },
+      "Next": "parallel_facts",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Glue.AWSGlueException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 1,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "pipeline_failed",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "parallel_facts": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "fact_product_rating",
+          "States": {
+            "fact_product_rating": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "dataeng-sandbox-amazonsales-dw-fact-product-rating-s3tables-${environment}",
+                "Arguments": {
+                  "--stg_table_sales": "staged.stg_amazonsales",
+                  "--dim_product_table": "datawarehouse.dim_product",
+                  "--dim_rating_table": "datawarehouse.dim_rating",
+                  "--output_table": "fact_product_rating",
+                  "--namespace_destino": "datawarehouse",
+                  "--s3_tables_bucket_arn": "${lakehouse_arn}"
+                }
+              },
+              "End": true,
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Glue.AWSGlueException",
+                    "States.TaskFailed"
+                  ],
+                  "IntervalSeconds": 30,
+                  "MaxAttempts": 2,
+                  "BackoffRate": 2.0
+                }
+              ],
+              "Catch": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "Next": "pipeline_failed",
+                  "ResultPath": "$.error"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "StartAt": "fact_sales_category",
+          "States": {
+            "fact_sales_category": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "dataeng-sandbox-amazonsales-dw-fact-sales-category-s3tables-${environment}",
+                "Arguments": {
+                  "--stg_table_sales": "staged.stg_amazonsales",
+                  "--dim_product_table": "datawarehouse.dim_product",
+                  "--dim_user_table": "datawarehouse.dim_user",
+                  "--output_table": "fact_sales_category",
+                  "--namespace_destino": "datawarehouse",
+                  "--s3_tables_bucket_arn": "${lakehouse_arn}"
+                }
+              },
+              "End": true,
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Glue.AWSGlueException",
+                    "States.TaskFailed"
+                  ],
+                  "IntervalSeconds": 30,
+                  "MaxAttempts": 2,
+                  "BackoffRate": 2.0
+                }
+              ],
+              "Catch": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "Next": "pipeline_failed",
+                  "ResultPath": "$.error"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "Next": "facts_glue_data_quality",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "pipeline_failed",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "facts_glue_data_quality": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "dataeng-sandbox-amazonsales-dw-facts-s3tables-gdq-${environment}",
+        "Arguments": {
+          "--namespace": "datawarehouse",
+          "--s3_tables_bucket_arn": "${lakehouse_arn}",
+          "--dq_results_path": "${dq_results_path}"
+        }
+      },
+      "End": true,
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Glue.AWSGlueException"
+          ],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 1,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "pipeline_failed",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "pipeline_failed": {
+      "Type": "Fail",
+      "Error": "PipelineFailed",
+      "Cause": "Um job Glue falhou. Veja o campo error da execucao e os logs do job no CloudWatch."
+    }
+  }
+}

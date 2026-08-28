@@ -1,0 +1,154 @@
+# Workflow reutilizável do Terraform.
+#
+# Antes existiam seis cópias quase idênticas de ~90 linhas, uma por root
+# module. Cada pipeline nova multiplicava a duplicação. Agora cada módulo tem
+# um arquivo de ~15 linhas que chama este aqui.
+name: terraform (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: Root module a planejar/aplicar
+        required: true
+        type: string
+      aws_region:
+        description: Região AWS
+        required: false
+        type: string
+        default: us-east-2
+      terraform_version:
+        required: false
+        type: string
+        default: "1.10.5"
+      needs_rds_password:
+        description: Se o módulo precisa de TF_VAR_rds_password
+        required: false
+        type: boolean
+        default: false
+      needs_opensearch_password:
+        description: Se o módulo precisa de TF_VAR_opensearch_password
+        required: false
+        type: boolean
+        default: false
+      extra_var_flags:
+        description: Flags -var extras passadas ao plan/apply
+        required: false
+        type: string
+        default: ""
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+
+# Autenticação por OIDC: o job assume uma role da conta AWS por token de curta
+# duração. Nada de AWS_ACCESS_KEY_ID/SECRET de longa duração em secrets.
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  plan:
+    name: plan (${{ inputs.working_directory }})
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.env.outputs.name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Definir ambiente
+        id: env
+        run: |
+          target="${{ github.base_ref || github.ref_name }}"
+          if [[ "$target" == "main" ]]; then
+            echo "name=main" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=develop" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      # -recursive: a versão anterior checava só o root module, então os
+      # módulos em aws-platform/modules/ nunca eram verificados.
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive -diff
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Terraform init
+        working-directory: ${{ inputs.working_directory }}
+        run: terraform init -backend-config=backends/${{ steps.env.outputs.name }}.hcl
+
+      - name: Terraform validate
+        working-directory: ${{ inputs.working_directory }}
+        run: terraform validate
+
+      - name: Terraform plan
+        working-directory: ${{ inputs.working_directory }}
+        env:
+          TF_VAR_rds_password: ${{ inputs.needs_rds_password && secrets.RDS_PASSWORD || '' }}
+          TF_VAR_opensearch_password: ${{ inputs.needs_opensearch_password && secrets.OPENSEARCH_PASSWORD || '' }}
+        run: |
+          terraform plan -lock-timeout=5m \
+            -var-file=envs/${{ steps.env.outputs.name }}.tfvars \
+            ${{ inputs.extra_var_flags }}
+
+      # O arquivo de plano não é publicado como artifact: ele contém os valores
+      # das variáveis em texto claro, senha inclusive, e artifact de repositório
+      # público é baixável. O resumo abaixo é seguro.
+      - name: Resumo
+        if: always()
+        run: |
+          {
+            echo "### Terraform plan — \`${{ inputs.working_directory }}\`"
+            echo ""
+            echo "Ambiente: \`${{ steps.env.outputs.name }}\`"
+            echo ""
+            echo "O arquivo de plano não é publicado de propósito (contém segredos)."
+            echo "Para aplicar, aprove o job \`apply\` deste workflow."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  apply:
+    name: apply (${{ inputs.working_directory }})
+    needs: plan
+    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'develop')
+    runs-on: ubuntu-latest
+
+    # Gate humano: configure "required reviewers" neste Environment em
+    # Settings > Environments. Sem isso, um push aplicava direto na AWS.
+    environment: ${{ needs.plan.outputs.env_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Terraform init
+        working-directory: ${{ inputs.working_directory }}
+        run: terraform init -backend-config=backends/${{ needs.plan.outputs.env_name }}.hcl
+
+      # Replaneja depois da aprovação em vez de reaproveitar um plano salvo:
+      # evita ter que trafegar o arquivo com segredos entre jobs.
+      - name: Terraform apply
+        working-directory: ${{ inputs.working_directory }}
+        env:
+          TF_VAR_rds_password: ${{ inputs.needs_rds_password && secrets.RDS_PASSWORD || '' }}
+          TF_VAR_opensearch_password: ${{ inputs.needs_opensearch_password && secrets.OPENSEARCH_PASSWORD || '' }}
+        run: |
+          terraform apply -auto-approve -lock-timeout=5m \
+            -var-file=envs/${{ needs.plan.outputs.env_name }}.tfvars \
+            ${{ inputs.extra_var_flags }}

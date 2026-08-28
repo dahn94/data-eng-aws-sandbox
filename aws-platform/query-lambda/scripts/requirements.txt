@@ -1,0 +1,2 @@
+# Versões fixas: sem pin, cada build da imagem produz um ambiente diferente.
+duckdb==1.1.3

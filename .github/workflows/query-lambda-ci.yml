@@ -1,0 +1,25 @@
+name: aws-platform/query-lambda CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "aws-platform/query-lambda/**"
+      - "aws-platform/modules/lambda_ecr/**"
+      - .github/workflows/query-lambda-ci.yml
+      - .github/workflows/terraform-reusable.yml
+  push:
+    branches: [develop, main]
+    paths:
+      - "aws-platform/query-lambda/**"
+      - "aws-platform/modules/lambda_ecr/**"
+      - .github/workflows/query-lambda-ci.yml
+      - .github/workflows/terraform-reusable.yml
+
+jobs:
+  terraform:
+    uses: ./.github/workflows/terraform-reusable.yml
+    secrets: inherit
+    with:
+      working_directory: aws-platform/query-lambda
+
