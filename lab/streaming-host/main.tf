@@ -67,6 +67,18 @@ module "ec2_instance" {
         cidr_blocks = var.allowed_cidr_blocks
       }
     ] : [],
+    # De dentro da VPC: é por aqui que o job Glue chega, quando o
+    # webevents-streaming roda com enable_vpc_connection = true. Não expõe
+    # nada na internet.
+    var.allow_from_vpc ? [
+      for nome, porta in var.service_ports : {
+        description = "${nome} (de dentro da VPC)"
+        from_port   = porta
+        to_port     = porta
+        protocol    = "tcp"
+        cidr_blocks = [data.terraform_remote_state.network.outputs.vpc_cidr]
+      }
+    ] : [],
     [
       for rule in var.extra_ingress_rules : {
         description = rule.description

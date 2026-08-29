@@ -130,3 +130,14 @@ variable "glue_version" {
   type        = string
   default     = "5.0"
 }
+
+variable "connections" {
+  description = <<-EOT
+    Nomes de `aws_glue_connection` a anexar aos jobs. Uma connection do tipo
+    NETWORK faz o job rodar DENTRO da sua VPC, com ENIs na subnet indicada — é
+    o que permite alcançar um host privado, e o que tira o job da internet
+    aberta. Vazio (o default) = job roda fora da VPC, como antes.
+  EOT
+  type        = list(string)
+  default     = []
+}

@@ -62,3 +62,35 @@ variable "aws_endpoint_url" {
   type        = string
   default     = ""
 }
+
+variable "enable_vpc_connection" {
+  description = <<-EOT
+    Faz o job Glue rodar DENTRO da VPC, por uma `aws_glue_connection` do tipo
+    NETWORK. É o que permite alcançar o Kafka de `lab/streaming-host` pelo IP
+    privado — sem isso, o job sai por IPs imprevisíveis da AWS e a única forma
+    de deixá-lo entrar seria expor o Kafka (que roda em PLAINTEXT, sem
+    autenticação) na internet aberta.
+
+    **Custa dinheiro, e por isso nasce desligado.** Dentro da VPC o job perde o
+    acesso à internet: ele alcança S3 pelo Gateway Endpoint (gratuito), mas
+    precisa de um Interface Endpoint para o Secrets Manager, de onde lê a senha
+    do OpenSearch. Um endpoint numa AZ custa cerca de US$0,01/h, ~US$7/mês
+    parado, mais o tráfego processado.
+
+    Ligado, este workload passa a depender de `platform/network`.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "network_state_bucket" {
+  description = "S3 bucket com o state de platform/network. Só é lido quando enable_vpc_connection = true."
+  type        = string
+  default     = ""
+}
+
+variable "network_state_key" {
+  description = "S3 key do state de platform/network para este ambiente. Só é lido quando enable_vpc_connection = true."
+  type        = string
+  default     = ""
+}

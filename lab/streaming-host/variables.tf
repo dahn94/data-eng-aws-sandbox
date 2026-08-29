@@ -119,3 +119,17 @@ variable "aws_endpoint_url" {
   type        = string
   default     = ""
 }
+
+variable "allow_from_vpc" {
+  description = <<-EOT
+    Abre as portas de `service_ports` para o CIDR da própria VPC. É o que
+    permite ao job Glue de `workloads/webevents-streaming` alcançar o Kafka
+    daqui, quando esse workload roda com `enable_vpc_connection = true`.
+
+    Ligado por default porque não expõe nada na internet — só o que já está
+    dentro da sua VPC alcança essas portas. Desligue se quiser a instância
+    isolada até dela mesma.
+  EOT
+  type        = bool
+  default     = true
+}

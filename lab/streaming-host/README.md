@@ -84,25 +84,35 @@ esses blocos.
 > autenticação nenhuma neste laboratório. Expostos na internet aberta, são
 > encontrados por varredura automatizada em questão de horas.
 
-## O ponto ainda em aberto: como o Glue chega aqui
+## Como o job Glue chega aqui
 
-O job Glue de `webevents-streaming` **não roda dentro da VPC** — o
-`modules/glue-job` não declara nenhuma `aws_glue_connection`. Isso significa
-que ele sai por IPs da AWS que você não tem como prever, e portanto não há CIDR
-restrito que o deixe entrar.
+Por padrão o job Glue roda na rede gerenciada da AWS e sai por endereços
+imprevisíveis — nenhum CIDR restrito o deixaria entrar, e a única alternativa
+seria abrir a porta 29092 para `0.0.0.0/0`. O Kafka deste laboratório roda em
+`PLAINTEXT`, sem autenticação nenhuma, então isso está fora de questão.
 
-Hoje existem dois caminhos, e nenhum é gratuito:
+A solução é o caminho inverso: em vez de expor o host, trazer o job para
+dentro da VPC. Ligue no `workloads/webevents-streaming`:
 
-1. **Colocar o job dentro da VPC** (uma `aws_glue_connection` do tipo `NETWORK`
-   apontando para a subnet privada). Aí o Glue alcança esta instância pelo IP
-   **privado**, e o security group só precisa liberar o CIDR da VPC — nada fica
-   exposto na internet. É a solução correta, e ainda não está implementada.
-2. **Abrir as portas para `0.0.0.0/0`.** Funciona hoje, e é exatamente o que o
-   aviso acima diz para não fazer.
+```hcl
+enable_vpc_connection = true
+```
 
-Enquanto (1) não existir, esta instância serve para você mesmo rodar e inspecionar
-os serviços a partir da sua máquina — o que já é útil — mas o job Glue em
-`develop`/`main` ainda não fecha o circuito.
+Isso cria uma `aws_glue_connection` do tipo `NETWORK`, e o job passa a ter ENIs
+numa subnet privada da sua VPC. Ele alcança esta instância pelo **IP privado**,
+por dentro, e o `allow_from_vpc` daqui (ligado por default) é o que abre as
+portas de serviço para o CIDR da VPC — sem expor nada na internet.
+
+Nesse modo, o `streaming_host` do workload é o `private_ip` desta instância,
+não o público:
+
+```bash
+terraform -chdir=../../lab/streaming-host output -raw private_ip
+```
+
+O custo dessa escolha está no README daquele workload: dentro da VPC o job
+perde a internet, e o Secrets Manager passa a exigir um Interface Endpoint de
+~US$7/mês. É por isso que a chave nasce desligada.
 
 ## Detalhes
 

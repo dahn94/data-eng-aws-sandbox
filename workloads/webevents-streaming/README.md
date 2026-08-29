@@ -8,9 +8,10 @@ do Debezium), limpa os dados e grava no OpenSearch em tempo real.
 1. **`platform/foundation` aplicado** — buckets de scripts e de logs.
 2. **Os jars baixados** — `./scripts/fetch-jars.sh` na raiz. São 5 jars
    (Kafka, Avro, OpenSearch para Spark) que o Terraform envia ao S3.
-3. **Kafka, Schema Registry e OpenSearch alcançáveis** a partir da AWS.
-   Normalmente uma instância EC2 rodando `local-services/streaming-cdc` e
-   `local-services/search-opensearch`. O endereço vai em `streaming_host`.
+3. **Kafka, Schema Registry e OpenSearch alcançáveis pelo job**, com o
+   endereço em `streaming_host`. Como isso funciona depende de onde o job roda
+   — veja "Onde o job roda" logo abaixo. É o pré-requisito mais incômodo deste
+   workload, e o único que não se resolve com `terraform apply`.
 4. **O connector Debezium registrado**, publicando no tópico
    `ecommerce.public.web_events` — veja `local-services/streaming-cdc`.
 
@@ -21,11 +22,54 @@ cd workloads/webevents-streaming
 terraform init -backend-config=backends/develop.hcl
 export TF_VAR_opensearch_password='a-senha-do-admin-do-opensearch'
 terraform apply -var-file=envs/develop.tfvars \
-  -var="streaming_host=<ip-publico-da-ec2>"
+  -var="streaming_host=<endereco-do-host-de-streaming>"
 ```
 
 Substitua também o `streaming_host = "CHANGEME.exemplo.invalid"` em
 `envs/*.tfvars` se preferir fixá-lo.
+
+## Onde o job roda
+
+O job Glue precisa alcançar um Kafka que roda em `PLAINTEXT`, sem autenticação
+nenhuma. Isso torna a pergunta "de onde o job sai" uma decisão de segurança,
+não de conveniência. Há três caminhos, e eles não são equivalentes.
+
+### 1. Ambiente `local` — o mais simples
+
+Job e serviços na mesma máquina, via LocalStack. `streaming_host` é
+`host.docker.internal` e não há mais nada a resolver. É o caminho recomendado
+para estudar o comportamento do streaming.
+
+### 2. Contra a AWS, com o job DENTRO da VPC — o recomendado
+
+```hcl
+enable_vpc_connection = true
+streaming_host        = "<private_ip de lab/streaming-host>"
+```
+
+Uma `aws_glue_connection` do tipo `NETWORK` dá ao job ENIs numa subnet privada
+da sua VPC. Ele fala com o host de streaming pelo IP **privado**, e nada
+precisa estar exposto na internet.
+
+**O que isso custa.** Dentro da VPC o job perde o acesso à internet. O S3
+continua gratuito pelo Gateway Endpoint que o `platform/network` já cria, mas o
+script lê a senha do OpenSearch do Secrets Manager em runtime — e isso passa a
+exigir um **Interface Endpoint**, que cobra cerca de **US$0,01/h (~US$7/mês)
+mesmo parado**, mais o tráfego processado. O endpoint é criado numa AZ só, a
+mesma da connection, justamente para não pagar dobrado.
+
+É por isso que `enable_vpc_connection` nasce **desligado**: é o único recurso
+deste workload que cobra sem ninguém rodar nada.
+
+### 3. Contra a AWS, com o job FORA da VPC — não faça
+
+É o comportamento default se você não ligar a chave acima. O job sai por
+endereços da AWS que ninguém consegue prever, então a única forma de deixá-lo
+entrar é abrir a porta 29092 do Kafka para `0.0.0.0/0`.
+
+Kafka em PLAINTEXT na internet aberta é encontrado por varredura automatizada
+em horas. Não há CIDR intermediário que resolva: ou o job entra pela VPC, ou o
+Kafka fica exposto.
 
 Iniciar o job:
 

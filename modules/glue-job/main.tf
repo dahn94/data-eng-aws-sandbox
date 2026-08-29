@@ -208,6 +208,11 @@ resource "aws_glue_job" "glue_job" {
   # programada. Só job em lote recebe timeout.
   timeout = var.job_type == "streaming" ? null : var.timeout
 
+  # Anexar uma connection NETWORK move o job para dentro da VPC. A partir daí
+  # ele só alcança o que a subnet alcança: S3 pelo Gateway Endpoint, o que
+  # estiver na VPC, e nada mais sem endpoint ou NAT.
+  connections = var.connections
+
   command {
     # glueetl roda em lote e termina; gluestreaming mantém o micro-batch vivo.
     # Usar glueetl num job de Structured Streaming faz o job morrer no timeout.
