@@ -1,6 +1,6 @@
 # State dentro do S3 do LocalStack.
 bucket = "sandbox-lake-configs"
-key    = "terraform/dataeng-sandbox/lab/ec2/local/terraform.tfstate"
+key    = "terraform/dataeng-sandbox/lab/streaming-host/local/terraform.tfstate"
 region = "us-east-1"
 
 access_key = "test"

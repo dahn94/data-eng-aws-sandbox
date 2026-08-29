@@ -77,6 +77,21 @@ resource "aws_instance" "this" {
     http_endpoint = "enabled"
   }
 
+  # Spot: mesma instância, capacidade ociosa, ~70% mais barata. `one-time` +
+  # `terminate` mantém o recurso simples — sem requisição pendente sobrando
+  # depois de um destroy. O custo é não poder parar a instância.
+  dynamic "instance_market_options" {
+    for_each = var.spot ? [1] : []
+    content {
+      market_type = "spot"
+      spot_options {
+        spot_instance_type             = "one-time"
+        instance_interruption_behavior = "terminate"
+        max_price                      = var.spot_max_price != "" ? var.spot_max_price : null
+      }
+    }
+  }
+
   root_block_device {
     volume_size           = var.root_volume_size
     volume_type           = "gp3"

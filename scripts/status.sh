@@ -96,22 +96,28 @@ else
 fi
 
 # ---------------------------------------------------------------- EC2
+# A instância de laboratório é spot: não existe "parada", só existindo ou não.
 echo
-echo "EC2"
+echo "EC2 (laboratório)"
 ec2=$(aws ec2 describe-instances --region "$REGION" \
   --filters "Name=tag:Project,Values=DataEngSandbox" "Name=instance-state-name,Values=running,stopped" \
-  --query "Reservations[].Instances[].[InstanceId,State.Name,InstanceType]" --output text 2>/dev/null)
+  --query "Reservations[].Instances[].[InstanceId,State.Name,InstanceType,InstanceLifecycle]" --output text 2>/dev/null)
 if [[ -z "$ec2" ]]; then
   echo "  $(c_dim 'nenhuma instância')"
 else
-  while read -r id state itype; do
+  while read -r id state itype lifecycle; do
     [[ -z "$id" ]] && continue
-    if [[ "$state" == "running" ]]; then
-      echo "  $(c_red '● rodando') $id ($itype) — ~US\$65/mês"
-      add_cost 65
+    if [[ "$lifecycle" == "spot" ]]; then
+      echo "  $(c_red '● rodando') $id ($itype, $(c_green 'spot')) — ~US\$12/mês se ficar 24/7"
+      echo "    $(c_dim 'spot não tem stop: para zerar, ./scripts/teardown.sh '"$ENVIRONMENT")"
+      add_cost 12
+    elif [[ "$state" == "running" ]]; then
+      echo "  $(c_red '● rodando') $id ($itype, $(c_yellow 'on-demand')) — ~US\$50/mês"
+      echo "    $(c_dim 'on-demand no lugar de spot? confira spot = true em envs/*.tfvars')"
+      add_cost 50
     else
-      echo "  $(c_green '○ parada') $id ($itype) — só o disco (~US\$8/mês)"
-      add_cost 8
+      echo "  $(c_green '○ parada') $id ($itype) — só o disco"
+      add_cost 3
     fi
   done <<< "$ec2"
 fi

@@ -32,7 +32,7 @@ Valores aproximados em `us-east-2`, para você saber o que está ligando:
 | `dms` | ~US$28/mês | `dms.t3.micro`. **Não tem "stop", só delete** |
 | `workloads/*` | ~US$0 parado | Glue cobra por execução (~US$0,44/DPU-hora). O de streaming cobra **enquanto roda** |
 | `query-lambda` | ~US$0 parado | Lambda cobra por invocação |
-| `ec2` | **~US$65/mês** | `t3a.large` + 100 GB. Pode ser parada. Fora do fluxo padrão |
+| `lab/streaming-host` | ~US$15/mês | `t4g.large` **spot** + 30 GB. Sem `stop`: destrua. Fora do fluxo padrão |
 
 Uma sessão de estudo típica (subir, mexer, destruir no mesmo dia) custa alguns
 dólares. O risco não é o preço por hora, é esquecer ligado.
@@ -48,17 +48,17 @@ dia precisa**. Perfis úteis:
 | Rede, Postgres, SQL | `+ network` `+ rds` | ~US$0,50 |
 | Pipeline batch, Iceberg, Step Functions | `+ workloads/amazonsales` | ~US$0,50 |
 | CDC de verdade | `+ dms` | ~US$1,40 |
-| Streaming ponta a ponta | `+ ec2` `+ workloads/webevents-streaming` | ~US$3,60 |
+| Streaming ponta a ponta | `+ lab/streaming-host` `+ workloads/webevents-streaming` | ~US$3,60 |
 
 As pipelines são as mais baratas de manter aplicadas: job Glue, Step Functions
 e Lambda **não cobram nada parados**, só por execução. Quem cobra por hora é
-RDS, DMS, EC2 — e um job de streaming enquanto estiver rodando.
+RDS, DMS e a instância de laboratório — e um job de streaming enquanto roda.
 
 ### Três scripts para não esquecer ligado
 
 ```bash
 ./scripts/status.sh   [ambiente]   # o que está de pé agora e quanto custa
-./scripts/pause.sh    [ambiente]   # para RDS, EC2 e jobs Glue, mantendo os dados
+./scripts/pause.sh    [ambiente]   # para RDS e jobs Glue, mantendo os dados
 ./scripts/resume.sh   [ambiente]   # religa o que o pause parou
 ./scripts/teardown.sh [ambiente]   # destrói tudo, na ordem certa
 ```
@@ -138,8 +138,9 @@ platform/                # O SUBSTRATO COMPARTILHADO. Vive muito, muda pouco.
 sources/                 # DE ONDE O DADO VEM. Nem todo workload precisa:
   rds/                   #   Postgres transacional — 3 dos 8 consomem
 
-lab/                     # BANCADA. Fora do fluxo, nenhum workload depende.
-  ec2/                   #   Máquina para experimentar à mão
+lab/                     # BANCADA. Só o webevents-streaming depende, e só
+  streaming-host/        #   contra a AWS: EC2 Graviton no spot que hospeda o
+                         #   Kafka e o OpenSearch num endereço que a AWS alcança
 
 modules/                 # Código compartilhado, nunca infraestrutura
                          #   compartilhada. Um workload instancia o módulo e

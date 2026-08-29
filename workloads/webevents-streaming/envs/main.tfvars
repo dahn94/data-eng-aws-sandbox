@@ -5,6 +5,7 @@ s3_bucket_logs    = "CHANGEME-lake-logs-prod"
 s3_bucket_scripts = "CHANGEME-lake-configs"
 
 # Host onde Kafka, Schema Registry e OpenSearch respondem para o job Glue.
-# Normalmente o IP público da instância de lab/ec2 (veja o output
-# public_ip dela). Troque antes de aplicar de verdade.
+# Precisa ser alcançável DE DENTRO DA AWS: o job Glue roda lá, e o seu
+# localhost não serve. Normalmente o IP público de lab/streaming-host (veja o
+# output public_ip dela). Troque antes de aplicar de verdade.
 streaming_host = "CHANGEME.exemplo.invalid"

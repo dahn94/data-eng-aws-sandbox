@@ -61,19 +61,27 @@ else
   echo "  após 7 dias. Para uma pausa mais longa, use teardown.sh."
 fi
 
-# ------------------------------------------------ 3. EC2
+# ------------------------------------------------ 3. EC2 (não dá para pausar)
+# A instância de laboratório é spot com requisição one-time: a AWS não oferece
+# stop para ela. Aqui só avisamos; parar de pagar exige destruir.
 echo
-echo "EC2"
+echo "EC2 (laboratório)"
 ec2=$(aws ec2 describe-instances --region "$REGION" \
   --filters "Name=tag:Project,Values=DataEngSandbox" "Name=instance-state-name,Values=running" \
-  --query "Reservations[].Instances[].InstanceId" --output text 2>/dev/null)
+  --query "Reservations[].Instances[].[InstanceId,InstanceLifecycle]" --output text 2>/dev/null)
 if [[ -z "$ec2" ]]; then
   echo "  $(c_dim 'nada rodando')"
 else
-  echo "  parando: $ec2"
-  # shellcheck disable=SC2086
-  aws ec2 stop-instances --region "$REGION" --instance-ids $ec2 >/dev/null \
-    && echo "  $(c_green 'ok')" || echo "  $(c_yellow 'aviso') falha ao parar"
+  while read -r id lifecycle; do
+    [[ -z "$id" ]] && continue
+    if [[ "$lifecycle" == "spot" ]]; then
+      echo "  $(c_yellow 'não pausável') $id — spot one-time não tem stop"
+    else
+      echo "  parando $id"
+      aws ec2 stop-instances --region "$REGION" --instance-ids "$id" >/dev/null \
+        && echo "  $(c_green 'ok')" || echo "  $(c_yellow 'aviso') falha ao parar $id"
+    fi
+  done <<< "$ec2"
 fi
 
 # ------------------------------------------------ 4. o que sobra

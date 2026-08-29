@@ -8,13 +8,15 @@ data "terraform_remote_state" "network" {
 }
 
 # AMI resolvida na hora, em vez de um ID fixo que expira e só existe numa região.
+# arm64 porque a instância é Graviton: uma AMI x86 simplesmente não dá boot num
+# t4g. Se você trocar instance_type para uma família x86, troque aqui também.
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["al2023-ami-2023.*-x86_64"]
+    values = ["al2023-ami-2023.*-arm64"]
   }
 
   filter {
@@ -33,21 +35,38 @@ module "ec2_instance" {
   vpc_id              = data.terraform_remote_state.network.outputs.vpc_id
   key_name            = var.key_name
   associate_public_ip = true
-  instance_name       = "dataeng-sandbox-ec2-${var.environment}"
+  instance_name       = "dataeng-sandbox-streaming-host-${var.environment}"
 
-  user_data = file("${path.module}/scripts/bootstrap/ec2_bootstrap.sh")
+  spot = var.spot
 
-  # Só o que você declarar entra. Com ssh_allowed_cidr_blocks vazio (o default)
-  # não há regra de entrada nenhuma — o acesso é por SSM Session Manager:
+  user_data = file("${path.module}/scripts/bootstrap/bootstrap.sh")
+
+  # Só o que você declarar entra. Com allowed_cidr_blocks vazio (o default) não
+  # há regra de entrada nenhuma — o acesso é por SSM Session Manager, que não
+  # expõe porta nenhuma na internet:
   #   aws ssm start-session --target <instance-id>
+  #
+  # Para alcançar as UIs sem abrir nada, use encaminhamento de porta pelo SSM:
+  #   aws ssm start-session --target <id> \
+  #     --document-name AWS-StartPortForwardingSession \
+  #     --parameters "portNumber=5601,localPortNumber=5601"
   ingress_rules = concat(
-    length(var.ssh_allowed_cidr_blocks) > 0 ? [{
+    length(var.allowed_cidr_blocks) > 0 ? [{
       description = "SSH from allowed CIDRs"
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = var.ssh_allowed_cidr_blocks
+      cidr_blocks = var.allowed_cidr_blocks
     }] : [],
+    length(var.allowed_cidr_blocks) > 0 ? [
+      for nome, porta in var.service_ports : {
+        description = nome
+        from_port   = porta
+        to_port     = porta
+        protocol    = "tcp"
+        cidr_blocks = var.allowed_cidr_blocks
+      }
+    ] : [],
     [
       for rule in var.extra_ingress_rules : {
         description = rule.description

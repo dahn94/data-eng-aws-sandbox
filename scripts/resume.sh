@@ -32,19 +32,10 @@ else
 fi
 
 echo
-echo "EC2"
-ec2=$(aws ec2 describe-instances --region "$REGION" \
-  --filters "Name=tag:Project,Values=DataEngSandbox" "Name=instance-state-name,Values=stopped" \
-  --query "Reservations[].Instances[].InstanceId" --output text 2>/dev/null)
-if [[ -z "$ec2" ]]; then
-  echo "  $(c_dim 'nada parado')"
-else
-  echo "  iniciando: $ec2"
-  # shellcheck disable=SC2086
-  aws ec2 start-instances --region "$REGION" --instance-ids $ec2 >/dev/null && echo "  $(c_green 'ok')"
-  echo "  $(c_yellow 'atenção:') o IP público muda a cada start. Se você usa a EC2"
-  echo "  como streaming_host, atualize o valor antes de rodar o job."
-fi
+echo "EC2 (laboratório)"
+echo "  $(c_dim 'a instância de lab/streaming-host é spot: não há stop, logo não há')"
+echo "  $(c_dim 'resume. Se você a destruiu, recrie com terraform apply — o')"
+echo "  $(c_dim 'bootstrap reinstala Docker e Compose sozinho.')"
 
 echo
 echo "Os jobs Glue não são reiniciados automaticamente — dispare o que precisar."

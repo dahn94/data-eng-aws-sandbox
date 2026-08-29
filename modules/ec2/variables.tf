@@ -62,3 +62,27 @@ variable "user_data" {
   type        = string
   default     = ""
 }
+
+variable "spot" {
+  description = <<-EOT
+    Compra a instância no mercado spot (capacidade ociosa da AWS, ~70% mais
+    barata). Em troca, a AWS pode retomá-la com 2 minutos de aviso.
+
+    Usa requisição `one-time` com interrupção por `terminate`: a instância se
+    comporta como qualquer outra, mas **não pode ser parada** — só destruída e
+    recriada, como a instância do DMS. Para um laboratório isso é aceitável e
+    até saudável: força o conteúdo a ser reproduzível pelo bootstrap.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "spot_max_price" {
+  description = <<-EOT
+    Teto por hora que você aceita pagar no spot, em dólares. Vazio = o teto é o
+    preço on-demand, que é o comportamento certo para quase todo caso: você
+    paga o preço spot corrente e nunca mais que o on-demand.
+  EOT
+  type        = string
+  default     = ""
+}
