@@ -1,14 +1,22 @@
+locals {
+  # O parameter group precisa de nome curto e estável; o resto herda var.name.
+  pg_name = "${var.name}-pg"
+}
+
 # Replicação lógica é pré-requisito de CDC — tanto pelo DMS quanto pelo
 # Debezium. Sem rds.logical_replication = 1 o full-load funciona e o CDC fica
 # parado para sempre, sem erro claro. Exige reboot: o parâmetro é estático.
 resource "aws_db_parameter_group" "postgres" {
   family = "postgres17"
-  name   = "dataeng-sandbox-${var.environment}-postgres-pg"
+  name   = local.pg_name
 
-  parameter {
-    name         = "rds.logical_replication"
-    value        = "1"
-    apply_method = "pending-reboot"
+  dynamic "parameter" {
+    for_each = var.enable_logical_replication ? [1] : []
+    content {
+      name         = "rds.logical_replication"
+      value        = "1"
+      apply_method = "pending-reboot"
+    }
   }
 
   # O Debezium/DMS seguram um replication slot por task. O default (10) é
@@ -31,16 +39,16 @@ resource "aws_db_parameter_group" "postgres" {
 }
 
 resource "aws_db_subnet_group" "postgres" {
-  name       = "dataeng-sandbox-${var.environment}-postgres-subnet-group"
+  name       = "${var.name}-subnet-group"
   subnet_ids = var.public_subnet_ids
 
   tags = {
-    Name = "dataeng-sandbox-${var.environment}-postgres-subnet-group"
+    Name = "${var.name}-subnet-group"
   }
 }
 
 resource "aws_security_group" "postgres" {
-  name_prefix = "dataeng-sandbox-${var.environment}-postgres-"
+  name_prefix = "${var.name}-"
   description = "Postgres access for the DataEng sandbox"
   vpc_id      = var.vpc_id
 
@@ -75,7 +83,7 @@ resource "aws_security_group" "postgres" {
   }
 
   tags = {
-    Name = "dataeng-sandbox-${var.environment}-postgres-sg"
+    Name = "${var.name}-sg"
   }
 
   lifecycle {
@@ -84,7 +92,7 @@ resource "aws_security_group" "postgres" {
 }
 
 resource "aws_db_instance" "postgres" {
-  identifier     = "dataeng-sandbox-${var.environment}-postgres"
+  identifier     = var.name
   engine         = "postgres"
   engine_version = var.engine_version
   instance_class = var.instance_class
@@ -117,6 +125,6 @@ resource "aws_db_instance" "postgres" {
   apply_immediately = true
 
   tags = {
-    Name = "dataeng-sandbox-${var.environment}-postgres"
+    Name = var.name
   }
 }

@@ -10,8 +10,6 @@ MODULES=(
   # Plataforma: o substrato compartilhado. Vive muito, muda pouco.
   "platform/foundation"
   "platform/network"
-  # Fonte: de onde o dado vem. Só 3 dos 8 workloads dependem dela.
-  "sources/rds"
   # Workloads: cada um é dono da infra que cria e sobe sozinho, desde que a
   # plataforma e a fonte de que ele depende estejam de pé (o README declara).
   "workloads/dms"

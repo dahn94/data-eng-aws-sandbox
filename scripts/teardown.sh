@@ -41,7 +41,6 @@ DESTROY_ORDER=(
   "workloads/amazonsales"
   "workloads/query-lambda"
   "workloads/dms"
-  "sources/rds"
   "platform/network"
   "platform/foundation"
 )

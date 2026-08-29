@@ -9,7 +9,38 @@ data "terraform_remote_state" "network" {
   }
 }
 
+# ---------------------------------------------------------------------------
+# A fonte: o Postgres transacional que este workload lê
+# ---------------------------------------------------------------------------
+
+module "source_db" {
+  count  = var.create_source_db ? 1 : 0
+  source = "../../modules/rds"
+
+  name        = "dataeng-sandbox-federated-query-src-${var.environment}"
+  environment = var.environment
+
+  vpc_id              = data.terraform_remote_state.network.outputs.vpc_id
+  vpc_cidr            = data.terraform_remote_state.network.outputs.vpc_cidr
+  public_subnet_ids   = data.terraform_remote_state.network.outputs.public_subnet_ids
+  allowed_cidr_blocks = var.source_db_allowed_cidr_blocks
+
+  # Casa com o default do PGDATABASE do local-services/data-generator.
+  db_name     = "dataengsandbox"
+  db_username = "postgres"
+  db_password = var.rds_password
+
+  instance_class    = var.source_db_instance_class
+  allocated_storage = var.source_db_allocated_storage
+
+  # Este workload só LÊ a fonte, no instante da pergunta. Ligar replicação lógica aqui faria o Postgres reter WAL sem ninguém consumir.
+  enable_logical_replication = false
+}
+
+# Só existe quando a fonte NÃO é deste workload — o cenário realista, em que o
+# banco pertence a outro time e você só lê.
 data "terraform_remote_state" "rds" {
+  count   = var.create_source_db ? 0 : 1
   backend = "s3"
   config = {
     bucket = var.rds_state_bucket
@@ -19,16 +50,25 @@ data "terraform_remote_state" "rds" {
 }
 
 locals {
+  src_address  = var.create_source_db ? module.source_db[0].db_instance_address : data.terraform_remote_state.rds[0].outputs.db_instance_address
+  src_port     = var.create_source_db ? module.source_db[0].db_instance_port : data.terraform_remote_state.rds[0].outputs.db_instance_port
+  src_db_name  = var.create_source_db ? module.source_db[0].db_name : data.terraform_remote_state.rds[0].outputs.db_name
+  src_username = var.create_source_db ? module.source_db[0].db_username : data.terraform_remote_state.rds[0].outputs.db_username
+  src_sg_id    = var.create_source_db ? module.source_db[0].security_group_id : data.terraform_remote_state.rds[0].outputs.security_group_id
+  src_arn      = var.create_source_db ? module.source_db[0].db_instance_arn : data.terraform_remote_state.rds[0].outputs.db_instance_arn
+}
+
+locals {
   name = "dataeng-sandbox-federated-${var.environment}"
 
   # O conector roda dentro da VPC porque o Postgres não é público. Subnet
   # privada: ele não precisa de entrada da internet, só de alcançar o RDS.
   subnet_ids = data.terraform_remote_state.network.outputs.private_subnet_ids
 
-  db_address = data.terraform_remote_state.rds.outputs.db_instance_address
-  db_port    = data.terraform_remote_state.rds.outputs.db_instance_port
-  db_name    = data.terraform_remote_state.rds.outputs.db_name
-  db_user    = data.terraform_remote_state.rds.outputs.db_username
+  db_address = local.src_address
+  db_port    = local.src_port
+  db_name    = local.src_db_name
+  db_user    = local.src_username
 }
 
 # ---------------------------------------------------------------------------
@@ -132,9 +172,9 @@ resource "aws_vpc_security_group_egress_rule" "connector_all" {
 }
 
 # Quem chega depois declara o próprio acesso: o RDS não precisa conhecer seus
-# consumidores. Por isso sources/rds passou a exportar security_group_id.
+# consumidores. Por isso modules/rds exporta security_group_id.
 resource "aws_vpc_security_group_ingress_rule" "rds_from_connector" {
-  security_group_id            = data.terraform_remote_state.rds.outputs.security_group_id
+  security_group_id            = local.src_sg_id
   description                  = "Postgres a partir do conector federado do Athena"
   referenced_security_group_id = aws_security_group.connector.id
   from_port                    = local.db_port
@@ -185,7 +225,7 @@ resource "aws_serverlessapplicationrepository_cloudformation_stack" "postgres_co
 # Daqui em diante é SQL: nenhum dado foi copiado para lugar nenhum.
 resource "aws_athena_data_catalog" "postgres" {
   name        = replace("${local.name}-postgres", "-", "_")
-  description = "Postgres transacional (sources/rds) consultado sem cópia"
+  description = "Postgres transacional de origem, consultado sem cópia"
   type        = "LAMBDA"
 
   parameters = {

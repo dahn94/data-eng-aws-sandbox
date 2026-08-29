@@ -114,16 +114,21 @@ faz com dado vem antes de com que ferramenta você faz. Por isso não existe uma
 pasta `terraform/` — Terraform é detalhe de implementação, e amanhã pode entrar
 dbt ou Flink sem que o workload precise se partir em três lugares.
 
-Pelo mesmo motivo, `platform/` e `sources/` são separados: eles têm papéis
-diferentes e ciclos de vida diferentes. Plataforma é consumida por quase tudo e
-vive muito; fonte é onde o dado nasce, e só parte dos workloads depende dela.
-Amontoar as duas esconderia justamente a informação que decide o que você
-precisa aplicar antes de rodar um workload.
+No primeiro nível só existe `platform/`: o substrato que quase tudo consome e
+que vive muito mais que qualquer workload. Todo o resto — inclusive **a fonte
+do dado** — pertence ao workload que usa.
 
-O que **não** ganha pasta no primeiro nível é infraestrutura de um consumidor
-só. O `webevents-streaming` precisa de uma EC2 para hospedar Kafka e OpenSearch
-onde a AWS os alcance — e essa EC2 mora dentro do workload, atrás de uma flag,
-pela mesma regra que faz cada workload de Redshift criar o seu.
+Essa é a regra que dá forma ao repositório: **cada workload é dono da
+infraestrutura que usa; o que não se duplica é código.** Por isso os três
+workloads de Redshift criam cada um o seu warehouse, o `webevents-streaming`
+cria a EC2 que hospeda o Kafka dele, e `dms`, `federated-query` e `zero-etl`
+criam cada um o seu Postgres de origem — todos a partir do mesmo `modules/`.
+
+Parece desperdício e não é: um experimento roda por vez, e cada pasta sobe e é
+destruída inteira. O que se ganha é que uma pasta sobe com **um comando**, sem
+mapa mental de pré-requisitos, e que cada workload declara exatamente o que
+precisa da fonte — o `dms` liga replicação lógica porque faz CDC, o
+`federated-query` não liga porque só lê.
 
 ```
 workloads/               # O QUE se faz com dado. Uma pasta por workload,
@@ -139,9 +144,6 @@ workloads/               # O QUE se faz com dado. Uma pasta por workload,
 platform/                # O SUBSTRATO COMPARTILHADO. Vive muito, muda pouco.
   foundation/            #   Os buckets S3 que todo o resto usa. APLIQUE PRIMEIRO
   network/               #   VPC, subnets, rede — 5 dos 8 workloads consomem
-
-sources/                 # DE ONDE O DADO VEM. Nem todo workload precisa:
-  rds/                   #   Postgres transacional — 3 dos 8 consomem
 
 modules/                 # Código compartilhado, nunca infraestrutura
                          #   compartilhada. Um workload instancia o módulo e
@@ -351,7 +353,7 @@ seguindo o padrão já estabelecido:
   `workloads/federated-query/` se não for.
 - **Ferramenta local nova** → uma pasta nova em `local-services/<ferramenta>/`.
 - **Infra-base nova** (não é workload nem ferramenta local) → avalie se
-  cabe dentro de `platform/network`, `sources/rds` ou `workloads/dms`, ou
+  cabe dentro de `platform/network` ou de um workload existente, ou
   se merece um root module próprio dentro de `platform/`.
 
 Cada workload **possui** a infraestrutura que usa, inclusive quando isso

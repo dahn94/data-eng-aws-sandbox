@@ -110,13 +110,13 @@ este e o `../dms/` — de propósito. Eles não são redundantes: um entrega o e
 atual sem trabalho nenhum, o outro entrega o passado ao custo de trabalho. Ter os
 dois lado a lado, sobre o mesmo dado, é o experimento.
 
-O `sources/rds` passou a exportar `db_instance_arn` para que este workload cite
+O `modules/rds` exporta `db_instance_arn` para que este workload cite
 a origem por ARN.
 
 Passou a existir infraestrutura cujo custo **não cai a zero quando ninguém usa** —
 o primeiro caso no repositório. Isso muda a disciplina de teardown de
 "recomendável" para "necessário", e é a razão de o `scripts/teardown.sh` colocar
-os workloads de Redshift antes do `sources/rds`.
+os workloads de Redshift antes da plataforma.
 
 ## Evidência no repo
 
@@ -128,4 +128,4 @@ os workloads de Redshift antes do `sources/rds`.
   porque a integração replica os nomes da origem como eles são.
 - `workloads/zero-etl/outputs.tf` — o `next_step`, que é a fronteira honesta do
   Terraform aqui.
-- `sources/rds/outputs.tf` — o `db_instance_arn` exportado para isto.
+- `modules/rds/outputs.tf` — o `db_instance_arn` exportado para isto.

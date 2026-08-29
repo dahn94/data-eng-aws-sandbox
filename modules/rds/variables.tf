@@ -1,3 +1,14 @@
+variable "name" {
+  description = <<-EOT
+    Nome base de todos os recursos (instância, parameter group, subnet group,
+    security group). Sem default de propósito: cada workload que instancia este
+    módulo cria a SUA fonte, e dois nomes iguais na mesma conta colidem.
+
+    Ex.: "dataeng-sandbox-dms-source-dev".
+  EOT
+  type        = string
+}
+
 variable "environment" {
   description = "Environment name"
   type        = string
@@ -52,6 +63,20 @@ variable "allocated_storage" {
   description = "Allocated storage in GB"
   type        = number
   default     = 20
+}
+
+variable "enable_logical_replication" {
+  description = <<-EOT
+    Liga `rds.logical_replication = 1` no parameter group. É pré-requisito de
+    CDC — DMS, Debezium e a integração zero-ETL dependem dele. Sem isso o
+    full-load funciona e o CDC fica parado para sempre, sem erro claro.
+
+    Existe como variável para que cada workload declare se precisa: quem só lê
+    a fonte (consulta federada, por exemplo) não precisa, e ligar sem precisar
+    faz o Postgres reter WAL à toa.
+  EOT
+  type        = bool
+  default     = true
 }
 
 variable "allowed_cidr_blocks" {

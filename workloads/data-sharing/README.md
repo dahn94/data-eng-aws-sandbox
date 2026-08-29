@@ -111,7 +111,7 @@ terraform init -backend-config=backends/develop.hcl
 terraform apply -var-file=envs/develop.tfvars
 ```
 
-Não depende do `sources/rds`. Depende do seu orçamento: leia a seção de custo
+Não precisa de fonte externa. Depende do seu orçamento: leia a seção de custo
 acima antes de rodar o `apply`.
 
 Para semear a tabela do produtor com volume de verdade, aponte

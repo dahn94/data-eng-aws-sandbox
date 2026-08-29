@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [develop, main]
     paths:
+      - "modules/rds/**"
       - "workloads/dms/**"
       - "modules/dms/**"
       - .github/workflows/workload-dms-ci.yml
@@ -11,6 +12,7 @@ on:
   push:
     branches: [develop, main]
     paths:
+      - "modules/rds/**"
       - "workloads/dms/**"
       - "modules/dms/**"
       - .github/workflows/workload-dms-ci.yml

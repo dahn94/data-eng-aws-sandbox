@@ -31,7 +31,7 @@ quatro lugares com o mesmo formato:
 | `valor` | `DECIMAL(12,2)` | |
 | `status` | `VARCHAR(32)` | |
 
-No Postgres (`sources/rds`) ela é a origem transacional; no lake ela é parquet;
+No Postgres de origem de cada workload ela é a tabela transacional; no lake é parquet;
 no Redshift ela é tabela local. O tipo muda de nome conforme o motor, o
 significado não.
 

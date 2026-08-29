@@ -93,7 +93,7 @@ Glue e Lambda, que cobram por execução, este custo existe porque o warehouse
 existe. **Faça `terraform destroy` ao terminar a sessão de estudo.**
 
 **Você depende de uma restrição de versão.** Postgres ≥ 15.4 e destino Redshift
-Serverless ou RA3. O `sources/rds` roda PG 17, então serve — mas isso é sorte
+Serverless ou RA3. O `modules/rds` cria PG 17, então serve — mas isso é sorte
 de configuração, não garantia.
 
 Está quantificado em [`nfr.md`](nfr.md) e decidido em
@@ -126,7 +126,7 @@ terraform output next_step   # traz o CREATE DATABASE já com o ID no lugar
 terraform destroy -var-file=envs/develop.tfvars
 ```
 
-Destrua **antes** do `sources/rds`: a integração fica pendurada na instância de
+A ordem importa dentro do próprio destroy: a integração fica pendurada na instância de
 origem, e destruir o RDS primeiro deixa a integração órfã. O
 `scripts/teardown.sh` já respeita essa ordem.
 

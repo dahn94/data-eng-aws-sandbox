@@ -118,7 +118,7 @@ terraform init -backend-config=backends/develop.hcl
 terraform apply -var-file=envs/develop.tfvars
 ```
 
-Não depende do `sources/rds`: o dado deste workload vive no próprio Redshift.
+Não precisa de fonte externa: o dado deste workload vive no próprio Redshift.
 
 **Com dados de verdade.** Por padrão a tabela base sobe vazia e você insere
 linhas à mão — o suficiente para ver o auto refresh acontecer. Para medir número
