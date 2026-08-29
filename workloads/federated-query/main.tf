@@ -25,7 +25,7 @@ module "source_db" {
   public_subnet_ids   = data.terraform_remote_state.network.outputs.public_subnet_ids
   allowed_cidr_blocks = var.source_db_allowed_cidr_blocks
 
-  # Casa com o default do PGDATABASE do local-services/data-generator.
+  # Casa com o default do PGDATABASE do tools/data-generator.
   db_name     = "dataengsandbox"
   db_username = "postgres"
   db_password = var.rds_password

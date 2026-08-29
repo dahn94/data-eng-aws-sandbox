@@ -1,19 +1,19 @@
-name: platform/network CI/CD
+name: platform/aws/network CI/CD
 
 on:
   pull_request:
     branches: [develop, main]
     paths:
-      - "platform/network/**"
+      - "platform/aws/network/**"
       - "modules/vpc/**"
-      - .github/workflows/platform-network-ci.yml
+      - .github/workflows/platform-aws-network-ci.yml
       - .github/workflows/terraform-reusable.yml
   push:
     branches: [develop, main]
     paths:
-      - "platform/network/**"
+      - "platform/aws/network/**"
       - "modules/vpc/**"
-      - .github/workflows/platform-network-ci.yml
+      - .github/workflows/platform-aws-network-ci.yml
       - .github/workflows/terraform-reusable.yml
 
 jobs:
@@ -21,5 +21,5 @@ jobs:
     uses: ./.github/workflows/terraform-reusable.yml
     secrets: inherit
     with:
-      working_directory: platform/network
+      working_directory: platform/aws/network
 

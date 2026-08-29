@@ -2,7 +2,7 @@
 
 Root module do DMS: endpoints (source Postgres / target S3), instância de
 replicação e a task `full-load-and-cdc`. Depende dos states de
-`platform/network` — o Postgres de origem é criado por este workload.
+`platform/aws/network` — o Postgres de origem é criado por este workload.
 
 ## Aplicar
 
@@ -49,7 +49,7 @@ em `workloads/amazonsales`. Se mudar um, mude o outro.
 terraform destroy -var-file=envs/develop.tfvars
 ```
 
-Se estiver usando Debezium (`local-services/streaming-cdc`) em vez do DMS, lembre
+Se estiver usando Debezium (`platform/local/streaming-cdc`) em vez do DMS, lembre
 de também remover o connector antes de destruir o RDS — um replication slot
 órfão prende o WAL e pode encher o storage.
 

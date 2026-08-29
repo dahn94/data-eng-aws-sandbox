@@ -26,7 +26,7 @@ module "source_db" {
   public_subnet_ids   = data.terraform_remote_state.network.outputs.public_subnet_ids
   allowed_cidr_blocks = var.source_db_allowed_cidr_blocks
 
-  # Casa com o default do PGDATABASE do local-services/data-generator.
+  # Casa com o default do PGDATABASE do tools/data-generator.
   db_name     = "dataengsandbox"
   db_username = "postgres"
   db_password = var.rds_password
@@ -118,7 +118,7 @@ module "warehouse" {
   base_capacity_rpu   = var.base_capacity_rpu
   publicly_accessible = false
 
-  # Enhanced VPC Routing exigiria 3 subnets em 3 AZs; o platform/network cria 2.
+  # Enhanced VPC Routing exigiria 3 subnets em 3 AZs; o platform/aws/network cria 2.
   enhanced_vpc_routing = false
 
   # Exigido pela integração zero-ETL: ela replica os nomes de objeto da origem

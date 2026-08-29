@@ -5,7 +5,7 @@ do Debezium), limpa os dados e grava no OpenSearch em tempo real.
 
 ## Pré-requisitos
 
-1. **`platform/foundation` aplicado** — buckets de scripts e de logs.
+1. **`platform/aws/foundation` aplicado** — buckets de scripts e de logs.
 2. **Os jars baixados** — `./scripts/fetch-jars.sh` na raiz. São 5 jars
    (Kafka, Avro, OpenSearch para Spark) que o Terraform envia ao S3.
 3. **Kafka, Schema Registry e OpenSearch alcançáveis pelo job**, com o
@@ -13,7 +13,7 @@ do Debezium), limpa os dados e grava no OpenSearch em tempo real.
    — veja "Onde o job roda" logo abaixo. É o pré-requisito mais incômodo deste
    workload, e o único que não se resolve com `terraform apply`.
 4. **O connector Debezium registrado**, publicando no tópico
-   `ecommerce.public.web_events` — veja `local-services/streaming-cdc`.
+   `ecommerce.public.web_events` — veja `platform/local/streaming-cdc`.
 
 ## Aplicar
 
@@ -36,7 +36,7 @@ não de conveniência. Há três caminhos, e eles não são equivalentes.
 
 ### 1. Ambiente `local` — o mais simples
 
-Job e serviços na mesma máquina, contra os motores de `local-services/`. `streaming_host` é
+Job e serviços na mesma máquina, contra os motores de `platform/local/`. `streaming_host` é
 `host.docker.internal` e não há mais nada a resolver. É o caminho recomendado
 para estudar o comportamento do streaming.
 
@@ -55,7 +55,7 @@ da sua VPC. Ele fala com o host de streaming pelo IP **privado**, e nada
 precisa estar exposto na internet.
 
 **O que isso custa.** Dentro da VPC o job perde o acesso à internet. O S3
-continua gratuito pelo Gateway Endpoint que o `platform/network` já cria, mas o
+continua gratuito pelo Gateway Endpoint que o `platform/aws/network` já cria, mas o
 script lê a senha do OpenSearch do Secrets Manager em runtime — e isso passa a
 exigir um **Interface Endpoint**, que cobra cerca de **US$0,01/h (~US$7/mês)
 mesmo parado**, mais o tráfego processado. O endpoint é criado numa AZ só, a

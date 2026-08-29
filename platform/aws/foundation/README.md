@@ -1,4 +1,4 @@
-# platform/foundation
+# platform/aws/foundation
 
 **Este é o primeiro módulo que você aplica.** Ele cria os buckets S3 que todo o
 resto do repositório assume que existem — inclusive o bucket que guarda o
@@ -47,7 +47,7 @@ Isso troca o placeholder `CHANGEME` em todos os `backends/*.hcl` e
 `envs/*.tfvars` do repositório. Depois:
 
 ```bash
-cd platform/foundation
+cd platform/aws/foundation
 terraform init
 terraform apply -var-file=envs/develop.tfvars
 ```
@@ -77,4 +77,4 @@ motivo de **nunca** apontar este módulo para uma conta com dado que importa.
   tabela a arquivos soltos no S3. O requisito que decidiu não foi o formato em
   si, foi **quem lê**: Spark, DuckDB e Athena sobre as mesmas tabelas.
 
-Índice geral em [`adr/`](../../adr/).
+Índice geral em [`adr/`](../../../adr/).

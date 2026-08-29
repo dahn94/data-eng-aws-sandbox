@@ -43,7 +43,7 @@ emulação nenhuma. Se isso deixar de ser verdade, a decisão muda.
 | Requisito | Valor exigido | Origem |
 |---|---|---|
 | O que o ambiente local precisa ensinar | comportamento do dado, não sintaxe | este ADR, "Contexto" |
-| Cobertura da lógica dos jobs pelo emulador | **nenhuma** — cria o recurso, não executa Spark | `local-services/localstack/README.md`, antes da remoção |
+| Cobertura da lógica dos jobs pelo emulador | **nenhuma** — cria o recurso, não executa Spark | o README do LocalStack, antes da remoção |
 | Fidelidade para Athena federado e Redshift | **inexistente** | verificado ao desenhar os workloads |
 | Licença exigida | LocalStack Pro (`LOCALSTACK_AUTH_TOKEN`) | `docker-compose.yml`, antes da remoção |
 | Alternativa em contêiner para os motores | existe, e com `arm64` | MinIO, Trino, Iceberg REST, e imagens oficiais da AWS para Glue e Step Functions |
@@ -91,7 +91,7 @@ O mapa que substitui o emulador, todas as imagens com `arm64`:
 | Glue (Spark) | `public.ecr.aws/glue/aws-glue-libs` | **oficial AWS** |
 | Step Functions | `amazon/aws-stepfunctions-local` | **oficial AWS** |
 | Athena | Trino | é o motor por trás do Athena |
-| DMS | Debezium | já existia em `local-services/streaming-cdc` |
+| DMS | Debezium | já existia em `platform/local/streaming-cdc` |
 | RDS | Postgres | já existia |
 | OpenSearch | OpenSearch | já existia |
 
@@ -139,9 +139,11 @@ no `TODO.md`, fases 2 e 3.
 
 ## Evidência no repo
 
-- `platform/network/versions.tf` — o provider sem condicional, sem `endpoints`
+- `platform/aws/network/versions.tf` — o provider sem condicional, sem `endpoints`
   e sem as flags de credencial fictícia.
 - `scripts/_common.sh` — `check_env_arg` aceita só `develop` e `main`, com a
-  mensagem de erro apontando para `local-services/`.
-- `local-services/` — sem a pasta `localstack/`.
+  mensagem de erro apontando para os motores locais.
+- `platform/local/` — os motores que substituíram o emulador, ao lado de
+  `platform/aws/`. A simetria é o ponto: são duas plataformas, e os mesmos
+  workloads podem mirar qualquer uma.
 - Nenhum `envs/local.tfvars` nem `backends/local.hcl` em lugar nenhum.

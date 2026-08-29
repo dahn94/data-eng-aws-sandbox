@@ -117,6 +117,6 @@ recuperação declarada ("reexecutar do zero") deixa de funcionar para ela.
   — a staging chamando `merge_table`.
 - `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-dim-product-s3tables.py:23`
   — a dimensão chamando `write_table`.
-- `platform/foundation/main.tf:86-93` — o ciclo de vida de 30 dias que torna
+- `platform/aws/foundation/main.tf:86-93` — o ciclo de vida de 30 dias que torna
   a staging insubstituível.
 - `workloads/amazonsales/main.tf:48` — `max_retries = 0`.

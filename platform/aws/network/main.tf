@@ -1,5 +1,5 @@
 module "vpc_public" {
-  source               = "../../modules/vpc"
+  source               = "../../../modules/vpc"
   project_name         = "dataeng-sandbox"
   vpc_name             = "dataeng-sandbox-vpc-${var.environment}"
   vpc_cidr             = var.vpc_cidr

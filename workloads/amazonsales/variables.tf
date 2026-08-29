@@ -11,17 +11,17 @@ variable "region" {
 }
 
 variable "s3_bucket_raw" {
-  description = "Bucket S3 com os dados brutos, entrada da pipeline (criado por platform/foundation)"
+  description = "Bucket S3 com os dados brutos, entrada da pipeline (criado por platform/aws/foundation)"
   type        = string
 }
 
 variable "s3_bucket_curated" {
-  description = "Bucket S3 onde os resultados de Data Quality são publicados (criado por platform/foundation)"
+  description = "Bucket S3 onde os resultados de Data Quality são publicados (criado por platform/aws/foundation)"
   type        = string
 }
 
 variable "s3_bucket_scripts" {
-  description = "Bucket S3 que guarda os scripts Glue e os jars (criado por platform/foundation)"
+  description = "Bucket S3 que guarda os scripts Glue e os jars (criado por platform/aws/foundation)"
   type        = string
 }
 
@@ -45,7 +45,7 @@ variable "iceberg_catalog_jar_name" {
 }
 
 variable "lakehouse_arn" {
-  description = "ARN do bucket S3 Tables. Vazio = montado a partir da conta, região e ambiente, casando com o nome criado por platform/foundation."
+  description = "ARN do bucket S3 Tables. Vazio = montado a partir da conta, região e ambiente, casando com o nome criado por platform/aws/foundation."
   type        = string
   default     = ""
 }

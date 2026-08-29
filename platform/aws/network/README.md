@@ -1,4 +1,4 @@
-# platform/network
+# platform/aws/network
 
 VPC, subnets públicas e privadas, Internet Gateway, tabelas de rota, o Gateway
 Endpoint de S3 e o subnet group que o DMS usa. É o segundo módulo a aplicar,
@@ -7,7 +7,7 @@ depois do `foundation`.
 ## Aplicar
 
 ```bash
-cd platform/network
+cd platform/aws/network
 terraform init -backend-config=backends/develop.hcl
 terraform apply -var-file=envs/develop.tfvars
 ```

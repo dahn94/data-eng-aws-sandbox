@@ -5,7 +5,7 @@ Metabase local, usado pra dashboards de BI sobre os dados processados.
 ## Subir
 
 ```bash
-cd local-services/bi-metabase
+cd tools/bi-metabase
 docker compose up -d
 ```
 

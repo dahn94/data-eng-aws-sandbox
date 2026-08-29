@@ -57,11 +57,11 @@ Requisitos: [`nfr.md`](../workloads/dms/nfr.md).
 |---|---|---|
 | [0001](../workloads/dms/adr/0001-captura-de-mudancas-do-postgres.md) | Como levar as mudanças do Postgres ao lake, e com que semântica | um consumidor do evento |
 
-### Lakehouse — [`platform/foundation/`](../platform/foundation/)
+### Lakehouse — [`platform/aws/foundation/`](../platform/aws/foundation/)
 
 | # | Problema | Requisito que decidiu |
 |---|---|---|
-| [0001](../platform/foundation/adr/0001-semantica-de-tabela-no-s3.md) | Como dar semântica de tabela a arquivos soltos no S3 | três motores lendo as mesmas tabelas |
+| [0001](../platform/aws/foundation/adr/0001-semantica-de-tabela-no-s3.md) | Como dar semântica de tabela a arquivos soltos no S3 | três motores lendo as mesmas tabelas |
 
 ### Camada de consulta — [`workloads/query-lambda/`](../workloads/query-lambda/)
 
@@ -164,4 +164,4 @@ Decisões já tomadas no repo que merecem ADR e ainda não têm:
 | Como evitar divergência entre scripts de uma mesma pipeline (`glue_common`) | `workloads/amazonsales/adr/` |
 | Como um job recebe segredo sem expô-lo (Secrets Manager × argumento de job) | `workloads/webevents-streaming/adr/` |
 | Como versionar o schema de um tópico lido em runtime do Schema Registry | `workloads/webevents-streaming/adr/` |
-| Como particionar as tabelas Iceberg (hoje: sem particionamento declarado) | `platform/foundation/adr/` |
+| Como particionar as tabelas Iceberg (hoje: sem particionamento declarado) | `platform/aws/foundation/adr/` |

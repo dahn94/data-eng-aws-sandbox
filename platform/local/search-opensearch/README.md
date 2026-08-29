@@ -6,7 +6,7 @@ eventos web.
 ## Subir
 
 ```bash
-cd local-services/search-opensearch
+cd platform/local/search-opensearch
 cp .env.example .env
 $EDITOR .env    # defina OPENSEARCH_INITIAL_ADMIN_PASSWORD
 

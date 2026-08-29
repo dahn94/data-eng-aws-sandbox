@@ -77,7 +77,7 @@ Glue em execução **antes** do `terraform destroy` — um run ativo não aparec
 nenhum state e continuaria cobrando.
 
 
-A pasta `local-services/` (Kafka, OpenSearch, Metabase, Superset, ClickHouse) roda
+As pastas `platform/local/` (Kafka, OpenSearch, ClickHouse) e `tools/` (Metabase, Superset) rodam
 100% local via Docker — essa parte não custa nada, só usa a RAM/CPU da sua
 máquina.
 
@@ -141,24 +141,25 @@ workloads/               # O QUE se faz com dado. Uma pasta por workload,
   incremental-mv/
   data-sharing/
 
-platform/                # O SUBSTRATO COMPARTILHADO. Vive muito, muda pouco.
-  foundation/            #   Os buckets S3 que todo o resto usa. APLIQUE PRIMEIRO
-  network/               #   VPC, subnets, rede — 5 dos 8 workloads consomem
+platform/                # O SUBSTRATO QUE OS WORKLOADS CONSOMEM. São DUAS
+  aws/                   #   plataformas, e os mesmos workloads miram qualquer
+    foundation/          #   uma delas.
+    network/             #
+  local/                 #   Os motores de verdade, em contêiner — não emulação
+    lakehouse/           #     MinIO + catálogo Iceberg + Glue oficial da AWS
+    streaming-cdc/       #     Kafka + Debezium
+    search-opensearch/   #     OpenSearch + Dashboards
+    olap-clickhouse/     #     ClickHouse
 
 modules/                 # Código compartilhado, nunca infraestrutura
                          #   compartilhada. Um workload instancia o módulo e
                          #   passa a ser dono do recurso que ele cria.
 
 adr/                     # Índice geral das decisões e o método
-local-services/          # Tudo que roda local (Docker), um por ferramenta
-  streaming-cdc/         #   Kafka + Debezium
-  search-opensearch/     #   OpenSearch + Dashboards
+tools/                   # O que VOCÊ usa, e nenhum workload consome
+  data-generator/        #   Gera eventos fake no Postgres
   bi-metabase/           #   Metabase
   bi-superset/           #   Apache Superset
-  olap-clickhouse/       #   ClickHouse
-  data-generator/        #   Script que gera eventos fake pro Postgres
-  lakehouse/             #   MinIO + catálogo Iceberg + a imagem de Glue da AWS:
-                         #   S3, catálogo e Spark de verdade, sem emular a nuvem
 
 scripts/                 # Utilitários de setup e governança de custo
                          #   (inclui budget.md: o alerta de orçamento que se
@@ -171,7 +172,7 @@ Dentro de cada root module, os arquivos seguem a convenção usual: `main.tf`,
 `variables.tf`, `outputs.tf` e `versions.tf`, com `envs/*.tfvars` e
 `backends/*.hcl` por ambiente.
 
-Cada pasta dentro de `workloads/`, `platform/` e `local-services/` tem seu
+Cada pasta dentro de `workloads/`, `platform/` e `tools/` tem seu
 próprio `README.md` explicando exatamente o que ela faz e como rodar — este
 README aqui é só o mapa geral.
 
@@ -236,13 +237,13 @@ aws sts get-caller-identity  # confirma que funcionou
 ```
 
 **2. Explore local primeiro (zero custo)**
-Escolha um stack em `local-services/` e suba com `docker compose up -d` dentro da
-pasta dele. Comece por `local-services/bi-metabase/` — é o mais simples de ver
+Escolha um stack em `platform/local/` e suba com `docker compose up -d` dentro da
+pasta dele. Comece por `tools/bi-metabase/` — é o mais simples de ver
 funcionando. Os stacks que precisam de `.env` avisam no README deles.
 
 **3. Crie os buckets**
 ```bash
-cd platform/foundation
+cd platform/aws/foundation
 terraform init
 terraform apply -var-file=envs/develop.tfvars
 ```
@@ -264,8 +265,8 @@ Para conectar no banco da sua máquina, coloque seu IP em
 ninguém entra de fora da VPC.
 
 **5. Gere dados fake e veja o CDC funcionando**
-`local-services/data-generator/` insere eventos continuamente no Postgres. Depois
-suba `workloads/dms/` (ou `local-services/streaming-cdc/`) pra ver essas mudanças
+`tools/data-generator/` insere eventos continuamente no Postgres. Depois
+suba `workloads/dms/` (ou `platform/local/streaming-cdc/`) pra ver essas mudanças
 sendo capturadas em tempo real.
 
 O RDS já sobe com `rds.logical_replication = 1` — sem esse parâmetro, o CDC
@@ -283,7 +284,7 @@ eventos web. `workloads/query-lambda/` consulta o resultado via DuckDB.
 ./scripts/pause.sh develop       # pausa mantendo os dados, entre sessões
 ./scripts/teardown.sh develop    # ou destrói tudo, na ordem certa
 ```
-`platform/network` pode ficar de pé entre sessões: VPC, subnets, Internet
+`platform/aws/network` pode ficar de pé entre sessões: VPC, subnets, Internet
 Gateway e Gateway Endpoint de S3 não têm custo parado. O `foundation` também
 pode ficar — deixe-o por último quando for limpar tudo, porque ele guarda o
 state dos outros.
@@ -305,7 +306,7 @@ sobrescrevendo os dados do outro.
 
 **Não existe um ambiente `local` de Terraform**, e isso é deliberado. Rodar
 local aqui não significa emular a API da AWS — significa subir os motores de
-verdade em [`local-services/`](local-services/) e executar os scripts contra
+verdade em [`platform/local/`](platform/local/) e executar os scripts contra
 eles. O emulador validava fiação de recursos; os motores validam o
 comportamento do dado, que é o que este repositório afirma nos ADRs.
 
@@ -362,9 +363,10 @@ seguindo o padrão já estabelecido:
 
   Depois, para o repositório não passar a mentir: a tabela de taxonomia e a de
   NFR/ADR neste README, e a seção correspondente em [`adr/README.md`](adr/).
-- **Ferramenta local nova** → uma pasta nova em `local-services/<ferramenta>/`.
+- **Motor local novo** (o workload consome) → `platform/local/<motor>/`.
+- **Ferramenta nova** (você consome) → `tools/<ferramenta>/`.
 - **Infra-base nova** (não é workload nem ferramenta local) → avalie se
-  cabe dentro de `platform/network` ou de um workload existente, ou
+  cabe dentro de `platform/aws/network` ou de um workload existente, ou
   se merece um root module próprio dentro de `platform/`.
 
 Cada workload **possui** a infraestrutura que usa, inclusive quando isso
@@ -393,7 +395,7 @@ em dois lugares, ao lado do código que justificam:
 | Fluxo | Requisitos | Decisões |
 |---|---|---|
 | Ingestão por CDC | [`dms/nfr.md`](workloads/dms/nfr.md) | [`dms/adr/`](workloads/dms/adr/) |
-| Lakehouse | — | [`foundation/adr/`](platform/foundation/adr/) |
+| Lakehouse | — | [`foundation/adr/`](platform/aws/foundation/adr/) |
 | Pipeline batch | [`amazonsales/nfr.md`](workloads/amazonsales/nfr.md) | [`amazonsales/adr/`](workloads/amazonsales/adr/) |
 | Pipeline streaming | [`webevents-streaming/nfr.md`](workloads/webevents-streaming/nfr.md) | [`webevents-streaming/adr/`](workloads/webevents-streaming/adr/) |
 | Consulta federada | [`federated-query/nfr.md`](workloads/federated-query/nfr.md) | [`federated-query/adr/`](workloads/federated-query/adr/) |

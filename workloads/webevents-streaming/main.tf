@@ -42,7 +42,7 @@ resource "aws_secretsmanager_secret_version" "opensearch" {
 # pelo IP privado. Nada precisa ser exposto.
 #
 # O preço: dentro da VPC o job perde o acesso à internet. S3 continua de graça
-# pelo Gateway Endpoint que platform/network já cria, mas o Secrets Manager —
+# pelo Gateway Endpoint que platform/aws/network já cria, mas o Secrets Manager —
 # de onde o script lê a senha do OpenSearch — precisa de um Interface Endpoint.
 
 data "terraform_remote_state" "network" {

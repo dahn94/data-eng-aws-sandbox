@@ -68,7 +68,7 @@ variable "publicly_accessible" {
 variable "enhanced_vpc_routing" {
   description = <<-EOT
     Força todo o tráfego do Redshift pela VPC. Ligar isto exige 3 subnets em 3
-    AZs — o platform/network hoje cria 2. Ligar sem estender a rede quebra o
+    AZs — o platform/aws/network hoje cria 2. Ligar sem estender a rede quebra o
     apply.
   EOT
   type        = bool

@@ -109,7 +109,7 @@ Está quantificado em [`nfr.md`](nfr.md) e decidido em
 
 ```bash
 # 1. rede (se ainda não estiver aplicada)
-cd platform/network && terraform init -backend-config=backends/develop.hcl && terraform apply -var-file=envs/develop.tfvars
+cd platform/aws/network && terraform init -backend-config=backends/develop.hcl && terraform apply -var-file=envs/develop.tfvars
 
 # 2. este workload
 cd ../../workloads/incremental-mv

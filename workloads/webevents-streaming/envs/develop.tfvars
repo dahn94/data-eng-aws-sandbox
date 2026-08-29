@@ -17,4 +17,4 @@ streaming_host = ""
 enable_streaming_host = false
 enable_vpc_connection = false
 network_state_bucket  = "CHANGEME-lake-configs"
-network_state_key     = "terraform/dataeng-sandbox/platform/network/dev/terraform.tfstate"
+network_state_key     = "terraform/dataeng-sandbox/platform/aws/network/dev/terraform.tfstate"

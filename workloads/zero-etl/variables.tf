@@ -11,12 +11,12 @@ variable "region" {
 }
 
 variable "network_state_bucket" {
-  description = "S3 bucket com o state de platform/network. Sem default de propósito — é o seu bucket, definido em envs/*.tfvars."
+  description = "S3 bucket com o state de platform/aws/network. Sem default de propósito — é o seu bucket, definido em envs/*.tfvars."
   type        = string
 }
 
 variable "network_state_key" {
-  description = "S3 key do state de platform/network para este ambiente"
+  description = "S3 key do state de platform/aws/network para este ambiente"
   type        = string
 }
 

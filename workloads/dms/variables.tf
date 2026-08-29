@@ -11,17 +11,17 @@ variable "rds_password" {
 }
 
 variable "s3_bucket_raw" {
-  description = "Nome do bucket S3 para armazenar dados brutos (criado por platform/foundation)"
+  description = "Nome do bucket S3 para armazenar dados brutos (criado por platform/aws/foundation)"
   type        = string
 }
 
 variable "network_state_bucket" {
-  description = "S3 bucket holding platform/network's state. No default on purpose — it is your own bucket, set in envs/*.tfvars."
+  description = "S3 bucket holding platform/aws/network's state. No default on purpose — it is your own bucket, set in envs/*.tfvars."
   type        = string
 }
 
 variable "network_state_key" {
-  description = "S3 key of platform/network's state for this environment"
+  description = "S3 key of platform/aws/network's state for this environment"
   type        = string
 }
 

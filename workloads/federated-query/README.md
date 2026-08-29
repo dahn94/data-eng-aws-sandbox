@@ -92,7 +92,7 @@ Este workload precisa de rede e do banco de pé. Aplique nesta ordem:
 
 ```bash
 # 1. rede e Postgres (se ainda não estiverem aplicados)
-cd platform/network && terraform init -backend-config=backends/develop.hcl && terraform apply -var-file=envs/develop.tfvars
+cd platform/aws/network && terraform init -backend-config=backends/develop.hcl && terraform apply -var-file=envs/develop.tfvars
 cd ../rds     && terraform init -backend-config=backends/develop.hcl && terraform apply -var-file=envs/develop.tfvars
 
 # 2. este workload

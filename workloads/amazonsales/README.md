@@ -9,7 +9,7 @@ Step Function que orquestra a execução.
 Esta pipeline não depende do state de outro root module, mas depende de coisas
 que precisam existir:
 
-1. **`platform/foundation` aplicado** — cria o bucket de scripts, o de
+1. **`platform/aws/foundation` aplicado** — cria o bucket de scripts, o de
    dados curados e o bucket S3 Tables (`dataeng-sandbox-lakehouse-<amb>`).
 2. **Os jars baixados** — `./scripts/fetch-jars.sh` na raiz do repositório.
    O Terraform envia o jar do catálogo Iceberg para o S3; sem o arquivo local,

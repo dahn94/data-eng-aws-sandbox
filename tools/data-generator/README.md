@@ -7,7 +7,7 @@ captura.
 ## Rodar
 
 ```bash
-cd local-services/data-generator
+cd tools/data-generator
 pip install -r requirements.txt
 
 export PGHOST=<endpoint-do-rds>     # terraform output -raw db_instance_address

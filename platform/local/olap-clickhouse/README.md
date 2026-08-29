@@ -6,7 +6,7 @@ os dados que caem no data lake.
 ## Subir
 
 ```bash
-cd local-services/olap-clickhouse
+cd platform/local/olap-clickhouse
 docker compose up -d
 ```
 

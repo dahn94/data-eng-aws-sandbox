@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  # O bucket S3 Tables é criado por platform/foundation, que roda com state
+  # O bucket S3 Tables é criado por platform/aws/foundation, que roda com state
   # local — então não dá para lê-lo por terraform_remote_state. O nome é
   # determinístico, então o ARN é montado aqui e pode ser sobrescrito pela
   # variável se você usar outro nome.

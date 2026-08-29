@@ -1,4 +1,4 @@
-# local-services/lakehouse
+# platform/local/lakehouse
 
 O lakehouse local: **S3, catálogo e Spark de verdade**, em contêiner. É o que
 substituiu o LocalStack.
@@ -10,7 +10,7 @@ roda de verdade: o mesmo PySpark, lendo e escrevendo Iceberg sobre um S3 real,
 com um catálogo real.
 
 O raciocínio completo está em
-[`adr/0001`](../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
+[`adr/0001`](../../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
 
 ## O mapeamento
 
@@ -20,7 +20,7 @@ O raciocínio completo está em
 | S3 Tables | **catálogo Iceberg REST** | mesma especificação de tabela, sem o gerenciamento |
 | Glue (Spark) | **`public.ecr.aws/glue/aws-glue-libs:5.0.10`** | imagem oficial da AWS, mesmo Spark e mesmas libs do Glue 5.0 |
 
-Os buckets nascem com **os mesmos nomes** que o `platform/foundation` cria na
+Os buckets nascem com **os mesmos nomes** que o `platform/aws/foundation` cria na
 AWS, com prefixo `sandbox` e ambiente `local`:
 
 ```
@@ -65,7 +65,7 @@ concluir que algo "está validado".
 
 - **Redshift não tem equivalente.** O `incremental-mv`, o `zero-etl` e o
   `data-sharing` não rodam aqui, e nem tentam: eles não têm ambiente local. O
-  `local-services/olap-clickhouse` ensina o *mecanismo* de materialized view
+  `platform/local/olap-clickhouse` ensina o *mecanismo* de materialized view
   mantida pelo motor, mas `DATASHARE` e zero-ETL só existem na AWS.
 - **Debezium não é DMS.** São implementações diferentes de CDC. A semântica que
   o `workloads/dms/adr/0001` discute precisa da AWS para ser medida.

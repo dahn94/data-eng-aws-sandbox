@@ -21,10 +21,10 @@ depende de `MERGE INTO` e de SCD Tipo 2 sobre CDC.
 
 | Requisito | Valor exigido | Origem |
 |---|---|---|
-| Motores que leem as mesmas tabelas | **3** — Spark (Glue), DuckDB (Lambda), Athena | [`query-lambda/nfr.md`](../../../workloads/query-lambda/nfr.md) |
-| `UPDATE`/`DELETE` por linha | exigido — a staging faz upsert por chave | [`amazonsales/nfr.md`](../../../workloads/amazonsales/nfr.md) |
-| Leitura consistente durante escrita | exigida — dims e fatos usam `INSERT OVERWRITE` | [`amazonsales/adr/0004`](../../../workloads/amazonsales/adr/0004-politica-de-recarga-por-camada.md) |
-| Recuperação de escrita errada | time travel por snapshot | [`amazonsales/nfr.md`](../../../workloads/amazonsales/nfr.md) |
+| Motores que leem as mesmas tabelas | **3** — Spark (Glue), DuckDB (Lambda), Athena | [`query-lambda/nfr.md`](../../../../workloads/query-lambda/nfr.md) |
+| `UPDATE`/`DELETE` por linha | exigido — a staging faz upsert por chave | [`amazonsales/nfr.md`](../../../../workloads/amazonsales/nfr.md) |
+| Leitura consistente durante escrita | exigida — dims e fatos usam `INSERT OVERWRITE` | [`amazonsales/adr/0004`](../../../../workloads/amazonsales/adr/0004-politica-de-recarga-por-camada.md) |
+| Recuperação de escrita errada | time travel por snapshot | [`amazonsales/nfr.md`](../../../../workloads/amazonsales/nfr.md) |
 | Catálogo a operar | **nenhum** | premissa do repo |
 | Custo parado | US$0 fixo | `../README.md:56-58` |
 
@@ -76,7 +76,7 @@ antes cada um dos oito scripts tinha sua cópia.
 | Acoplamento ao S3 Tables como catálogo | Parcial: o **formato** (Iceberg) é portável; migrar significa trocar o catálogo, não reescrever o dado |
 | Dependência de jar de ~15 MB fora do Git | Contornado: `scripts/fetch-jars.sh` baixa e o Terraform envia ao S3, em vez de upload manual |
 | ARN do lakehouse é contrato implícito entre módulos | Contornado por convenção de nome determinística, com variável para sobrescrever |
-| Nenhum emulador cobre S3 Tables | **Não é contornado.** O caminho honesto para exercitar a lógica é PySpark local contra MinIO e um catálogo Iceberg — é o que `local-services/` passa a oferecer |
+| Nenhum emulador cobre S3 Tables | **Não é contornado.** O caminho honesto para exercitar a lógica é PySpark local contra MinIO e um catálogo Iceberg — é o que `platform/local/lakehouse/` passa a oferecer |
 | Manutenção de tabela (arquivos pequenos, snapshots) | Delegada ao serviço hoje; quando não bastar, vira job explícito — item 2 da Fase 01 do TODO |
 
 ## Quando esta decisão se inverte
@@ -124,8 +124,8 @@ a reconstrução coerente.
 
 ## Evidência no repo
 
-- `platform/foundation/main.tf:102-105` — a criação do bucket S3 Tables.
-- `platform/foundation/README.md:27` — o bucket descrito como "onde as
+- `platform/aws/foundation/main.tf:102-105` — a criação do bucket S3 Tables.
+- `platform/aws/foundation/README.md:27` — o bucket descrito como "onde as
   tabelas Iceberg vivem".
 - `workloads/amazonsales/scripts/glue_common.py:19-45` — a sessão
   Spark com o catálogo Iceberg do S3 Tables, e o comentário de que os nomes de

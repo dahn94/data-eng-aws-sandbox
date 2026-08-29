@@ -34,7 +34,7 @@ services:
       retries: 20
     networks: [lakehouse]
 
-  # Cria os buckets com os MESMOS nomes que platform/foundation cria na AWS.
+  # Cria os buckets com os MESMOS nomes que platform/aws/foundation cria na AWS.
   # Se divergirem, o script que roda local deixa de ser o script que roda lá.
   minio-setup:
     image: minio/mc:RELEASE.2025-04-16T18-13-26Z

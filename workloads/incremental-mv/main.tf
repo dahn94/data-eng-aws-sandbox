@@ -122,7 +122,7 @@ module "warehouse" {
   base_capacity_rpu   = var.base_capacity_rpu
   publicly_accessible = false
 
-  # Enhanced VPC Routing exigiria 3 subnets em 3 AZs; o platform/network cria 2.
+  # Enhanced VPC Routing exigiria 3 subnets em 3 AZs; o platform/aws/network cria 2.
   enhanced_vpc_routing = false
 
   iam_role_arns        = local.has_seed ? [aws_iam_role.redshift_copy[0].arn] : []

@@ -8,8 +8,8 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # bucket de state que o resto usa, e a rede precisa existir antes de qualquer
 # coisa que viva dentro dela.
 PLATFORM_MODULES=(
-  "platform/foundation"
-  "platform/network"
+  "platform/aws/foundation"
+  "platform/aws/network"
 )
 
 # Os workloads são descobertos do filesystem: qualquer diretório em workloads/
@@ -60,11 +60,11 @@ env_suffix() {
 
 # Só existem dois ambientes de Terraform. O `local` foi removido junto com o
 # LocalStack: rodar local passou a ser subir os motores de verdade em
-# local-services/ e executar os scripts contra eles, sem Terraform no meio.
+# platform/local/ e executar os scripts contra eles, sem Terraform no meio.
 check_env_arg() {
   case "$1" in
     develop|main) return 0 ;;
-    *) die "ambiente inválido '$1'. Use: develop ou main. (O ambiente 'local' não existe mais — veja local-services/.)" ;;
+    *) die "ambiente inválido '$1'. Use: develop ou main. (O ambiente 'local' não existe mais — veja platform/local/.)" ;;
   esac
 }
 

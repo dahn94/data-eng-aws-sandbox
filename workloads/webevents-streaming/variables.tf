@@ -11,17 +11,17 @@ variable "region" {
 }
 
 variable "s3_bucket_raw" {
-  description = "Bucket S3 com os dados brutos (criado por platform/foundation)"
+  description = "Bucket S3 com os dados brutos (criado por platform/aws/foundation)"
   type        = string
 }
 
 variable "s3_bucket_logs" {
-  description = "Bucket S3 onde o Spark Structured Streaming grava o checkpoint (criado por platform/foundation)"
+  description = "Bucket S3 onde o Spark Structured Streaming grava o checkpoint (criado por platform/aws/foundation)"
   type        = string
 }
 
 variable "s3_bucket_scripts" {
-  description = "Bucket S3 que guarda os scripts Glue e os jars (criado por platform/foundation)"
+  description = "Bucket S3 que guarda os scripts Glue e os jars (criado por platform/aws/foundation)"
   type        = string
 }
 
@@ -77,20 +77,20 @@ variable "enable_vpc_connection" {
     do OpenSearch. Um endpoint numa AZ custa cerca de US$0,01/h, ~US$7/mês
     parado, mais o tráfego processado.
 
-    Ligado, este workload passa a depender de `platform/network`.
+    Ligado, este workload passa a depender de `platform/aws/network`.
   EOT
   type        = bool
   default     = false
 }
 
 variable "network_state_bucket" {
-  description = "S3 bucket com o state de platform/network. Só é lido quando enable_streaming_host ou enable_vpc_connection estão ligados."
+  description = "S3 bucket com o state de platform/aws/network. Só é lido quando enable_streaming_host ou enable_vpc_connection estão ligados."
   type        = string
   default     = ""
 }
 
 variable "network_state_key" {
-  description = "S3 key do state de platform/network para este ambiente. Só é lido quando enable_streaming_host ou enable_vpc_connection estão ligados."
+  description = "S3 key do state de platform/aws/network para este ambiente. Só é lido quando enable_streaming_host ou enable_vpc_connection estão ligados."
   type        = string
   default     = ""
 }
@@ -108,11 +108,11 @@ variable "network_state_key" {
 
 variable "enable_streaming_host" {
   description = <<-EOT
-    Cria uma EC2 para hospedar `local-services/streaming-cdc` e
-    `local-services/search-opensearch` dentro da AWS.
+    Cria uma EC2 para hospedar `platform/local/streaming-cdc` e
+    `platform/local/search-opensearch` dentro da AWS.
 
     Existe por um motivo só: o job Glue roda na AWS e não alcança o Docker da
-    sua máquina. Rodando os serviços de `local-services/` na sua máquina, job e
+    sua máquina. Rodando os serviços de `platform/local/` na sua máquina, job e
     contêineres ficam juntos e nada disto é necessário — deixe desligado.
 
     Desligado por default porque é o único recurso deste workload que cobra por

@@ -48,5 +48,5 @@ echo "  ${PREFIX}-lake-raw-<ambiente>"
 echo "  ${PREFIX}-lake-curated-<ambiente>"
 echo "  ${PREFIX}-lake-logs-<ambiente>"
 echo
-echo "Próximo passo: cd platform/foundation && terraform init && \\"
+echo "Próximo passo: cd platform/aws/foundation && terraform init && \\"
 echo "  terraform apply -var-file=envs/develop.tfvars"

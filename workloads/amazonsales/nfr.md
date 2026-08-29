@@ -20,7 +20,7 @@ sozinhos se um ADR continua válido.
 | Volume por carga | **não medido** | — |
 | Crescimento esperado | **não medido** | — |
 | Frescor da camada analítica | sob demanda (execução manual do Step Functions) | não há agendamento no Terraform |
-| Retenção do dado bruto | **30 dias**, por ciclo de vida do bucket | `../../platform/foundation/main.tf:79-95` |
+| Retenção do dado bruto | **30 dias**, por ciclo de vida do bucket | `../../platform/aws/foundation/main.tf:79-95` |
 
 ## Execução
 
@@ -60,7 +60,7 @@ Uma linha entre as outras, não o assunto.
 |---|---|---|
 | Quem opera | uma pessoa, em sessões de estudo | `README.md` |
 | Disponibilidade exigida | nenhuma — não há consumidor em produção | premissa deste repo |
-| Consumidores da camada analítica | nenhum fixo hoje; Metabase/Superset ad hoc | `local-services/` |
+| Consumidores da camada analítica | nenhum fixo hoje; Metabase/Superset ad hoc | `../../tools/` |
 
 ## Consequências desta tabela
 
