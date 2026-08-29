@@ -11,6 +11,7 @@ Antes, cada um dos oito scripts carregava sua própria cópia de
 significava editar oito arquivos.
 """
 
+import os
 import sys
 
 from awsglue.utils import getResolvedOptions
@@ -27,8 +28,21 @@ def get_args(names):
 
 
 def create_spark_session(s3_warehouse_arn, app_name="glue-s3-tables"):
-    """Sessão Spark com o catálogo Iceberg do S3 Tables já configurado."""
-    return (
+    """Sessão Spark com o catálogo Iceberg configurado.
+
+    O catálogo é Iceberg nos dois casos; muda a implementação e o endereço do
+    warehouse — e é a ÚNICA diferença entre rodar na AWS e rodar local. Era uma
+    constante fixa aqui dentro, o que tornava o script impossível de executar
+    fora da AWS.
+
+    Sem `ICEBERG_REST_URI` no ambiente, o comportamento é o de antes: S3 Tables,
+    com o warehouse vindo do ARN passado pelo job. Com a variável definida
+    (é o que `platform/local/lakehouse` faz), o mesmo script fala com o catálogo
+    REST sobre o MinIO.
+    """
+    rest_uri = os.environ.get("ICEBERG_REST_URI", "")
+
+    builder = (
         SparkSession.builder.appName(app_name)
         .config(
             "spark.sql.extensions",
@@ -36,13 +50,33 @@ def create_spark_session(s3_warehouse_arn, app_name="glue-s3-tables"):
         )
         .config("spark.sql.defaultCatalog", CATALOG)
         .config(f"spark.sql.catalog.{CATALOG}", "org.apache.iceberg.spark.SparkCatalog")
-        .config(
-            f"spark.sql.catalog.{CATALOG}.catalog-impl",
-            "software.amazon.s3tables.iceberg.S3TablesCatalog",
-        )
-        .config(f"spark.sql.catalog.{CATALOG}.warehouse", s3_warehouse_arn)
-        .getOrCreate()
     )
+
+    if rest_uri:
+        s3_endpoint = os.environ.get("AWS_ENDPOINT_URL_S3", "")
+        builder = (
+            builder.config(f"spark.sql.catalog.{CATALOG}.catalog-impl",
+                           "org.apache.iceberg.rest.RESTCatalog")
+            .config(f"spark.sql.catalog.{CATALOG}.uri", rest_uri)
+            .config(f"spark.sql.catalog.{CATALOG}.warehouse",
+                    os.environ.get("ICEBERG_WAREHOUSE", "s3://sandbox-lakehouse/"))
+            .config(f"spark.sql.catalog.{CATALOG}.io-impl",
+                    "org.apache.iceberg.aws.s3.S3FileIO")
+        )
+        if s3_endpoint:
+            # MinIO exige path-style: o DNS de bucket-por-subdomínio não existe.
+            builder = (
+                builder.config(f"spark.sql.catalog.{CATALOG}.s3.endpoint", s3_endpoint)
+                .config(f"spark.sql.catalog.{CATALOG}.s3.path-style-access", "true")
+            )
+    else:
+        builder = (
+            builder.config(f"spark.sql.catalog.{CATALOG}.catalog-impl",
+                           "software.amazon.s3tables.iceberg.S3TablesCatalog")
+            .config(f"spark.sql.catalog.{CATALOG}.warehouse", s3_warehouse_arn)
+        )
+
+    return builder.getOrCreate()
 
 
 def read_table(spark: SparkSession, table: str) -> DataFrame:

@@ -140,9 +140,9 @@ workloads/               # O QUE se faz com dado. Uma pasta por workload,
   zero-etl/
   incremental-mv/
   data-sharing/
-                         #   Um workload pode trazer junto o que semeia a
-                         #   própria fonte: webevents-streaming/seed/ gera os
-                         #   eventos que o Debezium captura.
+                         #   Cada pasta traz o que é dela: o Terraform da forma
+                         #   AWS, os scripts, o que semeia a fonte (seed/) e,
+                         #   quando existe, a forma local (local/).
 
 platform/                # O SUBSTRATO QUE OS WORKLOADS CONSOMEM. São DUAS
   aws/                   #   plataformas, e os mesmos workloads miram qualquer
@@ -175,6 +175,34 @@ Dentro de cada root module, os arquivos seguem a convenção usual: `main.tf`,
 Cada pasta dentro de `workloads/` e `platform/` tem seu
 próprio `README.md` explicando exatamente o que ela faz e como rodar — este
 README aqui é só o mapa geral.
+
+### A forma local de um workload
+
+Um workload pode rodar nos dois lugares, e quando roda, é **o mesmo script** —
+a diferença é configuração. O `amazonsales` é o caso claro: o catálogo Iceberg
+é o mesmo, muda a implementação (`S3TablesCatalog` na AWS, `RESTCatalog`
+local) e o endereço do warehouse. Uma variável de ambiente decide, e nenhum
+código é duplicado.
+
+Onde a diferença **não** é configuração, ela mora numa pasta `local/` dentro do
+workload:
+
+```
+workloads/amazonsales/
+  main.tf       a forma AWS: jobs Glue e Step Functions
+  scripts/      o código, um só
+  local/        a forma local: o DAG, o override do compose, o que difere
+```
+
+Orquestração é o exemplo: Step Functions e Airflow não são a mesma coisa com
+outra configuração, são produtos diferentes. Então a sequência é declarada duas
+vezes — no `main.tf` para a AWS, no `local/` para o Airflow — enquanto os jobs
+orquestrados continuam sendo os mesmos arquivos.
+
+**A ausência de `local/` é informação:** significa que o workload só existe na
+AWS. É o caso de `zero-etl`, `incremental-mv`, `data-sharing`, `federated-query`
+e `dms` — cinco dos oito, todos de serviço gerenciado, sem script nenhum para
+executar em lugar nenhum.
 
 ### Nem todo caminho até o analytics é um pipeline
 
