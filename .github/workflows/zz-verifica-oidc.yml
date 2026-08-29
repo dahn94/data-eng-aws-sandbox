@@ -9,6 +9,14 @@ jobs:
   whoami:
     runs-on: ubuntu-latest
     steps:
+      # Só a claim `sub` do token, nunca o token. É o que a trust policy casa.
+      - name: qual e o sub deste token
+        run: |
+          tok=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          payload=$(echo "$tok" | cut -d. -f2)
+          pad=$(( (4 - ${#payload} % 4) % 4 )); payload="$payload$(printf '=%.0s' $(seq 1 $pad))"
+          echo "sub = $(echo "$payload" | tr '_-' '/+' | base64 -d 2>/dev/null | jq -r .sub)"
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
