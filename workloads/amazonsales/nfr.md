@@ -60,7 +60,7 @@ Uma linha entre as outras, não o assunto.
 |---|---|---|
 | Quem opera | uma pessoa, em sessões de estudo | `README.md` |
 | Disponibilidade exigida | nenhuma — não há consumidor em produção | premissa deste repo |
-| Consumidores da camada analítica | nenhum fixo hoje; Metabase/Superset ad hoc | `../../tools/` |
+| Consumidores da camada analítica | nenhum fixo hoje; Metabase/Superset ad hoc | `../../platform/local/` |
 
 ## Consequências desta tabela
 

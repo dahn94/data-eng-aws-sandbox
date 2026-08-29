@@ -5,7 +5,7 @@ Apache Superset local, alternativa ao Metabase pra dashboards de BI.
 ## Subir
 
 ```bash
-cd tools/bi-superset
+cd platform/local/bi-superset
 docker compose up -d
 ```
 

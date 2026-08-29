@@ -7,7 +7,7 @@ captura.
 ## Rodar
 
 ```bash
-cd tools/data-generator
+cd workloads/webevents-streaming/seed
 pip install -r requirements.txt
 
 export PGHOST=<endpoint-do-rds>     # terraform output -raw db_instance_address

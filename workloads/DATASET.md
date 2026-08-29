@@ -87,7 +87,7 @@ SELECT DATE_TRUNC('hour', pedido_em) AS hora,
 Ser honesto sobre isto importa mais do que o contrato parecer pronto:
 
 - [ ] **O gerador não é determinístico.**
-      `tools/data-generator/script-insert-postgres-webfake-events.py`
+      `workloads/webevents-streaming/seed/script-insert-postgres-webfake-events.py`
       não aceita `--seed` nem janela por parâmetro: hoje ele gera eventos web
       contínuos, não a tabela de vendas descrita aqui. Enquanto isso não
       existir, duas execuções produzem dados diferentes e **a comparação não é

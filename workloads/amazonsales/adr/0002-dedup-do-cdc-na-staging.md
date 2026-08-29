@@ -92,7 +92,7 @@ ingestão, não no processamento.**
 Antes disso, dois gatilhos menores tornam o risco intolerável:
 - **quando existir um consumidor em produção** da camada analítica;
 - **quando a origem passar a ter deletes de verdade** — hoje o
-  `tools/data-generator` só insere, o que torna o problema teórico.
+  `workloads/webevents-streaming/seed` só insere, o que torna o problema teórico.
 
 ## Consequências
 

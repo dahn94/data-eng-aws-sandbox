@@ -77,7 +77,7 @@ Glue em execução **antes** do `terraform destroy` — um run ativo não aparec
 nenhum state e continuaria cobrando.
 
 
-As pastas `platform/local/` (Kafka, OpenSearch, ClickHouse) e `tools/` (Metabase, Superset) rodam
+A pasta `platform/local/` (Kafka, OpenSearch, ClickHouse, Metabase, Superset) roda
 100% local via Docker — essa parte não custa nada, só usa a RAM/CPU da sua
 máquina.
 
@@ -140,27 +140,27 @@ workloads/               # O QUE se faz com dado. Uma pasta por workload,
   zero-etl/
   incremental-mv/
   data-sharing/
+                         #   Um workload pode trazer junto o que semeia a
+                         #   própria fonte: webevents-streaming/seed/ gera os
+                         #   eventos que o Debezium captura.
 
 platform/                # O SUBSTRATO QUE OS WORKLOADS CONSOMEM. São DUAS
   aws/                   #   plataformas, e os mesmos workloads miram qualquer
     foundation/          #   uma delas.
     network/             #
-  local/                 #   Os motores de verdade, em contêiner — não emulação
-    lakehouse/           #     MinIO + catálogo Iceberg + Glue oficial da AWS
+  local/                 #   Tudo que sobe em Docker localmente — motores de
+    lakehouse/           #   verdade, não emulação
     streaming-cdc/       #     Kafka + Debezium
     search-opensearch/   #     OpenSearch + Dashboards
     olap-clickhouse/     #     ClickHouse
+    bi-metabase/         #     Metabase
+    bi-superset/         #     Apache Superset
 
 modules/                 # Código compartilhado, nunca infraestrutura
                          #   compartilhada. Um workload instancia o módulo e
                          #   passa a ser dono do recurso que ele cria.
 
 adr/                     # Índice geral das decisões e o método
-tools/                   # O que VOCÊ usa, e nenhum workload consome
-  data-generator/        #   Gera eventos fake no Postgres
-  bi-metabase/           #   Metabase
-  bi-superset/           #   Apache Superset
-
 scripts/                 # Utilitários de setup e governança de custo
                          #   (inclui budget.md: o alerta de orçamento que se
                          #   configura ANTES do primeiro apply)
@@ -172,7 +172,7 @@ Dentro de cada root module, os arquivos seguem a convenção usual: `main.tf`,
 `variables.tf`, `outputs.tf` e `versions.tf`, com `envs/*.tfvars` e
 `backends/*.hcl` por ambiente.
 
-Cada pasta dentro de `workloads/`, `platform/` e `tools/` tem seu
+Cada pasta dentro de `workloads/` e `platform/` tem seu
 próprio `README.md` explicando exatamente o que ela faz e como rodar — este
 README aqui é só o mapa geral.
 
@@ -238,7 +238,7 @@ aws sts get-caller-identity  # confirma que funcionou
 
 **2. Explore local primeiro (zero custo)**
 Escolha um stack em `platform/local/` e suba com `docker compose up -d` dentro da
-pasta dele. Comece por `tools/bi-metabase/` — é o mais simples de ver
+pasta dele. Comece por `platform/local/bi-metabase/` — é o mais simples de ver
 funcionando. Os stacks que precisam de `.env` avisam no README deles.
 
 **3. Crie os buckets**
@@ -265,7 +265,7 @@ Para conectar no banco da sua máquina, coloque seu IP em
 ninguém entra de fora da VPC.
 
 **5. Gere dados fake e veja o CDC funcionando**
-`tools/data-generator/` insere eventos continuamente no Postgres. Depois
+`workloads/webevents-streaming/seed/` insere eventos continuamente no Postgres. Depois
 suba `workloads/dms/` (ou `platform/local/streaming-cdc/`) pra ver essas mudanças
 sendo capturadas em tempo real.
 
@@ -364,7 +364,9 @@ seguindo o padrão já estabelecido:
   Depois, para o repositório não passar a mentir: a tabela de taxonomia e a de
   NFR/ADR neste README, e a seção correspondente em [`adr/README.md`](adr/).
 - **Motor local novo** (o workload consome) → `platform/local/<motor>/`.
-- **Ferramenta nova** (você consome) → `tools/<ferramenta>/`.
+- **Semeador de dado** → dentro do workload cuja fonte ele alimenta, como
+  `workloads/webevents-streaming/seed/`. Ele pertence a quem consome o dado
+  que ele produz.
 - **Infra-base nova** (não é workload nem ferramenta local) → avalie se
   cabe dentro de `platform/aws/network` ou de um workload existente, ou
   se merece um root module próprio dentro de `platform/`.
