@@ -5,7 +5,7 @@ variable "environment" {
 }
 
 variable "rds_password" {
-  description = "Password for the RDS PostgreSQL instance (same value used in platform/rds). No default on purpose."
+  description = "Password for the RDS PostgreSQL instance (same value used in sources/rds). No default on purpose."
   type        = string
   sensitive   = true
 }
@@ -26,12 +26,12 @@ variable "network_state_key" {
 }
 
 variable "rds_state_bucket" {
-  description = "S3 bucket holding platform/rds's state. No default on purpose — it is your own bucket, set in envs/*.tfvars."
+  description = "S3 bucket holding sources/rds's state. No default on purpose — it is your own bucket, set in envs/*.tfvars."
   type        = string
 }
 
 variable "rds_state_key" {
-  description = "S3 key of platform/rds's state for this environment"
+  description = "S3 key of sources/rds's state for this environment"
   type        = string
 }
 

@@ -1,4 +1,4 @@
-# platform/ec2
+# lab/ec2
 
 Uma instância EC2 para hospedar os stacks de `local-services/` (Kafka,
 OpenSearch) quando você quer que o job Glue de streaming, que roda na AWS,
@@ -24,7 +24,7 @@ necessidade real. O default é modesto de propósito.
 ## Aplicar
 
 ```bash
-cd platform/ec2
+cd lab/ec2
 terraform init -backend-config=backends/develop.hcl
 terraform apply -var-file=envs/develop.tfvars
 ```

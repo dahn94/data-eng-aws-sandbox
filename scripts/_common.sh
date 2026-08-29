@@ -7,13 +7,15 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Ordem de dependência: cada módulo depende dos anteriores.
 # Aplicar é nesta ordem; destruir é na ordem inversa.
 MODULES=(
-  # Plataforma: o que os workloads consomem. Vive muito, muda pouco.
+  # Plataforma: o substrato compartilhado. Vive muito, muda pouco.
   "platform/foundation"
   "platform/network"
-  "platform/rds"
-  "platform/ec2"
+  # Fonte: de onde o dado vem. Só 3 dos 8 workloads dependem dela.
+  "sources/rds"
+  # Bancada: fora do fluxo padrão, nenhum workload depende.
+  "lab/ec2"
   # Workloads: cada um é dono da infra que cria e sobe sozinho, desde que a
-  # plataforma de que ele depende esteja de pé (o README de cada um declara).
+  # plataforma e a fonte de que ele depende estejam de pé (o README declara).
   "workloads/dms"
   "workloads/query-lambda"
   "workloads/amazonsales"

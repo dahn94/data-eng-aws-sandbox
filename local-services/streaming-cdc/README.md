@@ -29,7 +29,7 @@ connector:
 ## Pré-requisito no Postgres
 
 A origem precisa de `rds.logical_replication = 1`. O módulo
-`platform/rds` já configura isso; se você estiver usando um Postgres
+`sources/rds` já configura isso; se você estiver usando um Postgres
 próprio, garanta `wal_level = logical`. Sem isso o connector faz o snapshot
 inicial e depois fica parado para sempre, sem erro claro.
 

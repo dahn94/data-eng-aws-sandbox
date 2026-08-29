@@ -1,19 +1,19 @@
-name: platform/ec2 CI/CD
+name: sources/rds CI/CD
 
 on:
   pull_request:
     branches: [develop, main]
     paths:
-      - "platform/ec2/**"
-      - "modules/ec2/**"
-      - .github/workflows/platform-ec2-ci.yml
+      - "sources/rds/**"
+      - "modules/rds/**"
+      - .github/workflows/sources-rds-ci.yml
       - .github/workflows/terraform-reusable.yml
   push:
     branches: [develop, main]
     paths:
-      - "platform/ec2/**"
-      - "modules/ec2/**"
-      - .github/workflows/platform-ec2-ci.yml
+      - "sources/rds/**"
+      - "modules/rds/**"
+      - .github/workflows/sources-rds-ci.yml
       - .github/workflows/terraform-reusable.yml
 
 jobs:
@@ -21,5 +21,5 @@ jobs:
     uses: ./.github/workflows/terraform-reusable.yml
     secrets: inherit
     with:
-      working_directory: platform/ec2
-
+      working_directory: sources/rds
+      needs_rds_password: true

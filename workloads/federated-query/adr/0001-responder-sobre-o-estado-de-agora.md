@@ -106,7 +106,7 @@ taxonomia por causa disso.
 Passou a existir carga analítica sobre o banco transacional, sem teto declarado
 e sem medição. Isso é pior do que antes e **não tem mitigação hoje**.
 
-O `platform/rds` passou a exportar `security_group_id` para que o consumidor
+O `sources/rds` passou a exportar `security_group_id` para que o consumidor
 declare a própria regra de entrada, em vez de o RDS conhecer seus consumidores.
 Isso inverte a direção do acoplamento e vale para os próximos workloads.
 
@@ -121,4 +121,4 @@ Isso inverte a direção do acoplamento e vale para os próximos workloads.
 - `workloads/federated-query/main.tf:96-110` — a credencial no Secrets Manager.
 - `workloads/federated-query/main.tf:136-143` — a regra de entrada no RDS
   declarada pelo consumidor.
-- `platform/rds/outputs.tf` — o `security_group_id` exportado para isso.
+- `sources/rds/outputs.tf` — o `security_group_id` exportado para isso.

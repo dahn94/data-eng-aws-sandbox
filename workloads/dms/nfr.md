@@ -10,7 +10,7 @@ candidatos a revisão.
 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
-| Origem | Postgres com `rds.logical_replication = 1` | `../../platform/rds/README.md:36` |
+| Origem | Postgres com `rds.logical_replication = 1` | `../../sources/rds/README.md:36` |
 | Modo | `full-load-and-cdc` — carga inicial e CDC contínuo | `modules/dms/main.tf:143` |
 | Destino | Parquet + GZIP no S3 raw | `modules/dms/main.tf:111-117` |
 | Caminho de saída | `<bucket_folder>/<schema>/<tabela>/` | `README.md:24-34` |

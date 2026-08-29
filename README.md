@@ -13,7 +13,7 @@ AWS. Não é caro se você seguir as instruções — **mas custa**. Antes do pr
 `terraform apply`:
 
 1. Crie um **AWS Budget** de alerta (grátis) — pelo console (Billing →
-   Budgets) ou via CLI, ver [tutorial em `platform/budget`](platform/budget/README.md).
+   Budgets) ou via CLI, ver [tutorial em `scripts/budget.md`](scripts/budget.md).
    Um orçamento de uns $10-20 com alerta em 50%/80%/100% já te avisa por
    e-mail, automaticamente, se algo ficar ligado sem querer.
 2. Nunca deixe um `terraform apply` rodando "pra ver o que acontece" e vá
@@ -114,6 +114,12 @@ faz com dado vem antes de com que ferramenta você faz. Por isso não existe uma
 pasta `terraform/` — Terraform é detalhe de implementação, e amanhã pode entrar
 dbt ou Flink sem que o workload precise se partir em três lugares.
 
+Pelo mesmo motivo, `platform/`, `sources/` e `lab/` são separados: eles têm
+papéis diferentes e ciclos de vida diferentes. Plataforma é consumida por quase
+tudo e vive muito; fonte é onde o dado nasce e só parte dos workloads depende
+dela; bancada não tem consumidor nenhum. Amontoar os três esconderia justamente
+a informação que decide o que você precisa aplicar antes de rodar um workload.
+
 ```
 workloads/               # O QUE se faz com dado. Uma pasta por workload,
   amazonsales/           #   cada uma com state próprio e autossuficiente.
@@ -125,12 +131,15 @@ workloads/               # O QUE se faz com dado. Uma pasta por workload,
   incremental-mv/
   data-sharing/
 
-platform/                # O QUE OS WORKLOADS CONSOMEM. Vive muito, muda pouco
+platform/                # O SUBSTRATO COMPARTILHADO. Vive muito, muda pouco.
   foundation/            #   Os buckets S3 que todo o resto usa. APLIQUE PRIMEIRO
-  network/               #   VPC, subnets, rede
-  rds/                   #   O banco Postgres transacional (a origem)
-  ec2/                   #   Isolado, não faz parte do fluxo padrão
-  budget/                #   Tutorial de alerta de custo (não é Terraform)
+  network/               #   VPC, subnets, rede — 5 dos 8 workloads consomem
+
+sources/                 # DE ONDE O DADO VEM. Nem todo workload precisa:
+  rds/                   #   Postgres transacional — 3 dos 8 consomem
+
+lab/                     # BANCADA. Fora do fluxo, nenhum workload depende.
+  ec2/                   #   Máquina para experimentar à mão
 
 modules/                 # Código compartilhado, nunca infraestrutura
                          #   compartilhada. Um workload instancia o módulo e
@@ -147,6 +156,8 @@ local-services/          # Tudo que roda local (Docker), um por ferramenta
   localstack/            #   Emulador da AWS — alvo de execução alternativo
 
 scripts/                 # Utilitários de setup e governança de custo
+                         #   (inclui budget.md: o alerta de orçamento que se
+                         #   configura ANTES do primeiro apply)
 .github/workflows/       # CI/CD do Terraform (um workflow reutilizável +
                          # um arquivo curto por root module)
 ```
@@ -338,7 +349,7 @@ seguindo o padrão já estabelecido:
   `workloads/federated-query/` se não for.
 - **Ferramenta local nova** → uma pasta nova em `local-services/<ferramenta>/`.
 - **Infra-base nova** (não é workload nem ferramenta local) → avalie se
-  cabe dentro de `platform/network`, `platform/rds` ou `workloads/dms`, ou
+  cabe dentro de `platform/network`, `sources/rds` ou `workloads/dms`, ou
   se merece um root module próprio dentro de `platform/`.
 
 Cada workload **possui** a infraestrutura que usa, inclusive quando isso

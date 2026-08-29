@@ -1,4 +1,4 @@
-# platform/rds
+# sources/rds
 
 Root module do Postgres gerenciado (RDS). Depende do state de
 `platform/network` — aplique `foundation` → `network` → `rds`.
@@ -6,7 +6,7 @@ Root module do Postgres gerenciado (RDS). Depende do state de
 ## Aplicar
 
 ```bash
-cd platform/rds
+cd sources/rds
 terraform init -backend-config=backends/develop.hcl
 export TF_VAR_rds_password='uma-senha-forte'
 terraform apply -var-file=envs/develop.tfvars

@@ -26,8 +26,8 @@ done
 check_env_arg "$ENVIRONMENT"
 need terraform
 
-# Ordem inversa da de aplicação: workloads primeiro, plataforma depois, e o
-# foundation — que guarda os states — por último.
+# Ordem inversa da de aplicação: workloads primeiro, depois a fonte e a
+# plataforma, e o foundation — que guarda os states — por último.
 #
 # federated-query e zero-etl penduram recurso NO rds (regra de security group,
 # integração zero-ETL). Se o rds for destruído antes, o destroy deles falha ou
@@ -41,8 +41,8 @@ DESTROY_ORDER=(
   "workloads/amazonsales"
   "workloads/query-lambda"
   "workloads/dms"
-  "platform/ec2"
-  "platform/rds"
+  "lab/ec2"
+  "sources/rds"
   "platform/network"
   "platform/foundation"
 )

@@ -1,4 +1,4 @@
-# platform/budget
+# Alerta de orçamento na AWS
 
 Não é um root module Terraform — é a rede de segurança que precisa existir
 **antes** do primeiro `terraform apply` de qualquer outro módulo deste

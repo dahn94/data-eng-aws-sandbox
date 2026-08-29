@@ -21,12 +21,12 @@ variable "network_state_key" {
 }
 
 variable "rds_state_bucket" {
-  description = "S3 bucket com o state de platform/rds. Sem default de propósito — é o seu bucket, definido em envs/*.tfvars."
+  description = "S3 bucket com o state de sources/rds. Sem default de propósito — é o seu bucket, definido em envs/*.tfvars."
   type        = string
 }
 
 variable "rds_state_key" {
-  description = "S3 key do state de platform/rds para este ambiente"
+  description = "S3 key do state de sources/rds para este ambiente"
   type        = string
 }
 

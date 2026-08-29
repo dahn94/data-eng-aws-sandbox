@@ -15,7 +15,7 @@ export PGPASSWORD=<senha-do-postgres>
 # opcionais:
 export PGUSER=postgres
 export PGPORT=5432
-export PGDATABASE=dataengsandbox    # casa com o db_name criado por platform/rds
+export PGDATABASE=dataengsandbox    # casa com o db_name criado por sources/rds
 export BATCH_INTERVAL_SECONDS=60
 
 python3 script-insert-postgres-webfake-events.py
@@ -35,4 +35,4 @@ job de streaming — que lê `before` em deletes — receberia quase tudo nulo.
 
 O `PGHOST` precisa estar alcançável da sua máquina. No RDS deste repositório
 isso significa colocar seu IP em `allowed_cidr_blocks` no
-`platform/rds/envs/develop.tfvars`.
+`sources/rds/envs/develop.tfvars`.

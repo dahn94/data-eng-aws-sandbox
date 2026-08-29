@@ -132,7 +132,7 @@ resource "aws_vpc_security_group_egress_rule" "connector_all" {
 }
 
 # Quem chega depois declara o próprio acesso: o RDS não precisa conhecer seus
-# consumidores. Por isso platform/rds passou a exportar security_group_id.
+# consumidores. Por isso sources/rds passou a exportar security_group_id.
 resource "aws_vpc_security_group_ingress_rule" "rds_from_connector" {
   security_group_id            = data.terraform_remote_state.rds.outputs.security_group_id
   description                  = "Postgres a partir do conector federado do Athena"
@@ -185,7 +185,7 @@ resource "aws_serverlessapplicationrepository_cloudformation_stack" "postgres_co
 # Daqui em diante é SQL: nenhum dado foi copiado para lugar nenhum.
 resource "aws_athena_data_catalog" "postgres" {
   name        = replace("${local.name}-postgres", "-", "_")
-  description = "Postgres transacional (platform/rds) consultado sem cópia"
+  description = "Postgres transacional (sources/rds) consultado sem cópia"
   type        = "LAMBDA"
 
   parameters = {

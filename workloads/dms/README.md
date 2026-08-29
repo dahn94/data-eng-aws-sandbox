@@ -2,14 +2,14 @@
 
 Root module do DMS: endpoints (source Postgres / target S3), instância de
 replicação e a task `full-load-and-cdc`. Depende dos states de
-`platform/network` e `platform/rds` — aplique nessa ordem.
+`platform/network` e `sources/rds` — aplique nessa ordem.
 
 ## Aplicar
 
 ```bash
 cd workloads/dms
 terraform init -backend-config=backends/develop.hcl
-export TF_VAR_rds_password='mesma-senha-do-platform/rds'
+export TF_VAR_rds_password='mesma-senha-do-sources/rds'
 terraform apply -var-file=envs/develop.tfvars
 ```
 
