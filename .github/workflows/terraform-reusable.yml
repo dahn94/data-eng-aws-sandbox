@@ -48,10 +48,20 @@ env:
 
 # Autenticação por OIDC: o job assume uma role da conta AWS por ‘token’ de curta
 # duração. Nada de AWS_ACCESS_KEY_ID/SECRET de longa duração em secrets.
+# ATENÇÃO — este bloco depende de uma configuração do repositório, e é o que
+# quebrava tudo aqui até 2026-08-29: com "Workflow permissions" em read-only
+# (Settings > Actions > General), o GitHub recusa o workflow INTEIRO se ele
+# pedir qualquer permissão de escrita — antes de criar job, sem log, sem
+# annotation, aparecendo só como `startup_failure` de 1 segundo. `id-token`
+# conta como escrita, então OIDC exige o padrão do repositório em
+# "Read and write permissions".
+#
+# Com o padrão em write, este bloco passa a REDUZIR o token ao mínimo que os
+# passos usam: ler o código e pegar o token OIDC. `pull-requests: write` estava
+# aqui e nunca foi usado — nada comenta em PR.
 permissions:
   contents: read
   id-token: write
-  pull-requests: write
 
 jobs:
   plan:
