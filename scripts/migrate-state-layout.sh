@@ -32,7 +32,7 @@ for arg in "$@"; do
   case "$arg" in
     --check)   MODE="check" ;;
     --cleanup) MODE="cleanup" ;;
-    -h|--help) sed -n '2,25p' "$0" | sed 's/^# \?//'; exit 0 ;;
+    -h|--help) sed -n '2,25p' "$0" | sed -E 's/^# ?//'; exit 0 ;;
     *)         die "argumento desconhecido: $arg" ;;
   esac
 done

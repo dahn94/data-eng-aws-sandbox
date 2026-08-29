@@ -18,7 +18,7 @@ for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=1 ;;
     --yes|-y)  ASSUME_YES=1 ;;
-    -h|--help) sed -n '2,8p' "$0" | sed 's/^# \?//'; exit 0 ;;
+    -h|--help) sed -n '2,8p' "$0" | sed -E 's/^# ?//'; exit 0 ;;
     *)         ENVIRONMENT="$arg" ;;
   esac
 done
