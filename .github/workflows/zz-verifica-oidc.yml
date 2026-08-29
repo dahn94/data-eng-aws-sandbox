@@ -1,0 +1,16 @@
+name: verifica OIDC
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  whoami:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-2
+      - run: aws sts get-caller-identity
