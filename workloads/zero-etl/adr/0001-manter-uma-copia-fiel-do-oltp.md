@@ -83,7 +83,7 @@ e pelo `../data-sharing/`.
 
 | Ponto fraco | Como é contornado |
 |---|---|
-| Custo do Redshift ligado | Capacidade no mínimo do serviço (8 RPU) e `terraform destroy` ao fim da sessão, com o `scripts/teardown.sh` conhecendo a ordem. Trata o sintoma; o custo por hora segue **não medido**. |
+| Custo do Redshift ligado | Capacidade no mínimo do serviço (4 RPU) e `terraform destroy` ao fim da sessão, com o `scripts/teardown.sh` conhecendo a ordem. Trata o sintoma; o custo por hora segue **não medido**. |
 | Sem transformação no caminho | **Não é contornado.** É a premissa da decisão, não um efeito colateral. Transformar exige outro caminho. |
 | Sem histórico no destino | Não é contornado aqui, e nem deveria ser: histórico é papel do `../dms/` e do lake. Os dois caminhos coexistem de propósito. |
 | Acoplamento ao schema da origem | Filtro por `source_tables` limita a superfície (`envs/*.tfvars`), mas renomear coluna na origem continua atravessando até o dashboard, sem aviso. |

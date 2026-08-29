@@ -42,12 +42,13 @@ variable "redshift_admin_password" {
 
 variable "base_capacity_rpu" {
   description = <<-EOT
-    Capacidade base do workgroup, em RPU. 8 é o mínimo do serviço. Diferente de
-    Glue e Lambda, o Redshift Serverless cobra por RPU enquanto processa
-    consulta — este é o workload mais caro do repositório e o teardown importa.
+    Capacidade base do workgroup, em RPU. 4 é o mínimo do serviço em us-east-2;
+    regiões sem a opção de 4 exigem 8. Diferente de Glue e Lambda, o Redshift
+    Serverless cobra por RPU enquanto processa consulta — este é o workload mais
+    caro do repositório e o teardown importa.
   EOT
   type        = number
-  default     = 8
+  default     = 4
 }
 
 variable "source_tables" {

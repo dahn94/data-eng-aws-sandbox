@@ -32,7 +32,7 @@ servir e a resposta volta a ser um pipeline.
 | Código próprio a operar | **0 linhas** | — |
 | Versão mínima da origem | PostgreSQL 15.4 | restrição do serviço |
 | Versão da origem hoje | PostgreSQL 17 | `../../platform/rds/` |
-| Destino | Redshift Serverless, 8 RPU base | `variables.tf:43-51` |
+| Destino | Redshift Serverless, 4 RPU base | `variables.tf:43-51` |
 | `case_sensitive_identifier` | `true` — exigido pela integração | `main.tf:86` |
 | Filtro de tabelas | `dataengsandbox.public.*` | `envs/develop.tfvars:10` |
 | Defasagem medida origem → destino | **não medida** | — |
@@ -63,7 +63,7 @@ slot não avançar, o Postgres retém WAL e o disco da instância enche. Numa
 |---|---|---|
 | Custo da integração em si | **US$0** — o serviço não cobra pela integração | modelo do serviço |
 | Custo do destino parado | **≠ US$0** — o Redshift cobra por RPU ao processar, e a integração o faz processar sem consulta | `README.md:74-100` |
-| Capacidade mínima | 8 RPU | `variables.tf:43-51` |
+| Capacidade mínima | 4 RPU (mínimo do serviço em us-east-2) | `variables.tf:43-51` |
 | Armazenamento no destino | cópia integral do escopo replicado | `envs/develop.tfvars:10` |
 | Custo por hora medido | **não medido** | — |
 | Custo comparado ao `../dms/` fazendo o mesmo | **não medido** | — |

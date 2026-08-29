@@ -32,12 +32,13 @@ variable "redshift_admin_password" {
 
 variable "base_capacity_rpu" {
   description = <<-EOT
-    Capacidade base de CADA workgroup, em RPU. Este é o único workload do
+    Capacidade base de CADA workgroup, em RPU. 4 é o mínimo do serviço em
+    us-east-2; regiões sem a opção de 4 exigem 8. Este é o único workload do
     repositório que cria dois — a demonstração exige duas pontas. Leia a seção
     de custo do README antes de aplicar.
   EOT
   type        = number
-  default     = 8
+  default     = 4
 }
 
 variable "seed_bucket" {

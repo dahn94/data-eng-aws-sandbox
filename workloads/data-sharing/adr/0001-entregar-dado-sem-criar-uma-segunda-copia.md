@@ -78,7 +78,7 @@ cross-account. Same-account é mais simples e ensina o mesmo mecanismo.
 
 | Ponto fraco | Como é contornado |
 |---|---|
-| Dois warehouses ligados | Capacidade no mínimo (8 RPU cada) e teardown ao fim da sessão. Trata o sintoma; o custo segue **não medido**, e este continua sendo o item mais caro do repositório. |
+| Dois warehouses ligados | Capacidade no mínimo (4 RPU cada) e teardown ao fim da sessão. Trata o sintoma; o custo segue **não medido**, e este continua sendo o item mais caro do repositório. |
 | Consumidor sem autonomia | **Não é contornado.** É a contrapartida direta de não copiar. Quando autonomia for requisito — arquivamento, entrega contratual, auditoria externa — o export volta, com motivo. |
 | Só funciona entre Redshifts da mesma região | Não é contornado. É o limite do mecanismo, e é o gatilho de inversão mais provável na prática. |
 | `DROP TABLE` no produtor apaga para os dois | Não é contornado. Sem cópia não há rede de segurança — é o outro lado de "uma fonte da verdade". |

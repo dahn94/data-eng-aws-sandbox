@@ -179,7 +179,7 @@ else
   if [[ "$REDSHIFT_FOUND" -gt 0 ]]; then
     echo "  $(c_yellow 'A estimativa NÃO inclui o Redshift Serverless') — ele cobra por"
     echo "  $(c_dim 'atividade. Com zero-ETL ou auto refresh ligados, essa atividade é')"
-    echo "  $(c_dim 'contínua, e o teto de 8 RPU processando 24/7 passa de US$2.000/mês.')"
+    echo "  $(c_dim 'contínua, e o teto de 4 RPU processando 24/7 passa de US$1.000/mês.')"
     echo
   fi
   echo "  Pausar (mantém os dados):  ./scripts/pause.sh $ENVIRONMENT"

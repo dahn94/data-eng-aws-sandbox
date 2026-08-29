@@ -32,13 +32,13 @@ variable "redshift_admin_password" {
 
 variable "base_capacity_rpu" {
   description = <<-EOT
-    Capacidade base do workgroup, em RPU. 8 é o mínimo do serviço. O auto
-    refresh da materialized view consome RPU sem ninguém pedir — é o preço de
-    não ser mais dono do "quando", e aparece na fatura mesmo com o dashboard
-    fechado.
+    Capacidade base do workgroup, em RPU. 4 é o mínimo do serviço em us-east-2;
+    regiões sem a opção de 4 exigem 8. O auto refresh da materialized view
+    consome RPU sem ninguém pedir — é o preço de não ser mais dono do "quando",
+    e aparece na fatura mesmo com o dashboard fechado.
   EOT
   type        = number
-  default     = 8
+  default     = 4
 }
 
 variable "seed_bucket" {

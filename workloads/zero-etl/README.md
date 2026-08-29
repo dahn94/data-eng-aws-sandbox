@@ -87,7 +87,7 @@ que atravessa a integração e chega no dashboard. Você não controla, e não �
 avisado.
 
 **É o workload mais caro do repositório.** O Redshift Serverless cobra por RPU
-enquanto processa, com um mínimo de 8 RPU, e a integração faz o destino
+enquanto processa, com um mínimo de 4 RPU, e a integração faz o destino
 trabalhar sozinho — inclusive quando ninguém está consultando. Diferente de
 Glue e Lambda, que cobram por execução, este custo existe porque o warehouse
 existe. **Faça `terraform destroy` ao terminar a sessão de estudo.**

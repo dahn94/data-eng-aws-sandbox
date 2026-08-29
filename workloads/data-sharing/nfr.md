@@ -71,7 +71,7 @@ A linha de PII é a dívida: `ADD ALL TABLES IN SCHEMA public` não olha o conte
 | Requisito | Valor hoje | Origem |
 |---|---|---|
 | Workgroups criados | **2** — é o único workload do repositório com dois | `main.tf:108-147` |
-| Capacidade base por workgroup | 8 RPU | `variables.tf:33-41` |
+| Capacidade base por workgroup | 4 RPU | `variables.tf:33-41` |
 | Custo parado | **≠ US$0, dobrado** | `README.md:78-96` |
 | Armazenamento duplicado | **nenhum** — o consumidor não guarda nada | `main.tf:260-275` |
 | Quem paga a consulta do consumidor | o consumidor, no próprio workgroup | modelo do serviço |

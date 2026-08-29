@@ -32,7 +32,7 @@ exige SLA de frescor não pode usar auto refresh.
 | Motor | Redshift Serverless, materialized view | `main.tf:109-130` |
 | Quem decide recomputar | **o motor** | `main.tf:212-233` (`AUTO REFRESH`) |
 | Código próprio a operar | **0 linhas** | — |
-| Capacidade base | 8 RPU | `variables.tf:33-42` |
+| Capacidade base | 4 RPU | `variables.tf:33-42` |
 | Distribuição da tabela base | `DISTKEY (customer_id)`, `SORTKEY (pedido_em)` | `main.tf:175-184` |
 | Latência da query sem a view | **não medida** (40 s é o relato da demanda, não medição) | `README.md:9` |
 | Latência da query com a view | **não medida** | — |
@@ -65,7 +65,7 @@ A última linha é uma limitação de IaC assumida, não um bug: alterar a view 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
 | Custo parado | **≠ US$0** — refresh automático consome RPU sem consulta | `README.md:83-106` |
-| Capacidade mínima | 8 RPU por workgroup | `variables.tf:33-42` |
+| Capacidade mínima | 4 RPU por workgroup (mínimo do serviço em us-east-2) | `variables.tf:33-42` |
 | Custo por leitura do dashboard | baixo — lê o agregado, não a base | modelo do serviço |
 | Custo dos refreshes que ninguém pediu | **não medido** | — |
 | Armazenamento | tabela base + o agregado materializado | `main.tf:175-184` |

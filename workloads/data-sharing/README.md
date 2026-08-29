@@ -76,7 +76,7 @@ no consumidor. O `MAX` muda, e nenhum job rodou entre as duas execuções.
 ## O que isso te custou
 
 **Dois warehouses ligados.** Este é o único workload do repositório que cria
-duas instâncias de Redshift Serverless, cada uma com capacidade mínima de 8 RPU.
+duas instâncias de Redshift Serverless, cada uma com capacidade mínima de 4 RPU.
 A demonstração exige duas pontas — não há como mostrar compartilhamento com um
 namespace só. **É o item mais caro do repositório. Destrua ao terminar.**
 

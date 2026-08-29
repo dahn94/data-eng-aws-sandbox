@@ -6,5 +6,5 @@ network_state_key    = "terraform/dataeng-sandbox/platform/network/dev/terraform
 rds_state_bucket     = "CHANGEME-lake-configs"
 rds_state_key        = "terraform/dataeng-sandbox/platform/rds/dev/terraform.tfstate"
 
-base_capacity_rpu = 8
+base_capacity_rpu = 4
 source_tables     = ["dataengsandbox.public.*"]

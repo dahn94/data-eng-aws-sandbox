@@ -43,12 +43,14 @@ variable "security_group_ids" {
 
 variable "base_capacity_rpu" {
   description = <<-EOT
-    Capacidade base em RPU. 8 é o mínimo do serviço. O workgroup cobra por RPU
+    Capacidade base em RPU. 4 é o mínimo do serviço em us-east-2 (era 8 até
+    2025); regiões que ainda não receberam a opção de 4 exigem 8, e o apply
+    falha se você pedir menos do que a região aceita. O workgroup cobra por RPU
     enquanto processa consulta — é a diferença de modelo em relação a Glue e
     Lambda, que só cobram por execução.
   EOT
   type        = number
-  default     = 8
+  default     = 4
 }
 
 variable "max_capacity_rpu" {
