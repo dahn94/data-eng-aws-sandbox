@@ -344,13 +344,22 @@ Este repositório nasceu de um treinamento e foi reorganizado pra crescer
 como um projeto sério. A ideia é ir adicionando novos workloads aqui dentro
 seguindo o padrão já estabelecido:
 
-- **Workload novo** → uma pasta nova em `workloads/<nome>/`, com
-  seu próprio `terraform.tf`, `variables.tf`, `main.tf`, `envs/`, `backends/`,
-  `README.md`, `nfr.md` e `adr/` — e ganha state próprio. O workflow de CI dela
-  é um arquivo de ~15 linhas que chama
-  `.github/workflows/terraform-reusable.yml`. Copie a estrutura de
+- **Workload novo** → uma pasta em `workloads/<nome>/` com `main.tf`,
+  `variables.tf`, `outputs.tf`, `versions.tf`, `envs/`, `backends/`,
+  `README.md`, `nfr.md` e `adr/`. Ganha state próprio. Copie a estrutura de
   `workloads/amazonsales/` se for um pipeline, ou a de
   `workloads/federated-query/` se não for.
+
+  Fora da pasta, **só uma coisa é obrigatória**: o workflow de CI em
+  `.github/workflows/workload-<nome>-ci.yml`, um arquivo de ~20 linhas que
+  chama `terraform-reusable.yml`. Os scripts de operação descobrem o workload
+  sozinhos — `scripts/_common.sh` varre `workloads/*/main.tf`, e o
+  `teardown.sh` deriva a ordem de destruição dali. Isso é deliberado: a lista
+  escrita à mão já existiu, e esquecer uma linha nela significava um `teardown`
+  que dizia ter terminado deixando recurso ligado.
+
+  Depois, para o repositório não passar a mentir: a tabela de taxonomia e a de
+  NFR/ADR neste README, e a seção correspondente em [`adr/README.md`](adr/).
 - **Ferramenta local nova** → uma pasta nova em `local-services/<ferramenta>/`.
 - **Infra-base nova** (não é workload nem ferramenta local) → avalie se
   cabe dentro de `platform/network` ou de um workload existente, ou

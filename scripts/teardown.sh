@@ -26,24 +26,17 @@ done
 check_env_arg "$ENVIRONMENT"
 need terraform
 
-# Ordem inversa da de aplicação: workloads primeiro, depois a fonte e a
-# plataforma, e o foundation — que guarda os states — por último.
+# Ordem inversa da de aplicação, derivada de MODULES: os workloads primeiro,
+# depois a rede, e o foundation — que guarda os states de todos — por último.
 #
-# federated-query e zero-etl penduram recurso NO rds (regra de security group,
-# integração zero-ETL). Se o rds for destruído antes, o destroy deles falha ou
-# deixa órfão. Por isso vêm antes, e não junto dos outros workloads.
-DESTROY_ORDER=(
-  "workloads/data-sharing"
-  "workloads/incremental-mv"
-  "workloads/zero-etl"
-  "workloads/federated-query"
-  "workloads/webevents-streaming"
-  "workloads/amazonsales"
-  "workloads/query-lambda"
-  "workloads/dms"
-  "platform/network"
-  "platform/foundation"
-)
+# Entre workloads não há ordem: cada um cria a própria fonte e o próprio
+# warehouse, dentro do próprio state, então nenhum segura recurso de outro.
+# Derivar daqui é o que faz um workload novo ser destruído sem ninguém precisar
+# lembrar de acrescentá-lo — o esquecimento que deixa recurso cobrando calado.
+DESTROY_ORDER=()
+for (( idx=${#MODULES[@]} - 1; idx >= 0; idx-- )); do
+  DESTROY_ORDER+=("${MODULES[$idx]}")
+done
 
 echo
 echo "Ambiente a destruir: $(c_red "$ENVIRONMENT")"

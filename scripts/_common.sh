@@ -4,22 +4,35 @@
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Ordem de dependência: cada módulo depende dos anteriores.
-# Aplicar é nesta ordem; destruir é na ordem inversa.
-MODULES=(
-  # Plataforma: o substrato compartilhado. Vive muito, muda pouco.
+# A plataforma é listada à mão, em ordem de dependência: o foundation cria o
+# bucket de state que o resto usa, e a rede precisa existir antes de qualquer
+# coisa que viva dentro dela.
+PLATFORM_MODULES=(
   "platform/foundation"
   "platform/network"
-  # Workloads: cada um é dono da infra que cria e sobe sozinho, desde que a
-  # plataforma e a fonte de que ele depende estejam de pé (o README declara).
-  "workloads/dms"
-  "workloads/query-lambda"
-  "workloads/amazonsales"
-  "workloads/webevents-streaming"
-  "workloads/federated-query"
-  "workloads/zero-etl"
-  "workloads/incremental-mv"
-  "workloads/data-sharing"
+)
+
+# Os workloads são descobertos do filesystem: qualquer diretório em workloads/
+# com um main.tf é um workload. Derivar em vez de listar é o que faz um workload
+# novo entrar sozinho no status.sh, no pause.sh e — o que mais importa — no
+# teardown.sh, onde esquecer uma linha significa deixar recurso cobrando sem
+# nenhum aviso.
+#
+# A lista escrita à mão existia porque havia ordem entre workloads: dois deles
+# penduravam recurso no Postgres compartilhado e precisavam ser destruídos
+# antes dele. Desde que cada workload passou a criar a própria fonte, nenhum
+# depende de outro, e a ordem entre eles deixou de importar — então a ordem
+# alfabética do find serve.
+WORKLOAD_MODULES=()
+while IFS= read -r dir; do
+  [[ -n "$dir" ]] && WORKLOAD_MODULES+=("workloads/$(basename "$dir")")
+done < <(find "$REPO_ROOT/workloads" -mindepth 2 -maxdepth 2 -name main.tf -exec dirname {} \; 2>/dev/null | sort)
+
+# ${arr[@]+"${arr[@]}"} em vez de "${arr[@]}": no bash 3.2 do macOS, expandir um
+# array vazio sob `set -u` aborta o script.
+MODULES=(
+  ${PLATFORM_MODULES[@]+"${PLATFORM_MODULES[@]}"}
+  ${WORKLOAD_MODULES[@]+"${WORKLOAD_MODULES[@]}"}
 )
 
 PREFIX="dataeng-sandbox"
