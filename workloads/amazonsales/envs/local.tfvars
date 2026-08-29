@@ -1,6 +1,0 @@
-environment       = "local"
-region            = "us-east-1"
-s3_bucket_raw     = "sandbox-lake-raw-local"
-s3_bucket_curated = "sandbox-lake-curated-local"
-s3_bucket_scripts = "sandbox-lake-configs"
-aws_endpoint_url  = "http://localhost:4566"

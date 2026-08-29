@@ -132,10 +132,10 @@ origem, e destruir o RDS primeiro deixa a integração órfã. O
 
 ## Sem ambiente `local`
 
-Não há `envs/local.tfvars`. O LocalStack não implementa integração zero-ETL nem
+Não há ambiente local. Nada fora da AWS implementa integração zero-ETL nem
 motor de Redshift — um apply contra o emulador validaria sintaxe de Terraform e
 nada do comportamento que este workload existe para ensinar. Ver
-[`../federated-query/adr/0002`](../federated-query/adr/0002-onde-o-emulador-deixa-de-ensinar.md).
+[`adr/0001` na raiz](../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
 
 ## Requisitos e decisões
 

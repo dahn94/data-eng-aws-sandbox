@@ -12,9 +12,6 @@ terraform {
   }
 }
 
-# Sem bloco de LocalStack: datashare é um mecanismo do motor do Redshift, e o
-# emulador não tem motor de Redshift. Ver
-# ../federated-query/adr/0002-onde-o-emulador-deixa-de-ensinar.md.
 provider "aws" {
   region = var.region
 

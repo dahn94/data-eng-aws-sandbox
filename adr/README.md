@@ -78,7 +78,6 @@ Requisitos: [`nfr.md`](../workloads/federated-query/nfr.md).
 | # | Problema | Requisito que decidiu |
 |---|---|---|
 | [0001](../workloads/federated-query/adr/0001-responder-sobre-o-estado-de-agora.md) | Como responder uma pergunta sobre o estado de agora | defasagem tolerada igual a zero |
-| [0002](../workloads/federated-query/adr/0002-onde-o-emulador-deixa-de-ensinar.md) | Quando emular a nuvem para de ensinar sobre o dado | comportamento, não sintaxe, é o que se estuda |
 
 ### Replicação gerenciada — [`workloads/zero-etl/`](../workloads/zero-etl/)
 
@@ -103,6 +102,14 @@ Requisitos: [`nfr.md`](../workloads/data-sharing/nfr.md).
 | # | Problema | Requisito que decidiu |
 |---|---|---|
 | [0001](../workloads/data-sharing/adr/0001-entregar-dado-sem-criar-uma-segunda-copia.md) | Como entregar dado a outro time sem criar uma segunda cópia | uma única fonte da verdade |
+
+### Repositório inteiro
+
+Decisões que não pertencem a um workload só.
+
+| # | Problema | Requisito que decidiu |
+|---|---|---|
+| [0001](./0001-rodar-local-sem-emular-a-nuvem.md) | Como rodar local sem emular a nuvem | o emulador não executava a lógica dos jobs |
 
 ### Método
 

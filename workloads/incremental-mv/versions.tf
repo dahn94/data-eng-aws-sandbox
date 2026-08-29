@@ -12,10 +12,6 @@ terraform {
   }
 }
 
-# Sem bloco de LocalStack: o emulador não tem motor SQL de Redshift, e uma
-# materialized view com AUTO REFRESH é exatamente comportamento de motor — não
-# há o que validar contra um emulador aqui. Ver
-# ../federated-query/adr/0002-onde-o-emulador-deixa-de-ensinar.md.
 provider "aws" {
   region = var.region
 

@@ -12,10 +12,6 @@ terraform {
   }
 }
 
-# Sem bloco de LocalStack: o emulador não executa SQL de Redshift nem integração
-# zero-ETL, então um apply local validaria sintaxe e nada do comportamento que
-# este workload existe para mostrar. Ver
-# ../federated-query/adr/0002-onde-o-emulador-deixa-de-ensinar.md.
 provider "aws" {
   region = var.region
 

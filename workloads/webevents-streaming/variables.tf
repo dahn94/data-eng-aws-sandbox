@@ -63,17 +63,6 @@ variable "opensearch_index" {
   type        = string
   default     = "web_events"
 }
-
-variable "aws_endpoint_url" {
-  description = <<-EOT
-    URL única para onde mandar todas as chamadas da AWS. Vazio (o default) =
-    AWS de verdade. Preencha com http://localhost:4566 para usar o LocalStack
-    (veja local-services/localstack).
-  EOT
-  type        = string
-  default     = ""
-}
-
 variable "enable_vpc_connection" {
   description = <<-EOT
     Faz o job Glue rodar DENTRO da VPC, por uma `aws_glue_connection` do tipo
@@ -123,7 +112,7 @@ variable "enable_streaming_host" {
     `local-services/search-opensearch` dentro da AWS.
 
     Existe por um motivo só: o job Glue roda na AWS e não alcança o Docker da
-    sua máquina. Rodando este workload no ambiente `local` (LocalStack), job e
+    sua máquina. Rodando os serviços de `local-services/` na sua máquina, job e
     contêineres ficam juntos e nada disto é necessário — deixe desligado.
 
     Desligado por default porque é o único recurso deste workload que cobra por

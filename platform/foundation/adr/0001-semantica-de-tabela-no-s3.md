@@ -26,7 +26,7 @@ depende de `MERGE INTO` e de SCD Tipo 2 sobre CDC.
 | Leitura consistente durante escrita | exigida — dims e fatos usam `INSERT OVERWRITE` | [`amazonsales/adr/0004`](../../../workloads/amazonsales/adr/0004-politica-de-recarga-por-camada.md) |
 | Recuperação de escrita errada | time travel por snapshot | [`amazonsales/nfr.md`](../../../workloads/amazonsales/nfr.md) |
 | Catálogo a operar | **nenhum** | premissa do repo |
-| Custo parado | US$0 fixo | `foundation/README.md:56-58` |
+| Custo parado | US$0 fixo | `../README.md:56-58` |
 
 O requisito que decide é o primeiro: **quantos motores diferentes leem a mesma
 tabela.** Três, de fornecedores distintos, e o item 8 da Fase 04 do TODO prevê
@@ -76,7 +76,7 @@ antes cada um dos oito scripts tinha sua cópia.
 | Acoplamento ao S3 Tables como catálogo | Parcial: o **formato** (Iceberg) é portável; migrar significa trocar o catálogo, não reescrever o dado |
 | Dependência de jar de ~15 MB fora do Git | Contornado: `scripts/fetch-jars.sh` baixa e o Terraform envia ao S3, em vez de upload manual |
 | ARN do lakehouse é contrato implícito entre módulos | Contornado por convenção de nome determinística, com variável para sobrescrever |
-| Emulador local não cobre S3 Tables | **Não é contornado.** O caminho honesto para exercitar a lógica é PySpark local, e o README do LocalStack diz isso |
+| Nenhum emulador cobre S3 Tables | **Não é contornado.** O caminho honesto para exercitar a lógica é PySpark local contra MinIO e um catálogo Iceberg — é o que `local-services/` passa a oferecer |
 | Manutenção de tabela (arquivos pequenos, snapshots) | Delegada ao serviço hoje; quando não bastar, vira job explícito — item 2 da Fase 01 do TODO |
 
 ## Quando esta decisão se inverte

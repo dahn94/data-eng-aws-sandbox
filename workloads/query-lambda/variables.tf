@@ -49,13 +49,3 @@ variable "allowed_origins" {
   type        = list(string)
   default     = []
 }
-
-variable "aws_endpoint_url" {
-  description = <<-EOT
-    URL única para onde mandar todas as chamadas da AWS. Vazio (o default) =
-    AWS de verdade. Preencha com http://localhost:4566 para usar o LocalStack
-    (veja local-services/localstack).
-  EOT
-  type        = string
-  default     = ""
-}

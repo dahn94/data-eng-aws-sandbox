@@ -125,13 +125,12 @@ expira sozinho em 3 dias, caso você esqueça.
 ## Sem ambiente `local`
 
 Não há `envs/local.tfvars` aqui. O conector vem do Serverless Application
-Repository, que o LocalStack não resolve — aplicar contra o emulador validaria
+Repository, que não existe fora da AWS — aplicar contra um emulador validaria
 sintaxe de Terraform e não o comportamento que este workload existe para
 ensinar. O motivo está em
-[`adr/0002`](adr/0002-onde-o-emulador-deixa-de-ensinar.md).
+[`adr/0001` na raiz](../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
 
 ## Requisitos e decisões
 
 - [`nfr.md`](nfr.md) — os números
 - [`adr/0001`](adr/0001-responder-sobre-o-estado-de-agora.md) — como responder uma pergunta sobre o estado de agora
-- [`adr/0002`](adr/0002-onde-o-emulador-deixa-de-ensinar.md) — quando emular a nuvem para de valer a pena

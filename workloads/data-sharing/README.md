@@ -130,8 +130,8 @@ Dois workgroups cobrando por RPU. **Não deixe de pé entre sessões.**
 ## Sem ambiente `local`
 
 Não há `envs/local.tfvars`. Datashare é um mecanismo do motor do Redshift, e o
-LocalStack não tem motor de Redshift. Ver
-[`../federated-query/adr/0002`](../federated-query/adr/0002-onde-o-emulador-deixa-de-ensinar.md).
+Não há motor de Redshift que se rode em contêiner. Ver
+[`adr/0001` na raiz](../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
 
 ## Requisitos e decisões
 

@@ -36,7 +36,7 @@ não de conveniência. Há três caminhos, e eles não são equivalentes.
 
 ### 1. Ambiente `local` — o mais simples
 
-Job e serviços na mesma máquina, via LocalStack. `streaming_host` é
+Job e serviços na mesma máquina, contra os motores de `local-services/`. `streaming_host` é
 `host.docker.internal` e não há mais nada a resolver. É o caminho recomendado
 para estudar o comportamento do streaming.
 

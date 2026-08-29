@@ -48,21 +48,23 @@ need() {
   command -v "$1" >/dev/null 2>&1 || die "'$1' não encontrado no PATH."
 }
 
-# Traduz o nome do ambiente do repositório (develop/main/local) para o sufixo
-# que aparece no nome dos recursos (dev/prod/local).
+# Traduz o nome do ambiente do repositório (develop/main) para o sufixo que
+# aparece no nome dos recursos (dev/prod).
 env_suffix() {
   case "$1" in
     develop) echo "dev" ;;
     main)    echo "prod" ;;
-    local)   echo "local" ;;
     *)       echo "$1" ;;
   esac
 }
 
+# Só existem dois ambientes de Terraform. O `local` foi removido junto com o
+# LocalStack: rodar local passou a ser subir os motores de verdade em
+# local-services/ e executar os scripts contra eles, sem Terraform no meio.
 check_env_arg() {
   case "$1" in
-    develop|main|local) return 0 ;;
-    *) die "ambiente inválido '$1'. Use: develop, main ou local." ;;
+    develop|main) return 0 ;;
+    *) die "ambiente inválido '$1'. Use: develop ou main. (O ambiente 'local' não existe mais — veja local-services/.)" ;;
   esac
 }
 

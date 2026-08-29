@@ -122,5 +122,5 @@ consultar, e montar a matriz seria encenação.
 ## Evidência no repo
 
 - `TODO.md` — a trilha paralela nomeia os ADRs como "o maior ganho, e de graça".
-- `README.md:283-299` — a seção Roadmap já define regras de organização por
+- `README.md` (seção Roadmap) — já define regras de organização por
   pasta; os ADRs seguem a mesma regra.

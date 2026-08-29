@@ -146,9 +146,9 @@ processar sozinho. **Destruir ao fim da sessão não é higiene, é orçamento.*
 ## Sem ambiente `local`
 
 Não há `envs/local.tfvars`. Materialized view com auto refresh é comportamento
-de motor, e o LocalStack não tem motor de Redshift — não há o que validar contra
+de motor, e não há Redshift em contêiner — não há o que validar contra
 um emulador aqui. Ver
-[`../federated-query/adr/0002`](../federated-query/adr/0002-onde-o-emulador-deixa-de-ensinar.md).
+[`adr/0001` na raiz](../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
 
 ## Requisitos e decisões
 

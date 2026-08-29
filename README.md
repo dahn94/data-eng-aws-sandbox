@@ -157,7 +157,6 @@ local-services/          # Tudo que roda local (Docker), um por ferramenta
   bi-superset/           #   Apache Superset
   olap-clickhouse/       #   ClickHouse
   data-generator/        #   Script que gera eventos fake pro Postgres
-  localstack/            #   Emulador da AWS — alvo de execução alternativo
 
 scripts/                 # Utilitários de setup e governança de custo
                          #   (inclui budget.md: o alerta de orçamento que se
@@ -287,25 +286,26 @@ Gateway e Gateway Endpoint de S3 não têm custo parado. O `foundation` também
 pode ficar — deixe-o por último quando for limpar tudo, porque ele guarda o
 state dos outros.
 
-## Ambientes: dev, prod e local
+## Ambientes: dev e prod
 
-Cada root module tem três ambientes, selecionados por
+Cada root module tem dois ambientes, selecionados por
 `-backend-config=backends/<amb>.hcl` e `-var-file=envs/<amb>.tfvars`:
 
 | Ambiente | Vai para | Uso |
 |---|---|---|
 | `develop` | AWS (`dev`) | estudo do dia a dia |
 | `main` | AWS (`prod`) | o mesmo, isolado |
-| `local` | **LocalStack** | aplicar sem gastar nada — ver [`local-services/localstack`](local-services/localstack/README.md) |
 
 A separação é real, não só de state: **todo recurso leva o ambiente no nome** e
 os buckets de dados são separados (`...-raw-dev` / `...-raw-prod`). Dá para ter
 os dois de pé na mesma conta AWS sem colisão de nome de IAM role nem um
 sobrescrevendo os dados do outro.
 
-O ambiente `local` usa o mesmo mecanismo: a variável `aws_endpoint_url`, vazia
-por default, redireciona todas as chamadas para o LocalStack quando preenchida.
-Nenhum código é duplicado para isso.
+**Não existe um ambiente `local` de Terraform**, e isso é deliberado. Rodar
+local aqui não significa emular a API da AWS — significa subir os motores de
+verdade em [`local-services/`](local-services/) e executar os scripts contra
+eles. O emulador validava fiação de recursos; os motores validam o
+comportamento do dado, que é o que este repositório afirma nos ADRs.
 
 ## Segredos e senhas
 

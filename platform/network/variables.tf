@@ -33,13 +33,3 @@ variable "availability_zones" {
   type        = list(string)
   default     = ["us-east-2a", "us-east-2b"]
 }
-
-variable "aws_endpoint_url" {
-  description = <<-EOT
-    URL única para onde mandar todas as chamadas da AWS. Vazio (o default) =
-    AWS de verdade. Preencha com http://localhost:4566 para usar o LocalStack
-    (veja local-services/localstack).
-  EOT
-  type        = string
-  default     = ""
-}
