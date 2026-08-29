@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 TABLE = "web_events"
 BATCH_INTERVAL_SECONDS = int(os.environ.get("BATCH_INTERVAL_SECONDS", "60"))
 
-# O default casa com o db_name criado por aws-platform/rds.
+# O default casa com o db_name criado por platform/rds.
 DEFAULT_DATABASE = "dataengsandbox"
 
 _running = True

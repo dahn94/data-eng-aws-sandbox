@@ -1,13 +1,13 @@
 # localstack
 
 Emulador da AWS rodando na sua máquina. Serve para aplicar o Terraform de
-`aws-platform/` sem gastar nada e sem tocar numa conta real.
+o Terraform do repositório sem gastar nada e sem tocar numa conta real.
 
 ## Ele é diferente dos vizinhos desta pasta
 
 Kafka, OpenSearch, Metabase e ClickHouse são **peças da arquitetura** — carregam,
 guardam ou mostram dado. O LocalStack não: ele é um **alvo de execução
-alternativo** para `aws-platform/`. Está aqui porque roda local em Docker, mas
+alternativo** para `workloads/` e `platform/`. Está aqui porque roda local em Docker, mas
 a parte interessante da integração não é este compose — é o ambiente `local`
 que cada root module ganhou.
 
@@ -32,7 +32,7 @@ O repositório já seleciona ambiente por `backends/<amb>.hcl` +
 de `develop` e `main`:
 
 ```bash
-cd aws-platform/foundation
+cd platform/foundation
 terraform init
 terraform apply -var-file=envs/local.tfvars
 

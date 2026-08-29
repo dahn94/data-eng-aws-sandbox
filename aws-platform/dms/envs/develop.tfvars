@@ -1,6 +1,0 @@
-environment          = "dev"
-s3_bucket_raw        = "CHANGEME-lake-raw-dev"
-network_state_bucket = "CHANGEME-lake-configs"
-network_state_key    = "terraform/dataeng-sandbox/network/dev/terraform.tfstate"
-rds_state_bucket     = "CHANGEME-lake-configs"
-rds_state_key        = "terraform/dataeng-sandbox/rds/dev/terraform.tfstate"

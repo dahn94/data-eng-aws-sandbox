@@ -1,0 +1,25 @@
+name: workloads/webevents-streaming CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "workloads/webevents-streaming/**"
+      - "modules/glue-job/**"
+      - .github/workflows/workload-webevents-streaming-ci.yml
+      - .github/workflows/terraform-reusable.yml
+  push:
+    branches: [develop, main]
+    paths:
+      - "workloads/webevents-streaming/**"
+      - "modules/glue-job/**"
+      - .github/workflows/workload-webevents-streaming-ci.yml
+      - .github/workflows/terraform-reusable.yml
+
+jobs:
+  terraform:
+    uses: ./.github/workflows/terraform-reusable.yml
+    secrets: inherit
+    with:
+      working_directory: workloads/webevents-streaming
+      needs_opensearch_password: true

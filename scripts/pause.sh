@@ -83,7 +83,7 @@ dms=$(aws dms describe-replication-instances --region "$REGION" \
 if [[ -n "$dms" ]]; then
   echo "$(c_red 'AINDA COBRANDO:') instância DMS $dms (~US\$28/mês)"
   echo "O DMS não tem stop. Para parar de pagar:"
-  echo "  cd aws-platform/dms && terraform destroy -var-file=envs/${ENVIRONMENT}.tfvars"
+  echo "  cd workloads/dms && terraform destroy -var-file=envs/${ENVIRONMENT}.tfvars"
   echo
 fi
 

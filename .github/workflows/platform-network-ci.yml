@@ -1,0 +1,25 @@
+name: platform/network CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "platform/network/**"
+      - "modules/vpc/**"
+      - .github/workflows/platform-network-ci.yml
+      - .github/workflows/terraform-reusable.yml
+  push:
+    branches: [develop, main]
+    paths:
+      - "platform/network/**"
+      - "modules/vpc/**"
+      - .github/workflows/platform-network-ci.yml
+      - .github/workflows/terraform-reusable.yml
+
+jobs:
+  terraform:
+    uses: ./.github/workflows/terraform-reusable.yml
+    secrets: inherit
+    with:
+      working_directory: platform/network
+

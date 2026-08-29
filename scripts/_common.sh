@@ -7,14 +7,21 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Ordem de dependência: cada módulo depende dos anteriores.
 # Aplicar é nesta ordem; destruir é na ordem inversa.
 MODULES=(
-  "aws-platform/foundation"
-  "aws-platform/network"
-  "aws-platform/rds"
-  "aws-platform/dms"
-  "aws-platform/ec2"
-  "aws-platform/query-lambda"
-  "aws-platform/pipelines/amazonsales"
-  "aws-platform/pipelines/webevents-streaming"
+  # Plataforma: o que os workloads consomem. Vive muito, muda pouco.
+  "platform/foundation"
+  "platform/network"
+  "platform/rds"
+  "platform/ec2"
+  # Workloads: cada um é dono da infra que cria e sobe sozinho, desde que a
+  # plataforma de que ele depende esteja de pé (o README de cada um declara).
+  "workloads/dms"
+  "workloads/query-lambda"
+  "workloads/amazonsales"
+  "workloads/webevents-streaming"
+  "workloads/federated-query"
+  "workloads/zero-etl"
+  "workloads/incremental-mv"
+  "workloads/data-sharing"
 )
 
 PREFIX="dataeng-sandbox"

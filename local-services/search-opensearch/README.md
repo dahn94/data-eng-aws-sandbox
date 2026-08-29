@@ -23,7 +23,7 @@ símbolo) — com senha fraca o container sobe e morre em seguida.
 
 A mesma senha vai para o job Glue de streaming, mas por outro caminho: você a
 passa como `TF_VAR_opensearch_password` em
-`aws-platform/pipelines/webevents-streaming`, e o Terraform a grava num secret
+`workloads/webevents-streaming`, e o Terraform a grava num secret
 do Secrets Manager. O job lê o secret em runtime — a senha nunca aparece como
 argumento do job.
 

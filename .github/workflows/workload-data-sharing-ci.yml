@@ -1,0 +1,27 @@
+name: workloads/data-sharing CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "workloads/data-sharing/**"
+      # O warehouse vem de um módulo compartilhado: mexer nele sem disparar
+      # este workflow deixaria a mudança sem plan.
+      - "modules/redshift-serverless/**"
+      - .github/workflows/workload-data-sharing-ci.yml
+      - .github/workflows/terraform-reusable.yml
+  push:
+    branches: [develop, main]
+    paths:
+      - "workloads/data-sharing/**"
+      - "modules/redshift-serverless/**"
+      - .github/workflows/workload-data-sharing-ci.yml
+      - .github/workflows/terraform-reusable.yml
+
+jobs:
+  terraform:
+    uses: ./.github/workflows/terraform-reusable.yml
+    secrets: inherit
+    with:
+      working_directory: workloads/data-sharing
+      needs_redshift_password: true

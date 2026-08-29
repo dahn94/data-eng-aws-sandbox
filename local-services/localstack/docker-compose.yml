@@ -1,7 +1,7 @@
 # LocalStack: emula os serviços da AWS na sua máquina.
 #
 # Diferente dos outros stacks desta pasta, ele não é uma peça da arquitetura de
-# dados — é um alvo de execução alternativo para o Terraform de aws-platform/.
+# dados — é um alvo de execução alternativo para o Terraform deste repositório.
 # Veja o README para como apontar os módulos para cá.
 
 services:

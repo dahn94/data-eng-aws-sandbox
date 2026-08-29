@@ -1,0 +1,27 @@
+name: workloads/incremental-mv CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "workloads/incremental-mv/**"
+      # O warehouse vem de um módulo compartilhado: mexer nele sem disparar
+      # este workflow deixaria a mudança sem plan.
+      - "modules/redshift-serverless/**"
+      - .github/workflows/workload-incremental-mv-ci.yml
+      - .github/workflows/terraform-reusable.yml
+  push:
+    branches: [develop, main]
+    paths:
+      - "workloads/incremental-mv/**"
+      - "modules/redshift-serverless/**"
+      - .github/workflows/workload-incremental-mv-ci.yml
+      - .github/workflows/terraform-reusable.yml
+
+jobs:
+  terraform:
+    uses: ./.github/workflows/terraform-reusable.yml
+    secrets: inherit
+    with:
+      working_directory: workloads/incremental-mv
+      needs_redshift_password: true

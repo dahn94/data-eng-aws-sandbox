@@ -89,5 +89,6 @@ great_expectations/uncommitted_data_docs/
 
 # Internal planning docs (not part of the published project)
 docs/
+TODO.md
 # Jars: baixados por ./scripts/fetch-jars.sh, não versionados (~15 MB de binário)
 *.jar

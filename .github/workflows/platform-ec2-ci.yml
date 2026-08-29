@@ -1,0 +1,25 @@
+name: platform/ec2 CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "platform/ec2/**"
+      - "modules/ec2/**"
+      - .github/workflows/platform-ec2-ci.yml
+      - .github/workflows/terraform-reusable.yml
+  push:
+    branches: [develop, main]
+    paths:
+      - "platform/ec2/**"
+      - "modules/ec2/**"
+      - .github/workflows/platform-ec2-ci.yml
+      - .github/workflows/terraform-reusable.yml
+
+jobs:
+  terraform:
+    uses: ./.github/workflows/terraform-reusable.yml
+    secrets: inherit
+    with:
+      working_directory: platform/ec2
+

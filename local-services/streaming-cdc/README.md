@@ -29,7 +29,7 @@ connector:
 ## Pré-requisito no Postgres
 
 A origem precisa de `rds.logical_replication = 1`. O módulo
-`aws-platform/rds` já configura isso; se você estiver usando um Postgres
+`platform/rds` já configura isso; se você estiver usando um Postgres
 próprio, garanta `wal_level = logical`. Sem isso o connector faz o snapshot
 inicial e depois fica parado para sempre, sem erro claro.
 
@@ -38,7 +38,7 @@ inicial e depois fica parado para sempre, sem erro claro.
 O connector usa `topic.prefix = ecommerce`, então o tópico gerado é
 **`ecommerce.public.web_events`**. Esse nome aparece em outros dois lugares:
 
-- `aws-platform/pipelines/webevents-streaming` (variável `kafka_topic`)
+- `workloads/webevents-streaming` (variável `kafka_topic`)
 - `local-services/olap-clickhouse/create-table-events.sql`
 
 Se mudar o prefixo aqui, mude nos dois.
@@ -69,3 +69,9 @@ prende o WAL e enche o disco da instância:
 ```bash
 curl -X DELETE http://localhost:8083/connectors/postgres-connector
 ```
+
+## Por que este stack existe junto com o DMS
+
+O repositório mantém os dois caminhos de CDC de propósito. Qual resolve qual
+problema, e o gatilho que faz a escolha mudar, está registrado em
+[`workloads/dms/adr/0001`](../../workloads/dms/adr/0001-captura-de-mudancas-do-postgres.md).

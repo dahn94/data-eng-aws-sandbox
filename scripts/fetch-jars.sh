@@ -25,12 +25,12 @@ download() {
   curl -fsSL --retry 3 -o "$dest_dir/$file" "$url"
 }
 
-echo "==> pipelines/amazonsales (catálogo S3 Tables para Iceberg)"
-download "$REPO_ROOT/aws-platform/pipelines/amazonsales/jars" \
+echo "==> workloads/amazonsales (catálogo S3 Tables para Iceberg)"
+download "$REPO_ROOT/workloads/amazonsales/jars" \
   "$MAVEN/software/amazon/s3tables/s3-tables-catalog-for-iceberg-runtime/0.1.7/s3-tables-catalog-for-iceberg-runtime-0.1.7.jar"
 
-echo "==> pipelines/webevents-streaming (Kafka + Avro + OpenSearch para Spark)"
-WEB="$REPO_ROOT/aws-platform/pipelines/webevents-streaming/jars"
+echo "==> workloads/webevents-streaming (Kafka + Avro + OpenSearch para Spark)"
+WEB="$REPO_ROOT/workloads/webevents-streaming/jars"
 download "$WEB" "$MAVEN/org/apache/spark/spark-sql-kafka-0-10_2.12/3.3.4/spark-sql-kafka-0-10_2.12-3.3.4.jar"
 download "$WEB" "$MAVEN/org/apache/spark/spark-avro_2.12/3.3.4/spark-avro_2.12-3.3.4.jar"
 download "$WEB" "$MAVEN/org/apache/kafka/kafka-clients/3.5.2/kafka-clients-3.5.2.jar"
@@ -48,4 +48,4 @@ done
 
 echo
 echo "Pronto. Os jars ficam fora do Git (veja .gitignore) e são enviados"
-echo "ao S3 pelo Terraform quando você aplicar as pipelines."
+echo "ao S3 pelo Terraform quando você aplicar os workloads."

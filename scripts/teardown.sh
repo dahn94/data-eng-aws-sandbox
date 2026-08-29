@@ -26,17 +26,25 @@ done
 check_env_arg "$ENVIRONMENT"
 need terraform
 
-# Ordem inversa da de aplicação. As pipelines e a lambda não têm dependentes,
-# então vão primeiro; o foundation, que guarda os states, vai por último.
+# Ordem inversa da de aplicação: workloads primeiro, plataforma depois, e o
+# foundation — que guarda os states — por último.
+#
+# federated-query e zero-etl penduram recurso NO rds (regra de security group,
+# integração zero-ETL). Se o rds for destruído antes, o destroy deles falha ou
+# deixa órfão. Por isso vêm antes, e não junto dos outros workloads.
 DESTROY_ORDER=(
-  "aws-platform/pipelines/webevents-streaming"
-  "aws-platform/pipelines/amazonsales"
-  "aws-platform/query-lambda"
-  "aws-platform/dms"
-  "aws-platform/ec2"
-  "aws-platform/rds"
-  "aws-platform/network"
-  "aws-platform/foundation"
+  "workloads/data-sharing"
+  "workloads/incremental-mv"
+  "workloads/zero-etl"
+  "workloads/federated-query"
+  "workloads/webevents-streaming"
+  "workloads/amazonsales"
+  "workloads/query-lambda"
+  "workloads/dms"
+  "platform/ec2"
+  "platform/rds"
+  "platform/network"
+  "platform/foundation"
 )
 
 echo

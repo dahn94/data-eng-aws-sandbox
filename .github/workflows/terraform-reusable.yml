@@ -31,6 +31,11 @@ on:
         required: false
         type: boolean
         default: false
+      needs_redshift_password:
+        description: Se o módulo precisa de TF_VAR_redshift_admin_password
+        required: false
+        type: boolean
+        default: false
       extra_var_flags:
         description: Flags -var extras passadas ao plan/apply
         required: false
@@ -41,7 +46,7 @@ env:
   TF_IN_AUTOMATION: "true"
   TF_INPUT: "false"
 
-# Autenticação por OIDC: o job assume uma role da conta AWS por token de curta
+# Autenticação por OIDC: o job assume uma role da conta AWS por ‘token’ de curta
 # duração. Nada de AWS_ACCESS_KEY_ID/SECRET de longa duração em secrets.
 permissions:
   contents: read
@@ -72,8 +77,8 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
-      # -recursive: a versão anterior checava só o root module, então os
-      # módulos em aws-platform/modules/ nunca eram verificados.
+      # — recursive: a versão anterior checava só o root module, então os
+      # módulos em modules/ nunca eram verificados.
       - name: Terraform fmt
         run: terraform fmt -check -recursive -diff
 
@@ -95,6 +100,7 @@ jobs:
         env:
           TF_VAR_rds_password: ${{ inputs.needs_rds_password && secrets.RDS_PASSWORD || '' }}
           TF_VAR_opensearch_password: ${{ inputs.needs_opensearch_password && secrets.OPENSEARCH_PASSWORD || '' }}
+          TF_VAR_redshift_admin_password: ${{ inputs.needs_redshift_password && secrets.REDSHIFT_ADMIN_PASSWORD || '' }}
         run: |
           terraform plan -lock-timeout=5m \
             -var-file=envs/${{ steps.env.outputs.name }}.tfvars \
@@ -142,12 +148,13 @@ jobs:
         run: terraform init -backend-config=backends/${{ needs.plan.outputs.env_name }}.hcl
 
       # Replaneja depois da aprovação em vez de reaproveitar um plano salvo:
-      # evita ter que trafegar o arquivo com segredos entre jobs.
+      # evita ter de trafegar o arquivo com segredos entre jobs.
       - name: Terraform apply
         working-directory: ${{ inputs.working_directory }}
         env:
           TF_VAR_rds_password: ${{ inputs.needs_rds_password && secrets.RDS_PASSWORD || '' }}
           TF_VAR_opensearch_password: ${{ inputs.needs_opensearch_password && secrets.OPENSEARCH_PASSWORD || '' }}
+          TF_VAR_redshift_admin_password: ${{ inputs.needs_redshift_password && secrets.REDSHIFT_ADMIN_PASSWORD || '' }}
         run: |
           terraform apply -auto-approve -lock-timeout=5m \
             -var-file=envs/${{ needs.plan.outputs.env_name }}.tfvars \

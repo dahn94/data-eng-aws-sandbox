@@ -8,12 +8,12 @@ focadas em AWS.
 
 ## ⚠️ Antes de tocar em qualquer coisa: isso custa dinheiro de verdade
 
-A parte que roda na AWS (pasta `aws-platform/`) usa recursos reais da sua conta
+A parte que roda na AWS (`workloads/` e `platform/`) usa recursos reais da sua conta
 AWS. Não é caro se você seguir as instruções — **mas custa**. Antes do primeiro
 `terraform apply`:
 
 1. Crie um **AWS Budget** de alerta (grátis) — pelo console (Billing →
-   Budgets) ou via CLI, ver [tutorial em `aws-platform/budget`](aws-platform/budget/README.md).
+   Budgets) ou via CLI, ver [tutorial em `platform/budget`](platform/budget/README.md).
    Um orçamento de uns $10-20 com alerta em 50%/80%/100% já te avisa por
    e-mail, automaticamente, se algo ficar ligado sem querer.
 2. Nunca deixe um `terraform apply` rodando "pra ver o que acontece" e vá
@@ -30,7 +30,7 @@ Valores aproximados em `us-east-2`, para você saber o que está ligando:
 | `network` | **US$0** | VPC, subnets, IGW e o Gateway Endpoint de S3 são gratuitos |
 | `rds` | ~US$14/mês | `db.t4g.micro` + 20 GB. Pode ser parada. Free tier nos 12 primeiros meses |
 | `dms` | ~US$28/mês | `dms.t3.micro`. **Não tem "stop", só delete** |
-| `pipelines/*` | ~US$0 parado | Glue cobra por execução (~US$0,44/DPU-hora). O de streaming cobra **enquanto roda** |
+| `workloads/*` | ~US$0 parado | Glue cobra por execução (~US$0,44/DPU-hora). O de streaming cobra **enquanto roda** |
 | `query-lambda` | ~US$0 parado | Lambda cobra por invocação |
 | `ec2` | **~US$65/mês** | `t3a.large` + 100 GB. Pode ser parada. Fora do fluxo padrão |
 
@@ -46,9 +46,9 @@ dia precisa**. Perfis úteis:
 |---|---|---|
 | Terraform, IAM, S3 | `foundation` | ~US$0 |
 | Rede, Postgres, SQL | `+ network` `+ rds` | ~US$0,50 |
-| Pipeline batch, Iceberg, Step Functions | `+ pipelines/amazonsales` | ~US$0,50 |
+| Pipeline batch, Iceberg, Step Functions | `+ workloads/amazonsales` | ~US$0,50 |
 | CDC de verdade | `+ dms` | ~US$1,40 |
-| Streaming ponta a ponta | `+ ec2` `+ pipelines/webevents-streaming` | ~US$3,60 |
+| Streaming ponta a ponta | `+ ec2` `+ workloads/webevents-streaming` | ~US$3,60 |
 
 As pipelines são as mais baratas de manter aplicadas: job Glue, Step Functions
 e Lambda **não cobram nada parados**, só por execução. Quem cobra por hora é
@@ -109,36 +109,80 @@ Se algum desses termos for novo pra você, volte aqui sempre que precisar:
 
 ## Estrutura do repositório
 
+O primeiro nível é organizado **por domínio, não por ferramenta**: o que você
+faz com dado vem antes de com que ferramenta você faz. Por isso não existe uma
+pasta `terraform/` — Terraform é detalhe de implementação, e amanhã pode entrar
+dbt ou Flink sem que o workload precise se partir em três lugares.
+
 ```
-aws-platform/            # Tudo que roda na AWS (Terraform), um "time" por pasta
-  foundation/            # Os buckets S3 que todo o resto usa. APLIQUE PRIMEIRO
-  network/               # Time de Plataforma: VPC, subnets, rede
-  rds/                   # Time de Dados: o banco Postgres
-  dms/                   # Time de Ingestão: captura de mudanças (CDC) pro S3
-  pipelines/             # Uma pasta por pipeline de processamento, cada uma
-    amazonsales/           # com seu próprio state — é aqui que pipelines
-    webevents-streaming/   # novas entram conforme o projeto cresce
-  query-lambda/          # Lambda/DuckDB que consulta o resultado das pipelines
-  ec2/                   # Isolado, não faz parte do fluxo padrão
-  modules/               # Peças reutilizáveis que os módulos acima usam
+workloads/               # O QUE se faz com dado. Uma pasta por workload,
+  amazonsales/           #   cada uma com state próprio e autossuficiente.
+  webevents-streaming/   #   Nem todo workload é pipeline — veja a taxonomia
+  dms/                   #   logo abaixo. É aqui que trabalho novo entra.
+  query-lambda/
+  federated-query/
+  zero-etl/
+  incremental-mv/
+  data-sharing/
 
+platform/                # O QUE OS WORKLOADS CONSOMEM. Vive muito, muda pouco
+  foundation/            #   Os buckets S3 que todo o resto usa. APLIQUE PRIMEIRO
+  network/               #   VPC, subnets, rede
+  rds/                   #   O banco Postgres transacional (a origem)
+  ec2/                   #   Isolado, não faz parte do fluxo padrão
+  budget/                #   Tutorial de alerta de custo (não é Terraform)
+
+modules/                 # Código compartilhado, nunca infraestrutura
+                         #   compartilhada. Um workload instancia o módulo e
+                         #   passa a ser dono do recurso que ele cria.
+
+adr/                     # Índice geral das decisões e o método
 local-services/          # Tudo que roda local (Docker), um por ferramenta
-  streaming-cdc/         # Kafka + Debezium
-  search-opensearch/     # OpenSearch + Dashboards
-  bi-metabase/           # Metabase
-  bi-superset/           # Apache Superset
-  olap-clickhouse/       # ClickHouse
-  data-generator/        # Script que gera eventos fake pro Postgres
-  localstack/            # Emulador da AWS — alvo alternativo do aws-platform/
+  streaming-cdc/         #   Kafka + Debezium
+  search-opensearch/     #   OpenSearch + Dashboards
+  bi-metabase/           #   Metabase
+  bi-superset/           #   Apache Superset
+  olap-clickhouse/       #   ClickHouse
+  data-generator/        #   Script que gera eventos fake pro Postgres
+  localstack/            #   Emulador da AWS — alvo de execução alternativo
 
-scripts/                 # Utilitários de setup do repositório
+scripts/                 # Utilitários de setup e governança de custo
 .github/workflows/       # CI/CD do Terraform (um workflow reutilizável +
                          # um arquivo curto por root module)
 ```
 
-Cada pasta dentro de `aws-platform/` e `local-services/` tem seu próprio `README.md`
-explicando exatamente o que ela faz e como rodar — este README aqui é só o
-mapa geral.
+Dentro de cada root module, os arquivos seguem a convenção usual: `main.tf`,
+`variables.tf`, `outputs.tf` e `versions.tf`, com `envs/*.tfvars` e
+`backends/*.hcl` por ambiente.
+
+Cada pasta dentro de `workloads/`, `platform/` e `local-services/` tem seu
+próprio `README.md` explicando exatamente o que ela faz e como rodar — este
+README aqui é só o mapa geral.
+
+### Nem todo caminho até o analytics é um pipeline
+
+Pipeline é **uma** das formas de levar dado da fonte até quem consulta: a forma
+procedural, em passos, na ingestão. Existem outras, e o que as separa é **quando
+o trabalho acontece** e **se o dado é copiado**:
+
+| Workload | Quando o trabalho acontece | Copia? | O que ele responde |
+|---|---|---|---|
+| [`amazonsales`](workloads/amazonsales/) | ingestão (batch) | sim | transformação pesada, modelagem, histórico |
+| [`webevents-streaming`](workloads/webevents-streaming/) | ingestão (contínua) | sim | frescor de segundos num índice de busca |
+| [`zero-etl`](workloads/zero-etl/) | contínuo, gerenciado | sim | replicar sem escrever nem operar código |
+| [`dms`](workloads/dms/) | contínuo | sim | capturar mudança linha a linha do OLTP |
+| [`incremental-mv`](workloads/incremental-mv/) | armazenamento | já copiado | agregado sempre pronto, sem job agendado |
+| [`federated-query`](workloads/federated-query/) | consulta | **não** | juntar o estado de agora com o histórico |
+| [`data-sharing`](workloads/data-sharing/) | consulta | **não** | entregar a outro time sem cópia nem export |
+| [`query-lambda`](workloads/query-lambda/) | consulta | **não** | servir o lake por API, sem cluster |
+
+Copiar compra histórico, isolamento da fonte e performance previsível. Não
+copiar compra frescor, custo de ingestão zero e nada para operar — e cobra em
+carga na fonte, latência imprevisível e, o mais caro, **ausência de histórico**:
+se a origem faz `UPDATE` in-place, o passado morreu.
+
+Em cada `workloads/*/README.md` a escolha aparece como um problema do dia a dia,
+com os números que a decidiram em `nfr.md` e a decisão em `adr/`.
 
 ## Setup: duas coisas antes de qualquer terraform
 
@@ -182,7 +226,7 @@ funcionando. Os stacks que precisam de `.env` avisam no README deles.
 
 **3. Crie os buckets**
 ```bash
-cd aws-platform/foundation
+cd platform/foundation
 terraform init
 terraform apply -var-file=envs/develop.tfvars
 ```
@@ -205,17 +249,17 @@ ninguém entra de fora da VPC.
 
 **5. Gere dados fake e veja o CDC funcionando**
 `local-services/data-generator/` insere eventos continuamente no Postgres. Depois
-suba `aws-platform/dms/` (ou `local-services/streaming-cdc/`) pra ver essas mudanças
+suba `workloads/dms/` (ou `local-services/streaming-cdc/`) pra ver essas mudanças
 sendo capturadas em tempo real.
 
 O RDS já sobe com `rds.logical_replication = 1` — sem esse parâmetro, o CDC
 faz a carga inicial e depois fica parado para sempre, sem erro claro.
 
 **6. Processe os dados**
-`aws-platform/pipelines/amazonsales/` tem os jobs Glue que transformam os dados
+`workloads/amazonsales/` tem os jobs Glue que transformam os dados
 brutos em tabelas organizadas (Iceberg) mais o Step Functions que orquestra
-tudo; `aws-platform/pipelines/webevents-streaming/` processa o streaming de
-eventos web. `aws-platform/query-lambda/` consulta o resultado via DuckDB.
+tudo; `workloads/webevents-streaming/` processa o streaming de
+eventos web. `workloads/query-lambda/` consulta o resultado via DuckDB.
 
 **7. Destrua o que não estiver usando**
 ```bash
@@ -223,7 +267,7 @@ eventos web. `aws-platform/query-lambda/` consulta o resultado via DuckDB.
 ./scripts/pause.sh develop       # pausa mantendo os dados, entre sessões
 ./scripts/teardown.sh develop    # ou destrói tudo, na ordem certa
 ```
-`aws-platform/network` pode ficar de pé entre sessões: VPC, subnets, Internet
+`platform/network` pode ficar de pé entre sessões: VPC, subnets, Internet
 Gateway e Gateway Endpoint de S3 não têm custo parado. O `foundation` também
 pode ficar — deixe-o por último quando for limpar tudo, porque ele guarda o
 state dos outros.
@@ -282,19 +326,58 @@ Além disso:
 ## Roadmap
 
 Este repositório nasceu de um treinamento e foi reorganizado pra crescer
-como um projeto sério. A ideia é ir adicionando novas pipelines aqui dentro
+como um projeto sério. A ideia é ir adicionando novos workloads aqui dentro
 seguindo o padrão já estabelecido:
 
-- **Pipeline nova de processamento** → uma pasta nova em
-  `aws-platform/pipelines/<nome>/`, com seu próprio `terraform.tf`,
-  `variables.tf`, `main.tf`, `envs/`, `backends/` e `README.md` (copie a
-  estrutura de `aws-platform/pipelines/amazonsales/` como ponto de partida) —
-  ganha state próprio. O workflow de CI dela é um arquivo de ~15 linhas que
-  chama `.github/workflows/terraform-reusable.yml`.
+- **Workload novo** → uma pasta nova em `workloads/<nome>/`, com
+  seu próprio `terraform.tf`, `variables.tf`, `main.tf`, `envs/`, `backends/`,
+  `README.md`, `nfr.md` e `adr/` — e ganha state próprio. O workflow de CI dela
+  é um arquivo de ~15 linhas que chama
+  `.github/workflows/terraform-reusable.yml`. Copie a estrutura de
+  `workloads/amazonsales/` se for um pipeline, ou a de
+  `workloads/federated-query/` se não for.
 - **Ferramenta local nova** → uma pasta nova em `local-services/<ferramenta>/`.
-- **Infra-base nova** (não é pipeline nem ferramenta local) → avalie se
-  cabe dentro de `aws-platform/network`, `aws-platform/rds` ou `aws-platform/dms`, ou
-  se merece um root module próprio no nível de `aws-platform/`.
+- **Infra-base nova** (não é workload nem ferramenta local) → avalie se
+  cabe dentro de `platform/network`, `platform/rds` ou `workloads/dms`, ou
+  se merece um root module próprio dentro de `platform/`.
 
-Nunca amontoe uma pipeline nova dentro do `main.tf` de outra — é exatamente
-esse acoplamento que a separação em `aws-platform/pipelines/` evita.
+Cada workload **possui** a infraestrutura que usa, inclusive quando isso
+significa duas pastas criando cada uma o seu Redshift. É proposital: a pasta é
+a unidade de estudo e precisa subir sozinha, com um comando, sem mapa mental de
+pré-requisitos. O que não se duplica é **código** — o que dois workloads têm em
+comum vira módulo em `modules/`.
+
+Nunca amontoe um workload novo dentro do `main.tf` de outro — é exatamente
+esse acoplamento que a separação em `workloads/` evita.
+
+## Requisitos e decisões (NFRs e ADRs)
+
+O que este README explica é **como** as coisas são. Por que elas são assim fica
+em dois lugares, ao lado do código que justificam:
+
+- **`nfr.md`** — os requisitos não-funcionais de cada fluxo de dados,
+  quantificados em tabela: frescor, volume, retenção, garantia de entrega,
+  recuperação, custo, quem opera. Documento vivo. Onde ainda não há medida, está
+  escrito **"não medido"** — que é uma lista de tarefas honesta.
+- **`adr/`** — as decisões, tituladas **pelo problema de dados**, não pela
+  ferramenta. Cada ADR cita as linhas do `nfr.md` que pesaram, declara as
+  **mitigações** dos seus pontos fracos (inclusive "não é contornado") e termina
+  com **quando aquela decisão se inverte** — o gatilho observável que a derruba.
+
+| Fluxo | Requisitos | Decisões |
+|---|---|---|
+| Ingestão por CDC | [`dms/nfr.md`](workloads/dms/nfr.md) | [`dms/adr/`](workloads/dms/adr/) |
+| Lakehouse | — | [`foundation/adr/`](platform/foundation/adr/) |
+| Pipeline batch | [`amazonsales/nfr.md`](workloads/amazonsales/nfr.md) | [`amazonsales/adr/`](workloads/amazonsales/adr/) |
+| Pipeline streaming | [`webevents-streaming/nfr.md`](workloads/webevents-streaming/nfr.md) | [`webevents-streaming/adr/`](workloads/webevents-streaming/adr/) |
+| Consulta federada | [`federated-query/nfr.md`](workloads/federated-query/nfr.md) | [`federated-query/adr/`](workloads/federated-query/adr/) |
+| Replicação gerenciada | [`zero-etl/nfr.md`](workloads/zero-etl/nfr.md) | [`zero-etl/adr/`](workloads/zero-etl/adr/) |
+| Estado declarativo | [`incremental-mv/nfr.md`](workloads/incremental-mv/nfr.md) | [`incremental-mv/adr/`](workloads/incremental-mv/adr/) |
+| Entrega sem cópia | [`data-sharing/nfr.md`](workloads/data-sharing/nfr.md) | [`data-sharing/adr/`](workloads/data-sharing/adr/) |
+| Camada de consulta | [`query-lambda/nfr.md`](workloads/query-lambda/nfr.md) | [`query-lambda/adr/`](workloads/query-lambda/adr/) |
+
+Os quatro workloads do meio comparam caminhos diferentes **sobre o mesmo
+dado** — o contrato que garante isso está em
+[`workloads/DATASET.md`](workloads/DATASET.md).
+
+Índice geral e o método em [`adr/`](adr/).
