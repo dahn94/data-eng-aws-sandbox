@@ -33,7 +33,7 @@ fi
 
 echo
 echo "EC2 (laboratório)"
-echo "  $(c_dim 'a instância de lab/streaming-host é spot: não há stop, logo não há')"
+echo "  $(c_dim 'o host do webevents-streaming é spot: não há stop, logo não há')"
 echo "  $(c_dim 'resume. Se você a destruiu, recrie com terraform apply — o')"
 echo "  $(c_dim 'bootstrap reinstala Docker e Compose sozinho.')"
 

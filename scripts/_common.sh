@@ -12,8 +12,6 @@ MODULES=(
   "platform/network"
   # Fonte: de onde o dado vem. Só 3 dos 8 workloads dependem dela.
   "sources/rds"
-  # Bancada: fora do fluxo padrão, nenhum workload depende.
-  "lab/streaming-host"
   # Workloads: cada um é dono da infra que cria e sobe sozinho, desde que a
   # plataforma e a fonte de que ele depende estejam de pé (o README declara).
   "workloads/dms"

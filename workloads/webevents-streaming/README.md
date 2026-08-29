@@ -43,9 +43,12 @@ para estudar o comportamento do streaming.
 ### 2. Contra a AWS, com o job DENTRO da VPC — o recomendado
 
 ```hcl
+enable_streaming_host = true
 enable_vpc_connection = true
-streaming_host        = "<private_ip de lab/streaming-host>"
 ```
+
+Não há endereço para preencher: o workload cria o host e sabe o IP dele. O
+`streaming_host` só existe para o caso de o host ser seu, criado fora daqui.
 
 Uma `aws_glue_connection` do tipo `NETWORK` dá ao job ENIs numa subnet privada
 da sua VPC. Ele fala com o host de streaming pelo IP **privado**, e nada

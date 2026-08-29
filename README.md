@@ -32,7 +32,7 @@ Valores aproximados em `us-east-2`, para você saber o que está ligando:
 | `dms` | ~US$28/mês | `dms.t3.micro`. **Não tem "stop", só delete** |
 | `workloads/*` | ~US$0 parado | Glue cobra por execução (~US$0,44/DPU-hora). O de streaming cobra **enquanto roda** |
 | `query-lambda` | ~US$0 parado | Lambda cobra por invocação |
-| `lab/streaming-host` | ~US$15/mês | `t4g.large` **spot** + 30 GB. Sem `stop`: destrua. Fora do fluxo padrão |
+| host do `webevents-streaming` | ~US$15/mês | EC2 `t4g.large` **spot** + 30 GB, só com `enable_streaming_host`. Sem `stop`: destrua |
 
 Uma sessão de estudo típica (subir, mexer, destruir no mesmo dia) custa alguns
 dólares. O risco não é o preço por hora, é esquecer ligado.
@@ -48,7 +48,7 @@ dia precisa**. Perfis úteis:
 | Rede, Postgres, SQL | `+ network` `+ rds` | ~US$0,50 |
 | Pipeline batch, Iceberg, Step Functions | `+ workloads/amazonsales` | ~US$0,50 |
 | CDC de verdade | `+ dms` | ~US$1,40 |
-| Streaming ponta a ponta | `+ lab/streaming-host` `+ workloads/webevents-streaming` | ~US$3,60 |
+| Streaming ponta a ponta | `+ workloads/webevents-streaming` com host e VPC ligados | ~US$3,60 |
 
 As pipelines são as mais baratas de manter aplicadas: job Glue, Step Functions
 e Lambda **não cobram nada parados**, só por execução. Quem cobra por hora é
@@ -114,11 +114,16 @@ faz com dado vem antes de com que ferramenta você faz. Por isso não existe uma
 pasta `terraform/` — Terraform é detalhe de implementação, e amanhã pode entrar
 dbt ou Flink sem que o workload precise se partir em três lugares.
 
-Pelo mesmo motivo, `platform/`, `sources/` e `lab/` são separados: eles têm
-papéis diferentes e ciclos de vida diferentes. Plataforma é consumida por quase
-tudo e vive muito; fonte é onde o dado nasce e só parte dos workloads depende
-dela; bancada não tem consumidor nenhum. Amontoar os três esconderia justamente
-a informação que decide o que você precisa aplicar antes de rodar um workload.
+Pelo mesmo motivo, `platform/` e `sources/` são separados: eles têm papéis
+diferentes e ciclos de vida diferentes. Plataforma é consumida por quase tudo e
+vive muito; fonte é onde o dado nasce, e só parte dos workloads depende dela.
+Amontoar as duas esconderia justamente a informação que decide o que você
+precisa aplicar antes de rodar um workload.
+
+O que **não** ganha pasta no primeiro nível é infraestrutura de um consumidor
+só. O `webevents-streaming` precisa de uma EC2 para hospedar Kafka e OpenSearch
+onde a AWS os alcance — e essa EC2 mora dentro do workload, atrás de uma flag,
+pela mesma regra que faz cada workload de Redshift criar o seu.
 
 ```
 workloads/               # O QUE se faz com dado. Uma pasta por workload,
@@ -137,10 +142,6 @@ platform/                # O SUBSTRATO COMPARTILHADO. Vive muito, muda pouco.
 
 sources/                 # DE ONDE O DADO VEM. Nem todo workload precisa:
   rds/                   #   Postgres transacional — 3 dos 8 consomem
-
-lab/                     # BANCADA. Só o webevents-streaming depende, e só
-  streaming-host/        #   contra a AWS: EC2 Graviton no spot que hospeda o
-                         #   Kafka e o OpenSearch num endereço que a AWS alcança
 
 modules/                 # Código compartilhado, nunca infraestrutura
                          #   compartilhada. Um workload instancia o módulo e

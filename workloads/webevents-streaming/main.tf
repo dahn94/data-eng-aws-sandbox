@@ -34,7 +34,7 @@ resource "aws_secretsmanager_secret_version" "opensearch" {
 #
 # Sem isto, o job Glue roda na rede gerenciada da AWS e sai por endereços que
 # você não consegue prever — então não existe security group restrito que o
-# deixe alcançar o Kafka de lab/streaming-host. A única alternativa seria abrir
+# deixe alcançar o Kafka do host de streaming. A única alternativa seria abrir
 # a porta 29092 para 0.0.0.0/0, e o Kafka deste laboratório roda em PLAINTEXT,
 # sem autenticação nenhuma.
 #
@@ -46,7 +46,7 @@ resource "aws_secretsmanager_secret_version" "opensearch" {
 # de onde o script lê a senha do OpenSearch — precisa de um Interface Endpoint.
 
 data "terraform_remote_state" "network" {
-  count   = var.enable_vpc_connection ? 1 : 0
+  count   = local.needs_network ? 1 : 0
   backend = "s3"
   config = {
     bucket = var.network_state_bucket
@@ -56,11 +56,91 @@ data "terraform_remote_state" "network" {
 }
 
 locals {
-  vpc_enabled = var.enable_vpc_connection
+  # Os dois interruptores precisam da VPC: o host vive nela, e o job entra nela.
+  needs_network = var.enable_vpc_connection || var.enable_streaming_host
+  vpc_enabled   = var.enable_vpc_connection
   # Uma subnet só: a connection do Glue vive numa única AZ, e manter o endpoint
   # na mesma AZ evita pagar por um segundo endpoint sem ganho nenhum.
   glue_subnet_id = local.vpc_enabled ? data.terraform_remote_state.network[0].outputs.private_subnet_ids[0] : null
   glue_vpc_id    = local.vpc_enabled ? data.terraform_remote_state.network[0].outputs.vpc_id : null
+
+  host_enabled = var.enable_streaming_host
+
+  # O endereço que o job usa. Se este workload criou o host, ele já sabe o
+  # endereço — e sabe qual dos dois: pelo IP privado quando o job entra pela
+  # VPC, pelo público quando não entra. Só cai no var.streaming_host quando o
+  # host é seu, de fora daqui.
+  resolved_streaming_host = (
+    local.host_enabled
+    ? (local.vpc_enabled ? module.streaming_host[0].private_ip : module.streaming_host[0].public_ip)
+    : var.streaming_host
+  )
+}
+
+# ---------------------------------------------------------------------------
+# O host de streaming (opcional)
+# ---------------------------------------------------------------------------
+#
+# Kafka, Schema Registry e OpenSearch precisam rodar em algum lugar que o job
+# Glue alcance. No ambiente `local` esse lugar é a sua máquina. Contra a AWS,
+# precisa ser uma instância — e este workload é dono dela, porque é o único que
+# a usa.
+
+module "streaming_host" {
+  count  = local.host_enabled ? 1 : 0
+  source = "../../modules/ec2"
+
+  instance_name       = "dataeng-sandbox-streaming-host-${var.environment}"
+  ami_id              = data.aws_ami.streaming_host[0].id
+  instance_type       = var.streaming_host_instance_type
+  root_volume_size    = var.streaming_host_volume_size
+  spot                = var.streaming_host_spot
+  subnet_id           = data.terraform_remote_state.network[0].outputs.public_subnet_ids[0]
+  vpc_id              = data.terraform_remote_state.network[0].outputs.vpc_id
+  associate_public_ip = true
+
+  user_data = file("${path.module}/scripts/bootstrap/bootstrap.sh")
+
+  # Nada entra por default. O que entra:
+  #   - o seu IP, se você declarar, para alcançar as UIs direto
+  #   - o CIDR da VPC, que é por onde o job Glue chega quando roda dentro dela
+  ingress_rules = concat(
+    [
+      for nome, porta in var.streaming_host_service_ports : {
+        description = nome
+        from_port   = porta
+        to_port     = porta
+        protocol    = "tcp"
+        cidr_blocks = var.streaming_host_allowed_cidr_blocks
+      } if length(var.streaming_host_allowed_cidr_blocks) > 0
+    ],
+    [
+      for nome, porta in var.streaming_host_service_ports : {
+        description = "${nome} (de dentro da VPC)"
+        from_port   = porta
+        to_port     = porta
+        protocol    = "tcp"
+        cidr_blocks = [data.terraform_remote_state.network[0].outputs.vpc_cidr]
+      }
+    ],
+  )
+}
+
+# arm64 porque a instância é Graviton: uma AMI x86 não dá boot num t4g.
+data "aws_ami" "streaming_host" {
+  count       = local.host_enabled ? 1 : 0
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023.*-arm64"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
 }
 
 # O Glue exige que o security group da connection libere ele mesmo: as ENIs do
@@ -183,7 +263,7 @@ module "glue_jobs_streaming" {
   additional_arguments = {
     "--user-jars-first"       = "true"
     "--OPENSEARCH_SECRET_ARN" = aws_secretsmanager_secret.opensearch.arn
-    "--STREAMING_HOST"        = var.streaming_host
+    "--STREAMING_HOST"        = local.resolved_streaming_host
     "--KAFKA_TOPIC"           = var.kafka_topic
     "--OPENSEARCH_INDEX"      = "${var.opensearch_index}-${var.environment}"
     "--CHECKPOINT_PATH"       = local.checkpoint_path
