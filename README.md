@@ -157,6 +157,8 @@ local-services/          # Tudo que roda local (Docker), um por ferramenta
   bi-superset/           #   Apache Superset
   olap-clickhouse/       #   ClickHouse
   data-generator/        #   Script que gera eventos fake pro Postgres
+  lakehouse/             #   MinIO + catálogo Iceberg + a imagem de Glue da AWS:
+                         #   S3, catálogo e Spark de verdade, sem emular a nuvem
 
 scripts/                 # Utilitários de setup e governança de custo
                          #   (inclui budget.md: o alerta de orçamento que se
