@@ -19,6 +19,7 @@ check_credentials
 
 REGION="${AWS_REGION:-$(aws configure get region || echo us-east-2)}"
 TOTAL=0
+REDSHIFT_FOUND=0
 
 echo
 echo "Ambiente: ${ENVIRONMENT} (sufixo '${SUFFIX}')   Região: ${REGION}"
@@ -67,6 +68,31 @@ else
     echo "    $(c_dim 'DMS não tem stop: a única forma de parar de pagar é destruir')"
     add_cost 28
   done <<< "$dms"
+fi
+
+# ------------------------------------------- Redshift Serverless
+# Modelo de cobrança diferente de todo o resto: não cobra por hora ligado, cobra
+# por RPU enquanto processa consulta. O problema é que zero-ETL e materialized
+# view com auto refresh fazem o workgroup processar sem ninguém pedir — então
+# "ninguém está usando" não quer dizer "não está cobrando".
+echo
+echo "Redshift Serverless"
+RPU_HOUR="0.36"   # us-east-2, por RPU-hora; cobrado por segundo, mínimo de 60s
+wgs=$(aws redshift-serverless list-workgroups --region "$REGION" \
+  --query "workgroups[?contains(workgroupName,'${PREFIX}-') && contains(workgroupName,'-${SUFFIX}')].[workgroupName,status,baseCapacity]" \
+  --output text 2>/dev/null)
+if [[ -z "$wgs" ]]; then
+  echo "  $(c_dim 'nenhum workgroup')"
+else
+  while read -r name wstatus rpu; do
+    [[ -z "$name" ]] && continue
+    hourly=$(awk "BEGIN{printf \"%.2f\", ${rpu:-8} * $RPU_HOUR}")
+    echo "  $(c_red '● existe') $name ($wstatus, ${rpu} RPU base)"
+    echo "    $(c_dim "~US\$${hourly}/hora ENQUANTO processa — US\$0 parado de verdade")"
+    REDSHIFT_FOUND=$((REDSHIFT_FOUND + 1))
+  done <<< "$wgs"
+  echo "  $(c_yellow 'Redshift Serverless não tem stop.') A única forma de zerar é destruir:"
+  echo "  $(c_dim "  ./scripts/teardown.sh $ENVIRONMENT")"
 fi
 
 # ---------------------------------------------------------------- EC2
@@ -140,13 +166,22 @@ fi
 # ---------------------------------------------------------------- Total
 echo
 echo "─────────────────────────────────────────────────────────────────────"
-if [[ "$TOTAL" -eq 0 ]]; then
+if [[ "$TOTAL" -eq 0 && "$REDSHIFT_FOUND" -eq 0 ]]; then
   echo "  $(c_green 'Nada custando por hora neste ambiente.')"
+elif [[ "$TOTAL" -eq 0 ]]; then
+  echo "  $(c_yellow 'Nada custando por hora — mas há Redshift Serverless de pé.')"
+  echo "  $(c_dim 'Ele cobra por atividade, não por hora, então não entra na conta acima.')"
 else
   echo "  Estimativa: ~US\$${TOTAL}/mês se ficar tudo assim por 30 dias."
   echo "  $(c_dim 'Números aproximados de us-east-2 on-demand. O valor real está no')"
   echo "  $(c_dim 'Cost Explorer — este script serve para você lembrar do que ligou.')"
   echo
+  if [[ "$REDSHIFT_FOUND" -gt 0 ]]; then
+    echo "  $(c_yellow 'A estimativa NÃO inclui o Redshift Serverless') — ele cobra por"
+    echo "  $(c_dim 'atividade. Com zero-ETL ou auto refresh ligados, essa atividade é')"
+    echo "  $(c_dim 'contínua, e o teto de 8 RPU processando 24/7 passa de US$2.000/mês.')"
+    echo
+  fi
   echo "  Pausar (mantém os dados):  ./scripts/pause.sh $ENVIRONMENT"
   echo "  Destruir tudo:             ./scripts/teardown.sh $ENVIRONMENT"
 fi

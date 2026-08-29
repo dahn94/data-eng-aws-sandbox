@@ -6,8 +6,9 @@
 # Use entre sessões de estudo: seus dados e sua infraestrutura continuam lá, e
 # você para de pagar pela parte cara. Para retomar: ./scripts/resume.sh
 #
-# O que NÃO dá para pausar: a instância de replicação do DMS. A AWS não oferece
-# stop para ela — a única forma de parar de pagar é destruir (teardown.sh).
+# O que NÃO dá para pausar: a instância de replicação do DMS e os workgroups do
+# Redshift Serverless. Nenhum dos dois tem stop — a única forma de parar de
+# pagar é destruir (teardown.sh).
 set -uo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
@@ -84,6 +85,23 @@ if [[ -n "$dms" ]]; then
   echo "$(c_red 'AINDA COBRANDO:') instância DMS $dms (~US\$28/mês)"
   echo "O DMS não tem stop. Para parar de pagar:"
   echo "  cd workloads/dms && terraform destroy -var-file=envs/${ENVIRONMENT}.tfvars"
+  echo
+fi
+
+# Redshift Serverless: mesmo problema do DMS, com um agravante. Ele não cobra
+# por hora ligado, cobra por RPU enquanto processa — só que zero-ETL e
+# materialized view com auto refresh o fazem processar sem ninguém pedir. Pausar
+# o RDS não interrompe isso.
+wgs=$(aws redshift-serverless list-workgroups --region "$REGION" \
+  --query "workgroups[?contains(workgroupName,'${PREFIX}-') && contains(workgroupName,'-${SUFFIX}')].workgroupName" \
+  --output text 2>/dev/null)
+if [[ -n "$wgs" ]]; then
+  echo "$(c_red 'AINDA COBRANDO:') workgroup(s) Redshift Serverless"
+  for wg in $wgs; do echo "  $wg"; done
+  echo "Redshift Serverless não tem stop, e com zero-ETL ou auto refresh ele"
+  echo "processa sozinho. Para parar de pagar, destrua o workload:"
+  echo "  cd workloads/<zero-etl|incremental-mv|data-sharing> \\"
+  echo "    && terraform destroy -var-file=envs/${ENVIRONMENT}.tfvars"
   echo
 fi
 
