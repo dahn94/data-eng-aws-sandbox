@@ -167,69 +167,73 @@ def merge_table(
 # ---------------------------------------------------------------------------
 # Data Quality
 # ---------------------------------------------------------------------------
-def evaluate_data_quality(df, glue_context, context_name, ruleset, results_s3_prefix=None):
-    """Avalia um ruleset do Glue Data Quality e devolve (passou, linhas).
+#
+# O portão usa Great Expectations, não o Glue Data Quality.
+#
+# A troca não foi por gosto: `awsgluedq` não existe fora do runtime gerenciado
+# do Glue — nem na imagem oficial `aws-glue-libs` que a AWS publica para
+# desenvolvimento local. Verificado importando: `awsglue`, `awsglue.transforms`
+# e `awsglue.dynamicframe` estão lá; `awsgluedq` não. Com o DQDL, o portão de
+# qualidade era a única parte da pipeline impossível de exercitar fora da AWS —
+# justamente a parte cujo comportamento mais importa verificar.
+#
+# Ver ../adr/0007-portao-de-qualidade-que-roda-nos-dois-lugares.md.
 
-    Os imports ficam aqui dentro porque `awsgluedq` só existe no runtime do
-    Glue — importá-lo no topo quebraria os jobs que não fazem DQ.
+
+def _rotulo(expectation) -> str:
+    """Nome legível de uma expectation, para o log do portão."""
+    cfg = getattr(expectation, "configuration", None)
+    coluna = getattr(expectation, "column", None)
+    nome = type(expectation).__name__
+    return f"{nome}({coluna})" if coluna else nome
+
+
+def evaluate_data_quality(df, context_name, expectations):
+    """Avalia uma lista de expectations e devolve (reprovadas, todas).
+
+    Recebe um DataFrame comum do Spark: o portão não depende mais do
+    GlueContext, e por isso roda igual na AWS e no lakehouse local.
     """
-    from awsglue.dynamicframe import DynamicFrame
-    from awsglue.transforms import SelectFromCollection
-    from awsgluedq.transforms import EvaluateDataQuality
+    import great_expectations as gx
 
-    publishing_options = {
-        "dataQualityEvaluationContext": context_name,
-        "enableDataQualityCloudWatchMetrics": True,
-        "enableDataQualityResultsPublishing": True,
-    }
-    if results_s3_prefix:
-        publishing_options["resultsS3Prefix"] = results_s3_prefix
-
-    evaluated = EvaluateDataQuality().process_rows(
-        frame=DynamicFrame.fromDF(df, glue_context, context_name),
-        ruleset=ruleset,
-        publishing_options=publishing_options,
-        additional_options={"performanceTuning.caching": "CACHE_NOTHING"},
+    ctx = gx.get_context(mode="ephemeral")
+    fonte = ctx.data_sources.add_spark(context_name)
+    ativo = fonte.add_dataframe_asset(context_name)
+    lote = ativo.add_batch_definition_whole_dataframe("lote").get_batch(
+        batch_parameters={"dataframe": df}
     )
 
-    outcomes = SelectFromCollection.apply(
-        dfc=evaluated, key="ruleOutcomes", transformation_ctx="ruleOutcomes"
-    ).toDF()
-
-    rows = outcomes.collect()
-    failures = [r for r in rows if r["Outcome"] != "Passed"]
-    return failures, rows
+    resultados = [(_rotulo(e), lote.validate(e).success) for e in expectations]
+    reprovadas = [rotulo for rotulo, ok in resultados if not ok]
+    return reprovadas, resultados
 
 
-def run_data_quality_gate(tables, glue_context, rulesets, context_prefix, results_s3_prefix=None):
-    """Roda o DQ em várias tabelas e **falha o job** se alguma regra falhar.
+def run_data_quality_gate(tables, rulesets, context_prefix):
+    """Roda o DQ em várias tabelas e **falha o job** se alguma regra reprovar.
 
     Sem este `raise`, o job terminava com sucesso mesmo com regra reprovada: o
     Step Functions seguia adiante e a pipeline ficava verde com dado ruim.
     Falhando aqui, o `Catch` da máquina de estado interrompe o resto.
     """
-    all_failures = {}
+    todas_reprovadas = {}
 
-    for table_name, df in tables.items():
-        print(f"Avaliando qualidade de: {table_name}")
-        failures, rows = evaluate_data_quality(
-            df,
-            glue_context,
-            f"{context_prefix}_{table_name}",
-            rulesets[table_name],
-            results_s3_prefix,
+    for nome_tabela, df in tables.items():
+        print(f"Avaliando qualidade de: {nome_tabela}")
+        reprovadas, resultados = evaluate_data_quality(
+            df, f"{context_prefix}_{nome_tabela}", rulesets[nome_tabela]
         )
 
-        for row in rows:
-            print(f"  [{row['Outcome']}] {row['Rule']}")
+        for rotulo, ok in resultados:
+            print(f"  [{'Passou' if ok else 'REPROVOU'}] {rotulo}")
 
-        if failures:
-            all_failures[table_name] = [r["Rule"] for r in failures]
+        if reprovadas:
+            todas_reprovadas[nome_tabela] = reprovadas
 
-    if all_failures:
-        detail = "\n".join(
-            f"  {table}: {', '.join(rules)}" for table, rules in all_failures.items()
+    if todas_reprovadas:
+        detalhe = "\n".join(
+            f"  {tabela}: {', '.join(regras)}"
+            for tabela, regras in todas_reprovadas.items()
         )
-        raise ValueError(f"Regras de qualidade reprovadas:\n{detail}")
+        raise ValueError(f"Regras de qualidade reprovadas:\n{detalhe}")
 
     print("Todas as regras de qualidade passaram.")

@@ -39,6 +39,7 @@ do fluxo de dados, da entrada ao portão de saída.
 | [0004](../workloads/amazonsales/adr/0004-politica-de-recarga-por-camada.md) | Reconstruir a camada do zero ou atualizar só o que mudou | retenção de 30 dias do dado bruto |
 | [0005](../workloads/amazonsales/adr/0005-onde-fica-o-portao-de-qualidade.md) | Onde fica o portão de qualidade em relação à escrita | nenhum consumidor em produção |
 | [0006](../workloads/amazonsales/adr/0006-orquestracao-de-pipeline-batch.md) | Como orquestrar os jobs de uma pipeline batch | backfill não exigido; uma pessoa opera |
+| [0007](../workloads/amazonsales/adr/0007-portao-de-qualidade-que-roda-nos-dois-lugares.md) | Como ter um portão de qualidade que roda fora da AWS | verificabilidade sem depender de aplicar na nuvem |
 
 ### Pipeline de streaming `webevents-streaming` — [`workloads/webevents-streaming/`](../workloads/webevents-streaming/)
 

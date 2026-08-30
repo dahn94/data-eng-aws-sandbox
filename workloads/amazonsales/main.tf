@@ -7,8 +7,7 @@ locals {
   # variável se você usar outro nome.
   lakehouse_arn = var.lakehouse_arn != "" ? var.lakehouse_arn : "arn:aws:s3tables:${var.region}:${data.aws_caller_identity.current.account_id}:bucket/dataeng-sandbox-lakehouse-${var.environment}"
 
-  raw_input       = "s3://${var.s3_bucket_raw}/${var.raw_input_prefix}"
-  dq_results_path = "s3://${var.s3_bucket_curated}/data_quality_results/${var.environment}"
+  raw_input = "s3://${var.s3_bucket_raw}/${var.raw_input_prefix}"
 }
 
 module "glue_jobs_s3tables" {
@@ -52,6 +51,12 @@ module "glue_jobs_s3tables" {
     "--user-jars-first"         = "true"
     "--datalake-formats"        = "iceberg"
   }
+  # O portão de qualidade usa Great Expectations, não o Glue Data Quality: a
+  # biblioteca `awsgluedq` não existe fora do runtime gerenciado, nem na imagem
+  # oficial de desenvolvimento local da AWS. Ver
+  # adr/0007-portao-de-qualidade-que-roda-nos-dois-lugares.md.
+  additional_python_modules = "great_expectations==1.21.0"
+
 }
 
 module "step_functions" {
@@ -71,9 +76,8 @@ module "step_functions" {
   # Valores injetados na definição JSON, que assim não carrega nenhum nome de
   # bucket nem ARN de conta.
   template_variables = {
-    lakehouse_arn   = local.lakehouse_arn
-    raw_input       = local.raw_input
-    dq_results_path = local.dq_results_path
+    lakehouse_arn = local.lakehouse_arn
+    raw_input     = local.raw_input
   }
 
   # A máquina de estado só pode disparar os jobs desta pipeline.

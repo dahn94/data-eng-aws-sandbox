@@ -2,6 +2,10 @@
 
 **Status:** Aceito
 **Data do registro:** 2026-08-28
+**Nota (2026-08-29):** a implementação do portão mudou do Glue Data Quality
+para Great Expectations — ver [`0007`](0007-portao-de-qualidade-que-roda-nos-dois-lugares.md).
+O que este ADR decide, *onde* o portão fica e o fato de ele falhar o job,
+continua valendo.
 
 ## Contexto e problema
 

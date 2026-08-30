@@ -176,8 +176,7 @@
         "JobName": "dataeng-sandbox-amazonsales-dw-dims-s3tables-gdq-${environment}",
         "Arguments": {
           "--namespace": "datawarehouse",
-          "--s3_tables_bucket_arn": "${lakehouse_arn}",
-          "--dq_results_path": "${dq_results_path}"
+          "--s3_tables_bucket_arn": "${lakehouse_arn}"
         }
       },
       "Next": "parallel_facts",
@@ -305,8 +304,7 @@
         "JobName": "dataeng-sandbox-amazonsales-dw-facts-s3tables-gdq-${environment}",
         "Arguments": {
           "--namespace": "datawarehouse",
-          "--s3_tables_bucket_arn": "${lakehouse_arn}",
-          "--dq_results_path": "${dq_results_path}"
+          "--s3_tables_bucket_arn": "${lakehouse_arn}"
         }
       },
       "End": true,
