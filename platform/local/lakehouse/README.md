@@ -98,9 +98,14 @@ docker compose up -d
 
 | Serviço | Onde responde |
 |---|---|
-| MinIO — API S3 | `http://localhost:9000` |
+| MinIO — API S3 | `http://localhost:9002` |
 | MinIO — console | `http://localhost:9001` (`minioadmin` / `minioadmin`) |
 | Catálogo Iceberg REST | `http://localhost:8181` |
+| Trino (perfil `oss`) | `http://localhost:8080` |
+
+> A API do MinIO está em **9002**, e não na 9000 habitual: a porta nativa do
+> ClickHouse é a 9000, e os dois stacks de `platform/local/` sobem juntos.
+> Dentro da rede do Docker nada muda — os serviços falam com `minio:9000`.
 
 O contêiner do Glue fica de pé sem fazer nada, para você entrar nele:
 

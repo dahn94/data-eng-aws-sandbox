@@ -23,7 +23,10 @@ services:
       MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-minioadmin}
       MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
     ports:
-      - "9000:9000"   # API S3
+      # 9002 e não 9000: a porta nativa do ClickHouse é 9000, e os dois stacks
+      # sobem juntos. Dentro da rede do Docker os serviços continuam falando
+      # com `minio:9000` — só o mapeamento para a sua máquina mudou.
+      - "9002:9000"   # API S3
       - "9001:9001"   # console web
     volumes:
       - minio-data:/data

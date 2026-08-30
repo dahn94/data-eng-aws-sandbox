@@ -115,6 +115,12 @@ executável dentro da mesma pasta, sem infraestrutura nova.
 
 ## Evidência no repo
 
+- **Mecanismo verificado em execução (2026-08-29)**, em `local/` com ClickHouse:
+  depois de três inserções o agregado da hora 10 marcava 2 pedidos e 250; uma
+  quarta inserção o levou a 3 e 350, sem nenhum refresh pedido. Não é Redshift —
+  o ClickHouse atualiza na escrita, e o Redshift decide o momento — mas a
+  propriedade que este ADR defende, *ninguém agenda recomputação*, é a mesma.
+
 - `workloads/incremental-mv/main.tf:212-233` — a view e as duas palavras que
   transferem o "quando" para o motor.
 - `workloads/incremental-mv/main.tf:175-184` — a tabela base, com `DISTKEY` e
