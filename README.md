@@ -140,14 +140,21 @@ workloads/               # O QUE se faz com dado. Uma pasta por workload,
   zero-etl/
   incremental-mv/
   data-sharing/
-                         #   Cada pasta traz o que é dela: o Terraform da forma
-                         #   AWS, os scripts, o que semeia a fonte (seed/) e,
-                         #   quando existe, a forma local (local/).
+                         #   Cada workload tem `aws/` e, quando existe,
+                         #   `local/`. Dentro de cada alvo: `infra/` (Terraform
+                         #   na AWS, Docker no local), os scripts, o que semeia
+                         #   a fonte (seed/) e os números e decisões daquele
+                         #   caminho (nfr.md, adr/). Na raiz do workload só o
+                         #   README.md com o problema.
+  DATASET.md             #   o contrato de dado que os workloads comparam
 
 platform/                # O SUBSTRATO QUE OS WORKLOADS CONSOMEM. São DUAS
   aws/                   #   plataformas, e os mesmos workloads miram qualquer
-    foundation/          #   uma delas.
-    network/             #
+    foundation/          #     uma delas. Buckets, IAM e o adr/ do lakehouse
+    network/             #     VPC, subnets e os endpoints
+    modules/             #     Código compartilhado, nunca infraestrutura
+                         #     compartilhada: o workload instancia o módulo e
+                         #     passa a ser dono do recurso que ele cria
   local/                 #   A mesma forma, em Docker: alicerce, rede e peças
     network/             #     a rede compartilhada — o análogo da VPC
     foundation/          #     MinIO e os buckets, com os nomes que a AWS usa
@@ -155,11 +162,6 @@ platform/                # O SUBSTRATO QUE OS WORKLOADS CONSOMEM. São DUAS
                          #     trino, iceberg-catalog, streaming-cdc,
                          #     search-opensearch, olap-clickhouse, airflow, BI
 
-modules/                 # Código compartilhado, nunca infraestrutura
-                         #   compartilhada. Um workload instancia o módulo e
-                         #   passa a ser dono do recurso que ele cria.
-
-adr/                     # Índice geral das decisões e o método
 scripts/                 # Utilitários de setup e governança de custo
                          #   (inclui budget.md: o alerta de orçamento que se
                          #   configura ANTES do primeiro apply)
@@ -308,7 +310,7 @@ Para conectar no banco da sua máquina, coloque seu IP em
 ninguém entra de fora da VPC.
 
 **5. Gere dados fake e veja o CDC funcionando**
-`workloads/webevents-streaming/seed/` insere eventos continuamente no Postgres. Depois
+`workloads/webevents-streaming/aws/seed/` insere eventos continuamente no Postgres. Depois
 suba `workloads/dms/` (ou `platform/local/services/streaming-cdc/`) pra ver essas mudanças
 sendo capturadas em tempo real.
 
@@ -392,24 +394,24 @@ seguindo o padrão já estabelecido:
 
 - **Workload novo** → uma pasta em `workloads/<nome>/` com `main.tf`,
   `variables.tf`, `outputs.tf`, `versions.tf`, `envs/` e `backends/` dentro de
-  `aws/infra/`, mais `README.md`, `nfr.md` e `adr/` na raiz do workload. Ganha
-  state próprio. Copie a estrutura de
+  `aws/infra/`, mais `nfr.md` e `adr/` em `aws/` e o `README.md` com o problema
+  na raiz do workload. Ganha state próprio. Copie a estrutura de
   `workloads/amazonsales/` se for um pipeline, ou a de
   `workloads/federated-query/` se não for.
 
   Fora da pasta, **só uma coisa é obrigatória**: o workflow de CI em
   `.github/workflows/workload-<nome>-ci.yml`, um arquivo de ~20 linhas que
   chama `terraform-reusable.yml`. Os scripts de operação descobrem o workload
-  sozinhos — `scripts/_common.sh` varre `workloads/*/main.tf`, e o
+  sozinhos — `scripts/_common.sh` varre `workloads/*/aws/infra/main.tf`, e o
   `teardown.sh` deriva a ordem de destruição dali. Isso é deliberado: a lista
   escrita à mão já existiu, e esquecer uma linha nela significava um `teardown`
   que dizia ter terminado deixando recurso ligado.
 
   Depois, para o repositório não passar a mentir: a tabela de taxonomia e a de
-  NFR/ADR neste README, e a seção correspondente em `adr/README.md`.
-- **Motor local novo** (o workload consome) → `platform/local/<motor>/`.
+  NFR/ADR neste README, e o diagrama da estrutura logo acima.
+- **Motor local novo** (o workload consome) → `platform/local/services/<motor>/`.
 - **Semeador de dado** → dentro do workload cuja fonte ele alimenta, como
-  `workloads/webevents-streaming/seed/`. Ele pertence a quem consome o dado
+  `workloads/webevents-streaming/aws/seed/`. Ele pertence a quem consome o dado
   que ele produz.
 - **Infra-base nova** (não é workload nem ferramenta local) → avalie se
   cabe dentro de `platform/aws/network` ou de um workload existente, ou
@@ -454,4 +456,5 @@ Os quatro workloads do meio comparam caminhos diferentes **sobre o mesmo
 dado** — o contrato que garante isso está em
 [`workloads/DATASET.md`](workloads/DATASET.md).
 
-Índice geral e o método em `adr/`.
+Não há índice separado: a tabela acima é o índice, e o método está descrito
+nos dois itens que a precedem.
