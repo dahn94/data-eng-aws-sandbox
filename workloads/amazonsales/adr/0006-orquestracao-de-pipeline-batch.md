@@ -125,7 +125,7 @@ origem usava, esse é o motivo real e vale mais do que a reconstrução.
 
 ## Evidência no repo
 
-- `workloads/amazonsales/main.tf:56-85` — a máquina de estado, os
+- `workloads/amazonsales/aws/infra/main.tf:56-85` — a máquina de estado, os
   `template_variables` e a restrição da role aos jobs desta pipeline.
 - `workloads/amazonsales/scripts/step-functions-definitions/sfn_definition_s3tables_amazonsales.json`
   — a definição, com os `${...}` preenchidos pelo Terraform.

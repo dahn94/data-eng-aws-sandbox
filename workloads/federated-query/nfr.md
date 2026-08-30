@@ -27,12 +27,12 @@ carga responde "como está este pedido neste instante" — só a fonte responde.
 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
-| Motor | Athena + conector Lambda | `main.tf:152-178` |
-| Memória da Lambda do conector | 1024 MB | `variables.tf:58-65` (`connector_lambda_memory_mb`) |
-| Timeout da Lambda do conector | 300 s | `variables.tf:67-71` (`connector_lambda_timeout_s`) |
+| Motor | Athena + conector Lambda | `aws/infra/main.tf:152-178` |
+| Memória da Lambda do conector | 1024 MB | `aws/infra/variables.tf:58-65` (`connector_lambda_memory_mb`) |
+| Timeout da Lambda do conector | 300 s | `aws/infra/variables.tf:67-71` (`connector_lambda_timeout_s`) |
 | Teto do Athena por chamada ao conector | 900 s | limite do serviço |
-| Isolamento de custo | workgroup próprio | `main.tf:196-215` |
-| Retenção do spill | 3 dias | `variables.tf:73-77` (`spill_retention_days`) |
+| Isolamento de custo | workgroup próprio | `aws/infra/main.tf:196-215` |
+| Retenção do spill | 3 dias | `aws/infra/variables.tf:73-77` (`spill_retention_days`) |
 | Latência p50 da query federada | **não medida** | — |
 | Latência p95 da query federada | **não medida** | — |
 | Conexões simultâneas abertas no Postgres | **não medido** | — |
@@ -64,7 +64,7 @@ para dizer quando esta decisão se inverte.
 | Custo parado | **US$0** — Lambda e Athena cobram por uso | `README.md:33` (tabela do repo) |
 | Custo por consulta | invocação da Lambda + bytes escaneados pelo Athena | modelo dos serviços |
 | Custo de ingestão | **US$0** — não há pipeline para operar | — |
-| Custo de armazenamento | só o spill, expirado em 3 dias | `main.tf:63-77` |
+| Custo de armazenamento | só o spill, expirado em 3 dias | `aws/infra/main.tf:63-77` |
 | Custo por execução medido | **não medido** | — |
 
 ## Consequências desta tabela

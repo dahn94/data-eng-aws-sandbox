@@ -17,7 +17,7 @@ tiverem sido medidos sobre a mesma versão do dataset.
 | Defasagem tolerada | **minutos** — não zero, não horas | `README.md:7-17` |
 | Transformação exigida | **nenhuma** — é o que viabiliza a escolha | `README.md:19-39` |
 | Histórico exigido | nenhum no destino | `README.md:74-100` |
-| Escopo | o banco inteiro, não uma tabela | `variables.tf:53-62` (`source_tables`) |
+| Escopo | o banco inteiro, não uma tabela | `aws/infra/variables.tf:53-62` (`source_tables`) |
 | Esforço de manutenção aceito | **zero linha de código operada** | `README.md:19-39` |
 
 A linha que decide é **transformação exigida = nenhuma**. No instante em que
@@ -28,13 +28,13 @@ servir e a resposta volta a ser um pipeline.
 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
-| Motor | integração gerenciada RDS → Redshift | `main.tf:123-133` |
+| Motor | integração gerenciada RDS → Redshift | `aws/infra/main.tf:123-133` |
 | Código próprio a operar | **0 linhas** | — |
 | Versão mínima da origem | PostgreSQL 15.4 | restrição do serviço |
 | Versão da origem hoje | PostgreSQL 17 | `../../platform/aws/modules/rds/` |
-| Destino | Redshift Serverless, 4 RPU base | `variables.tf:43-51` |
-| `case_sensitive_identifier` | `true` — exigido pela integração | `main.tf:86` |
-| Filtro de tabelas | `dataengsandbox.public.*` | `envs/develop.tfvars:10` |
+| Destino | Redshift Serverless, 4 RPU base | `aws/infra/variables.tf:43-51` |
+| `case_sensitive_identifier` | `true` — exigido pela integração | `aws/infra/main.tf:86` |
+| Filtro de tabelas | `dataengsandbox.public.*` | `aws/infra/envs/develop.tfvars:10` |
 | Defasagem medida origem → destino | **não medida** | — |
 | Tempo da carga inicial | **não medido** | — |
 | Comportamento sob `ALTER TABLE` na origem | **não observado** | — |
@@ -63,8 +63,8 @@ slot não avançar, o Postgres retém WAL e o disco da instância enche. Numa
 |---|---|---|
 | Custo da integração em si | **US$0** — o serviço não cobra pela integração | modelo do serviço |
 | Custo do destino parado | **≠ US$0** — o Redshift cobra por RPU ao processar, e a integração o faz processar sem consulta | `README.md:74-100` |
-| Capacidade mínima | 4 RPU (mínimo do serviço em us-east-2) | `variables.tf:43-51` |
-| Armazenamento no destino | cópia integral do escopo replicado | `envs/develop.tfvars:10` |
+| Capacidade mínima | 4 RPU (mínimo do serviço em us-east-2) | `aws/infra/variables.tf:43-51` |
+| Armazenamento no destino | cópia integral do escopo replicado | `aws/infra/envs/develop.tfvars:10` |
 | Custo por hora medido | **não medido** | — |
 | Custo comparado ao `../dms/` fazendo o mesmo | **não medido** | — |
 

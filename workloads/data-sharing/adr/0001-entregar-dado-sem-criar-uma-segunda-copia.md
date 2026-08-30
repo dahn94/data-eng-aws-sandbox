@@ -116,13 +116,13 @@ diferentes.
 
 ## Evidência no repo
 
-- `workloads/data-sharing/main.tf:236-252` — o share inteiro: criar, adicionar
+- `workloads/data-sharing/aws/infra/main.tf:236-252` — o share inteiro: criar, adicionar
   escopo, conceder. Nenhum bucket de export, nenhum agendamento.
-- `workloads/data-sharing/main.tf:260-275` — o `CREATE DATABASE FROM DATASHARE`
+- `workloads/data-sharing/aws/infra/main.tf:260-275` — o `CREATE DATABASE FROM DATASHARE`
   no consumidor: um banco sem armazenamento próprio.
-- `workloads/data-sharing/main.tf:108-147` — os dois namespaces, produtor e
+- `workloads/data-sharing/aws/infra/main.tf:108-147` — os dois namespaces, produtor e
   consumidor, do mesmo módulo compartilhado.
-- `workloads/data-sharing/outputs.tf` — `proof_query`, o roteiro que demonstra
+- `workloads/data-sharing/aws/infra/outputs.tf` — `proof_query`, o roteiro que demonstra
   ausência de defasagem sem nenhum job entre as duas leituras.
 - `../../../platform/aws/modules/redshift-serverless/outputs.tf` — o `namespace_id`, que é o endereço
   citado nos dois lados do share.

@@ -26,9 +26,9 @@ sozinhos se um ADR continua válido.
 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
-| Recursos por job | 3 workers `G.1X` | `main.tf:45-46` |
-| Timeout | 60 min | `main.tf:47` |
-| Retentativas | **0** | `main.tf:48` |
+| Recursos por job | 3 workers `G.1X` | `aws/infra/main.tf:45-46` |
+| Timeout | 60 min | `aws/infra/main.tf:47` |
+| Retentativas | **0** | `aws/infra/main.tf:48` |
 | Duração de uma execução completa | **43,8 s** local, com 101 linhas — ver a ressalva abaixo | medido no Airflow |
 | Paralelismo | 3 dimensões em paralelo, depois 2 fatos em paralelo | `scripts/step-functions-definitions/` |
 

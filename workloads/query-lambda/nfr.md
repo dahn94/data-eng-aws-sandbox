@@ -13,9 +13,9 @@ candidatos a revisão.
 | Motor | DuckDB, embutido no processo da Lambda | `README.md:3` |
 | Alvo | tabelas Iceberg do S3 Tables | `README.md:3` |
 | Permissão | **somente leitura**, limitada ao bucket do lakehouse | `README.md:53` |
-| Memória | 2048 MB | `main.tf:56` |
-| Armazenamento efêmero | 2048 MB | `main.tf:57` |
-| Timeout | 900 s (15 min, o máximo da Lambda) | `main.tf:55` |
+| Memória | 2048 MB | `aws/infra/main.tf:56` |
+| Armazenamento efêmero | 2048 MB | `aws/infra/main.tf:57` |
+| Timeout | 900 s (15 min, o máximo da Lambda) | `aws/infra/main.tf:55` |
 | Concorrência | **não limitada explicitamente** | — |
 | Latência típica de consulta | **não medida** | — |
 | Maior resultado já retornado | **não medido** | — |

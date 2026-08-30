@@ -120,12 +120,12 @@ os workloads de Redshift antes da plataforma.
 
 ## Evidência no repo
 
-- `workloads/zero-etl/main.tf:123-133` — a integração inteira: origem, destino,
+- `workloads/zero-etl/aws/infra/main.tf:123-133` — a integração inteira: origem, destino,
   filtro. Nenhum código de transporte.
-- `workloads/zero-etl/main.tf:96-119` — a resource policy no destino, sem a qual
+- `workloads/zero-etl/aws/infra/main.tf:96-119` — a resource policy no destino, sem a qual
   a integração falha com erro que não aponta para o lado do Redshift.
-- `workloads/zero-etl/main.tf:86` — `case_sensitive_identifier = true`, exigido
+- `workloads/zero-etl/aws/infra/main.tf:86` — `case_sensitive_identifier = true`, exigido
   porque a integração replica os nomes da origem como eles são.
-- `workloads/zero-etl/outputs.tf` — o `next_step`, que é a fronteira honesta do
+- `workloads/zero-etl/aws/infra/outputs.tf` — o `next_step`, que é a fronteira honesta do
   Terraform aqui.
 - `../../../platform/aws/modules/rds/outputs.tf` — o `db_instance_arn` exportado para isto.

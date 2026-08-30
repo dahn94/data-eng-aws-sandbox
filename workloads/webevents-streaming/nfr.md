@@ -27,7 +27,7 @@ candidatos a revisão.
 | Perda de dado no tópico | tolerada (`failOnDataLoss = false`) | `scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:61` |
 | Checkpoint | `s3://<prefixo>-lake-logs-<amb>/spark-checkpoints/<amb>/...` | `README.md` |
 | Como reprocessar do zero | apagar o caminho do checkpoint antes de reiniciar | `README.md` |
-| Retentativas do job | **0** | `main.tf:56` |
+| Retentativas do job | **0** | `aws/infra/main.tf:56` |
 | Janela, watermark, evento atrasado | **nenhum tratamento** | não há `withWatermark` no script |
 
 ## Governança

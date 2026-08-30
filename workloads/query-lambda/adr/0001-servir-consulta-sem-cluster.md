@@ -118,6 +118,6 @@ exercitar DuckDB. Se foi, esse é o motivo real.
   sem precisar de cluster.
 - `workloads/query-lambda/README.md:53` — a role somente leitura, limitada ao
   bucket do lakehouse.
-- `workloads/query-lambda/main.tf:55-57` — timeout de 900 s, 2048 MB de
+- `workloads/query-lambda/aws/infra/main.tf:55-57` — timeout de 900 s, 2048 MB de
   memória e 2048 MB de disco efêmero: o teto de escala, em números.
-- `workloads/query-lambda/main.tf:53` — a imagem de container no ECR.
+- `workloads/query-lambda/aws/infra/main.tf:53` — a imagem de container no ECR.

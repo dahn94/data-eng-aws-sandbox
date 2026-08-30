@@ -137,7 +137,7 @@ a reconstrução coerente.
   tabela são relativos a ele.
 - `workloads/amazonsales/scripts/glue_common.py:99-122` — o
   `merge_table`, o upsert que motiva a camada de tabela.
-- `workloads/amazonsales/main.tf:40-43` — o jar do catálogo
+- `workloads/amazonsales/aws/infra/main.tf:40-43` — o jar do catálogo
   enviado pelo Terraform, com o comentário de por que ele vive no repositório.
 - `workloads/query-lambda/README.md:3` — DuckDB consultando as mesmas
   tabelas: o segundo leitor que sustenta a força decisiva.

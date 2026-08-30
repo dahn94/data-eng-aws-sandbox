@@ -121,13 +121,13 @@ executável dentro da mesma pasta, sem infraestrutura nova.
   o ClickHouse atualiza na escrita, e o Redshift decide o momento — mas a
   propriedade que este ADR defende, *ninguém agenda recomputação*, é a mesma.
 
-- `workloads/incremental-mv/main.tf:212-233` — a view e as duas palavras que
+- `workloads/incremental-mv/aws/infra/main.tf:212-233` — a view e as duas palavras que
   transferem o "quando" para o motor.
-- `workloads/incremental-mv/main.tf:175-184` — a tabela base, com `DISTKEY` e
+- `workloads/incremental-mv/aws/infra/main.tf:175-184` — a tabela base, com `DISTKEY` e
   `SORTKEY` escolhidos para o agregado por hora.
-- `workloads/incremental-mv/main.tf:165-168` — o comentário que registra a
+- `workloads/incremental-mv/aws/infra/main.tf:165-168` — o comentário que registra a
   fronteira do IaC: SQL executado na criação, não reconciliado.
-- `workloads/incremental-mv/outputs.tf` — `check_refresh_query`, a consulta que
+- `workloads/incremental-mv/aws/infra/outputs.tf` — `check_refresh_query`, a consulta que
   prova que o refresh aconteceu sem pedido.
-- `workloads/incremental-mv/variables.tf` — `mv_auto_refresh`, a chave que
+- `workloads/incremental-mv/aws/infra/variables.tf` — `mv_auto_refresh`, a chave que
   inverte a decisão para efeito de comparação.

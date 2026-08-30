@@ -132,7 +132,7 @@ dos jobs, porque não tem mais quem o consuma.
   comentário registrando por que `awsgluedq` não serve.
 - `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-dims-s3tables-gdq.py`
   e `...-facts-...py` — os rulesets em GX, com a mesma cobertura do DQDL.
-- `workloads/amazonsales/main.tf` — `additional_python_modules` fixando a
+- `workloads/amazonsales/aws/infra/main.tf` — `additional_python_modules` fixando a
   versão do GX para o job na AWS.
 - `platform/local/lakehouse/README.md` — o que a execução local cobre e o que
   não cobre.

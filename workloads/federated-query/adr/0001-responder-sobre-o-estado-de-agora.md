@@ -78,8 +78,8 @@ para contínua, a conta mudaria de lado — ver "Quando esta decisão se inverte
 | A query bate no banco de produção | **Não é contornado.** É um risco aceito, e o `nfr.md` registra que o impacto nunca foi medido. Esta é a fragilidade principal da decisão. |
 | Latência imprevisível — depende da saúde do OLTP | Não é contornado. Aceitável porque o consumo é humano e sob demanda, não um dashboard com SLA. |
 | Sem histórico: `UPDATE` in-place apaga o passado | Não é contornado aqui, e nem deveria ser — é papel do `dms/` e do lake. Este caminho é complementar a eles, não substituto. |
-| Resultado grande estoura o payload da Lambda | Spill para S3, com expiração em 3 dias (`../main.tf:63-77`). Trata o sintoma; a premissa de seletividade é o que evita o caso. |
-| Credencial do Postgres num segundo lugar | Vai para o Secrets Manager e é lida em runtime pela Lambda — não fica no state nem como argumento (`../main.tf:96-110`). |
+| Resultado grande estoura o payload da Lambda | Spill para S3, com expiração em 3 dias (`../aws/infra/main.tf:63-77`). Trata o sintoma; a premissa de seletividade é o que evita o caso. |
+| Credencial do Postgres num segundo lugar | Vai para o Secrets Manager e é lida em runtime pela Lambda — não fica no state nem como argumento (`../aws/infra/main.tf:96-110`). |
 | Conector é aplicação de terceiro, instalada do SAR | Não é contornado. A alternativa seria manter build próprio de um jar da AWS, o que troca um risco por um custo de manutenção maior. |
 
 ## Quando esta decisão se inverte
@@ -112,13 +112,13 @@ Isso inverte a direção do acoplamento e vale para os próximos workloads.
 
 ## Evidência no repo
 
-- `workloads/federated-query/main.tf:152-178` — o conector instalado do
+- `workloads/federated-query/aws/infra/main.tf:152-178` — o conector instalado do
   Serverless Application Repository, dentro da VPC, em subnet privada.
-- `workloads/federated-query/main.tf:186-194` — o catálogo `LAMBDA` que faz o
+- `workloads/federated-query/aws/infra/main.tf:186-194` — o catálogo `LAMBDA` que faz o
   Postgres aparecer como fonte dentro do Athena.
-- `workloads/federated-query/main.tf:196-215` — o workgroup próprio, que existe
+- `workloads/federated-query/aws/infra/main.tf:196-215` — o workgroup próprio, que existe
   para isolar o custo deste caminho e permitir a comparação.
-- `workloads/federated-query/main.tf:96-110` — a credencial no Secrets Manager.
-- `workloads/federated-query/main.tf:136-143` — a regra de entrada no RDS
+- `workloads/federated-query/aws/infra/main.tf:96-110` — a credencial no Secrets Manager.
+- `workloads/federated-query/aws/infra/main.tf:136-143` — a regra de entrada no RDS
   declarada pelo consumidor.
 - `../../../platform/aws/modules/rds/outputs.tf` — o `security_group_id` exportado para isso.

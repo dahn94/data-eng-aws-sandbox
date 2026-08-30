@@ -119,4 +119,4 @@ recuperação declarada ("reexecutar do zero") deixa de funcionar para ela.
   — a dimensão chamando `write_table`.
 - `platform/aws/foundation/main.tf:86-93` — o ciclo de vida de 30 dias que torna
   a staging insubstituível.
-- `workloads/amazonsales/main.tf:48` — `max_retries = 0`.
+- `workloads/amazonsales/aws/infra/main.tf:48` — `max_retries = 0`.

@@ -18,7 +18,7 @@ tiverem sido medidos sobre a mesma versão do dataset.
 | Frescor exigido pelo consumo | minutos; o dado é histórico agregado por hora | `README.md:7-15` |
 | Defasagem tolerada | **minutos, sem garantia contratual** | `README.md:83-106` |
 | Fração da base que muda | pequena — quase tudo é de ontem e não muda mais | `README.md:11-15` |
-| Complexidade do agregado | `GROUP BY` simples com `SUM` e `COUNT` | `main.tf:218-226` |
+| Complexidade do agregado | `GROUP BY` simples com `SUM` e `COUNT` | `aws/infra/main.tf:218-226` |
 
 A linha que decide é **frequência da leitura × latência exigida**: 200 leituras
 por dia do mesmo resultado é a definição de trabalho repetido, e é o que paga a
@@ -29,11 +29,11 @@ exige SLA de frescor não pode usar auto refresh.
 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
-| Motor | Redshift Serverless, materialized view | `main.tf:109-130` |
-| Quem decide recomputar | **o motor** | `main.tf:212-233` (`AUTO REFRESH`) |
+| Motor | Redshift Serverless, materialized view | `aws/infra/main.tf:109-130` |
+| Quem decide recomputar | **o motor** | `aws/infra/main.tf:212-233` (`AUTO REFRESH`) |
 | Código próprio a operar | **0 linhas** | — |
-| Capacidade base | 4 RPU | `variables.tf:33-42` |
-| Distribuição da tabela base | `DISTKEY (customer_id)`, `SORTKEY (pedido_em)` | `main.tf:175-184` |
+| Capacidade base | 4 RPU | `aws/infra/variables.tf:33-42` |
+| Distribuição da tabela base | `DISTKEY (customer_id)`, `SORTKEY (pedido_em)` | `aws/infra/main.tf:175-184` |
 | Latência da query sem a view | **10 ms p50** sobre 2 M linhas — medido em ClickHouse, não em Redshift | `local/` |
 | Latência da query com a view | **1 ms p50**, lendo 17 linhas em vez de 2 M | `local/` |
 | Intervalo real entre refreshes automáticos | **não medido, e não medível local** — o ClickHouse atualiza na escrita; intervalo só existe no Redshift | — |
@@ -53,9 +53,9 @@ vai:
 | Requisito | Valor hoje | Origem |
 |---|---|---|
 | SQL suportado em auto refresh | subconjunto: há restrição de função, junção e view sobre view | restrição do serviço |
-| A definição da view cabe nesse subconjunto? | **sim, hoje** — `GROUP BY` com `SUM`/`COUNT` | `main.tf:218-226` |
+| A definição da view cabe nesse subconjunto? | **sim, hoje** — `GROUP BY` com `SUM`/`COUNT` | `aws/infra/main.tf:218-226` |
 | Margem para o agregado crescer em complexidade | **não avaliada** | — |
-| Reconciliação da definição pelo Terraform | **não existe** — o SQL roda uma vez, na criação | `main.tf:165-168` |
+| Reconciliação da definição pelo Terraform | **não existe** — o SQL roda uma vez, na criação | `aws/infra/main.tf:165-168` |
 
 A última linha é uma limitação de IaC assumida, não um bug: alterar a view exige
 `DROP` e `CREATE` manuais.
@@ -65,10 +65,10 @@ A última linha é uma limitação de IaC assumida, não um bug: alterar a view 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
 | Custo parado | **≠ US$0** — refresh automático consome RPU sem consulta | `README.md:83-106` |
-| Capacidade mínima | 4 RPU por workgroup (mínimo do serviço em us-east-2) | `variables.tf:33-42` |
+| Capacidade mínima | 4 RPU por workgroup (mínimo do serviço em us-east-2) | `aws/infra/variables.tf:33-42` |
 | Custo por leitura do dashboard | baixo — lê o agregado, não a base | modelo do serviço |
 | Custo dos refreshes que ninguém pediu | **não medido** | — |
-| Armazenamento | tabela base + o agregado materializado | `main.tf:175-184` |
+| Armazenamento | tabela base + o agregado materializado | `aws/infra/main.tf:175-184` |
 | Custo comparado a um job Glue agendado | **não medido** | — |
 
 **A última linha é a comparação que este workload existe para fazer.** Glue cobra
