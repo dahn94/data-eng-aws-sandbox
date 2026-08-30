@@ -23,10 +23,12 @@ PLATFORM_MODULES=(
 # antes dele. Desde que cada workload passou a criar a própria fonte, nenhum
 # depende de outro, e a ordem entre eles deixou de importar — então a ordem
 # alfabética do find serve.
+# O Terraform de cada workload vive em <workload>/aws/infra. A pasta `local`
+# ao lado dela é Docker, e não entra aqui: estes scripts operam a AWS.
 WORKLOAD_MODULES=()
 while IFS= read -r dir; do
-  [[ -n "$dir" ]] && WORKLOAD_MODULES+=("workloads/$(basename "$dir")")
-done < <(find "$REPO_ROOT/workloads" -mindepth 2 -maxdepth 2 -name main.tf -exec dirname {} \; 2>/dev/null | sort)
+  [[ -n "$dir" ]] && WORKLOAD_MODULES+=("${dir#"$REPO_ROOT"/}")
+done < <(find "$REPO_ROOT/workloads" -mindepth 4 -maxdepth 4 -path '*/aws/infra/main.tf' -exec dirname {} \; 2>/dev/null | sort)
 
 # ${arr[@]+"${arr[@]}"} em vez de "${arr[@]}": no bash 3.2 do macOS, expandir um
 # array vazio sob `set -u` aborta o script.

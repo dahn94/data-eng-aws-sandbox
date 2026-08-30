@@ -22,16 +22,22 @@ DAG útil como verificação, e não apenas como conveniência.
 
 ## Rodar
 
+A infraestrutura local deste workload está em [`infra/`](infra/), do mesmo jeito
+que a da AWS está em [`../aws/infra/`](../aws/infra/). Ela não redefine serviço
+nenhum: compõe as plataformas de que precisa, por `include`.
+
 ```bash
-# 1. o lakehouse, onde os jobs executam
-docker compose -f ../../../platform/local/lakehouse/docker-compose.yml up -d
-
-# 2. o orquestrador
-docker compose -f ../../../platform/local/orchestration-airflow/docker-compose.yml up -d
-
-# 3. dispare pela interface em http://localhost:8090, ou:
+cd infra
+docker compose up -d          # sobe o lakehouse e o orquestrador
 docker exec airflow airflow dags trigger amazonsales
 ```
+
+> **Escolha um ponto de entrada e fique nele.** Subir por
+> `platform/local/lakehouse/docker-compose.yml` cria o projeto
+> `dataeng-lakehouse`; subir por aqui cria `amazonsales-local`. Os contêineres
+> têm o mesmo nome nos dois casos, mas **os volumes levam o prefixo do
+> projeto** — alternar deixa os dados anteriores órfãos, sem aviso. Para este
+> workload, o ponto de entrada é `infra/`.
 
 ## Estado
 

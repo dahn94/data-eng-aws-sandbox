@@ -190,15 +190,24 @@ workload:
 
 ```
 workloads/amazonsales/
-  main.tf       a forma AWS: jobs Glue e Step Functions
-  scripts/      o código, um só
-  local/        a forma local: o DAG, o override do compose, o que difere
+  README.md  nfr.md  adr/   do workload — valem para os dois alvos
+  scripts/                  o código dos jobs, UM só
+  seed/                     o que semeia a origem
+  aws/
+    infra/                  Terraform: jobs Glue, Step Functions, envs, backends
+  local/
+    infra/                  Docker: compõe as plataformas locais que ele usa
+    dags/                   o DAG que substitui o Step Functions
 ```
 
 Orquestração é o exemplo: Step Functions e Airflow não são a mesma coisa com
 outra configuração, são produtos diferentes. Então a sequência é declarada duas
-vezes — no `main.tf` para a AWS, no `local/` para o Airflow — enquanto os jobs
-orquestrados continuam sendo os mesmos arquivos.
+vezes — em `aws/infra/` para a AWS, em `local/` para o Airflow — enquanto os
+jobs orquestrados continuam sendo os mesmos arquivos.
+
+A simetria é a regra: **`aws/infra/` tem o Terraform, `local/infra/` tem o
+Docker**, e tudo o que é do workload — código, semeador, ADRs, NFR — fica acima
+dos dois, porque não pertence a alvo nenhum.
 
 **A ausência de `local/` é informação:** significa que o workload só existe na
 AWS. É o caso de `zero-etl`, `incremental-mv`, `data-sharing`, `federated-query`
@@ -377,8 +386,9 @@ como um projeto sério. A ideia é ir adicionando novos workloads aqui dentro
 seguindo o padrão já estabelecido:
 
 - **Workload novo** → uma pasta em `workloads/<nome>/` com `main.tf`,
-  `variables.tf`, `outputs.tf`, `versions.tf`, `envs/`, `backends/`,
-  `README.md`, `nfr.md` e `adr/`. Ganha state próprio. Copie a estrutura de
+  `variables.tf`, `outputs.tf`, `versions.tf`, `envs/` e `backends/` dentro de
+  `aws/infra/`, mais `README.md`, `nfr.md` e `adr/` na raiz do workload. Ganha
+  state próprio. Copie a estrutura de
   `workloads/amazonsales/` se for um pipeline, ou a de
   `workloads/federated-query/` se não for.
 

@@ -23,5 +23,5 @@ jobs:
     uses: ./.github/workflows/terraform-reusable.yml
     secrets: inherit
     with:
-      working_directory: workloads/dms
+      working_directory: workloads/dms/aws/infra
       needs_rds_password: true

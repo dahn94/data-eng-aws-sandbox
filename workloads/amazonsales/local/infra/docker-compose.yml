@@ -1,0 +1,20 @@
+# A infraestrutura local deste workload — o espelho do que `../../aws/infra`
+# declara para a nuvem.
+#
+# Ele não redefine serviço nenhum: compõe as plataformas locais de que precisa,
+# por `include`. É a mesma relação que o Terraform tem com `platform/aws` —
+# o workload consome a plataforma, não a duplica.
+#
+#   docker compose up -d      # sobe o lakehouse e o orquestrador
+#   docker compose down       # derruba os dois
+#
+# O que este workload precisa, e por quê:
+#   lakehouse              MinIO + catálogo Iceberg + Spark, onde os jobs rodam
+#   orchestration-airflow  o DAG que substitui o Step Functions
+
+name: amazonsales-local
+
+include:
+  - path: ../../../../platform/local/lakehouse/docker-compose.yml
+    env_file: ../../../../platform/local/lakehouse/.env
+  - path: ../../../../platform/local/orchestration-airflow/docker-compose.yml

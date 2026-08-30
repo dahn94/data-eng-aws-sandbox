@@ -23,5 +23,5 @@ jobs:
     uses: ./.github/workflows/terraform-reusable.yml
     secrets: inherit
     with:
-      working_directory: workloads/data-sharing
+      working_directory: workloads/data-sharing/aws/infra
       needs_redshift_password: true

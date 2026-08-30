@@ -23,5 +23,5 @@ jobs:
     uses: ./.github/workflows/terraform-reusable.yml
     secrets: inherit
     with:
-      working_directory: workloads/amazonsales
+      working_directory: workloads/amazonsales/aws/infra
 

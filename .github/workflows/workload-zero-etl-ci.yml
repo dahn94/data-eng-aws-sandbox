@@ -25,5 +25,5 @@ jobs:
     uses: ./.github/workflows/terraform-reusable.yml
     secrets: inherit
     with:
-      working_directory: workloads/zero-etl
+      working_directory: workloads/zero-etl/aws/infra
       needs_redshift_password: true

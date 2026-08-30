@@ -23,5 +23,5 @@ jobs:
     uses: ./.github/workflows/terraform-reusable.yml
     secrets: inherit
     with:
-      working_directory: workloads/webevents-streaming
+      working_directory: workloads/webevents-streaming/aws/infra
       needs_opensearch_password: true

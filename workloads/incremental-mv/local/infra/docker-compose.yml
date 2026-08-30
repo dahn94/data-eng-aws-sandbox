@@ -1,0 +1,13 @@
+# A infraestrutura local deste workload.
+#
+# Na AWS ele usa Redshift (`../../aws/infra`); local, o motor que exercita o
+# mesmo mecanismo de materialized view é o ClickHouse. Não é o mesmo produto, e
+# o README diz exatamente onde eles divergem.
+#
+#   docker compose up -d
+#   docker exec -i clickhouse clickhouse-client --multiquery < ../materialized-view.sql
+
+name: incremental-mv-local
+
+include:
+  - path: ../../../../platform/local/olap-clickhouse/docker-compose.yml
