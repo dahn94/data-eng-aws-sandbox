@@ -111,17 +111,13 @@ with DAG(
         job("dim_user"),
     ]
 
-    portao_dims = job(
-        "portao_qualidade_dims", "dataeng-sandbox-amazonsales-dw-dims-s3tables-gdq.py"
-    )
+    portao_dims = job("portao_qualidade_dims")
 
     fatos = [
         job("fact_product_rating"),
         job("fact_sales_category"),
     ]
 
-    portao_fatos = job(
-        "portao_qualidade_fatos", "dataeng-sandbox-amazonsales-dw-facts-s3tables-gdq.py"
-    )
+    portao_fatos = job("portao_qualidade_fatos")
 
     stg >> dims >> portao_dims >> fatos >> portao_fatos

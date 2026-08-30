@@ -57,14 +57,42 @@ services:
       "
     networks: [lakehouse]
 
+  # O banco do catálogo. Sem ele o iceberg-rest-fixture usa um JDBC em memória
+  # que NÃO aguenta escrita concorrente: com as três dimensões do amazonsales
+  # rodando em paralelo, o catálogo devolve
+  # "ServiceFailureException: Failed to get table ... from catalog rest_backend".
+  #
+  # Não é limitação do Iceberg nem do desenho da pipeline — é do backend padrão
+  # da imagem de teste. O paralelismo é de propósito e foi mantido.
+  catalog-db:
+    image: postgres:16
+    container_name: lakehouse-catalog-db
+    environment:
+      POSTGRES_USER: iceberg
+      POSTGRES_PASSWORD: iceberg
+      POSTGRES_DB: iceberg
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iceberg"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - catalog-db-data:/var/lib/postgresql/data
+    networks: [lakehouse]
+
   # O catálogo. Na AWS quem dá semântica de tabela aos arquivos é o S3 Tables;
   # aqui é um catálogo Iceberg REST — a mesma especificação, sem o gerenciamento.
   iceberg-rest:
-    image: apache/iceberg-rest-fixture:1.9.2
+    build: ./iceberg-rest
+    image: dataeng-sandbox/iceberg-rest:1.9.2-pg
     container_name: lakehouse-iceberg-rest
     depends_on:
       minio-setup: { condition: service_completed_successfully }
+      catalog-db: { condition: service_healthy }
     environment:
+      CATALOG_URI: jdbc:postgresql://catalog-db:5432/iceberg
+      CATALOG_JDBC_USER: iceberg
+      CATALOG_JDBC_PASSWORD: iceberg
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
       AWS_REGION: ${AWS_REGION:-us-east-1}
@@ -83,7 +111,8 @@ services:
   # Fica viva sem fazer nada para você entrar nela:
   #   docker compose exec glue bash
   glue:
-    image: public.ecr.aws/glue/aws-glue-libs:5.0.10
+    build: ./glue
+    image: dataeng-sandbox/glue:5.0.10-gx
     container_name: lakehouse-glue
     depends_on:
       iceberg-rest: { condition: service_started }
@@ -123,7 +152,8 @@ services:
   #     /workspace/<script>.py
   spark-oss:
     profiles: ["oss"]
-    image: spark:3.5.7-scala2.12-java17-python3-ubuntu
+    build: ./spark-oss
+    image: dataeng-sandbox/spark-oss:3.5.7-gx
     container_name: lakehouse-spark-oss
     user: root
     depends_on:
@@ -166,6 +196,7 @@ services:
 
 volumes:
   minio-data:
+  catalog-db-data:
   spark-oss-ivy:
 
 networks:

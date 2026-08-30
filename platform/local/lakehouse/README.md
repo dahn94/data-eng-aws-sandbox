@@ -99,6 +99,7 @@ docker compose up -d
 | Serviço | Onde responde |
 |---|---|
 | MinIO — API S3 | `http://localhost:9002` |
+| Postgres do catálogo | interno, sem porta exposta |
 | MinIO — console | `http://localhost:9001` (`minioadmin` / `minioadmin`) |
 | Catálogo Iceberg REST | `http://localhost:8181` |
 | Trino (perfil `oss`) | `http://localhost:8080` |
@@ -152,6 +153,19 @@ com uma linha devolve uma linha.
 passou a usar Great Expectations, e foi verificado barrando dado com nulo e
 duplicado tanto no `glue` quanto no `spark-oss`. Ver
 [`../../../workloads/amazonsales/adr/0007`](../../../workloads/amazonsales/adr/0007-portao-de-qualidade-que-roda-nos-dois-lugares.md).
+
+**O catálogo precisa de um banco de verdade.** O `apache/iceberg-rest-fixture`
+é um fixture de teste: o backend padrão é um JDBC em memória que **não aguenta
+escrita concorrente**. Com as três dimensões do `amazonsales` em paralelo — como
+a máquina de estado faz na AWS — ele devolve `Failed to get table ... from
+catalog rest_backend`. Por isso há um Postgres por trás dele, e um `Dockerfile`
+que acrescenta o driver JDBC que a imagem não traz.
+
+**As dependências do job moram na imagem, não no contêiner.** `great_expectations`
+é instalado pelo `Dockerfile`, na mesma versão que o `additional_python_modules`
+do `main.tf` declara para a AWS. Instalar à mão dentro do contêiner funciona até
+o primeiro `docker compose down`, e aí o portão de qualidade falha no meio da
+pipeline com `ModuleNotFoundError`.
 
 **Pegadinha da imagem:** ela traz `spark.sql.catalogImplementation hive`, e nem
 todo comando SQL resolve pelo `defaultCatalog`. `CREATE TABLE ns.tbl` ia para o

@@ -67,17 +67,28 @@ docker exec lakehouse-glue spark-submit \
 # ... e assim por diante
 ```
 
-### O que NÃO funciona: o disparo pelo Airflow
+### Disparo pelo Airflow
 
-O DAG é lido sem erro, as oito tarefas aparecem, e o cliente do Docker alcança
-o `lakehouse-glue` de dentro do Airflow. Mas **um `dags trigger` fica preso em
-`queued`**: as instâncias de tarefa são criadas com estado nulo e o scheduler
-nunca as despacha, mesmo com o `LocalExecutor` carregado e sem erro no log.
+```bash
+docker exec airflow airflow dags trigger amazonsales
+```
 
-O que já foi descartado: DAG com erro de importação, DAG pausado, executor não
-carregado, e o override de `AIRFLOW__CORE__EXECUTOR` que eu tinha posto.
+**Verificado:** as oito tarefas em `success`, com as três dimensões rodando em
+paralelo — o mesmo paralelismo da máquina de estado.
 
-Suspeita não confirmada: o modo `standalone` do Airflow 3 com o volume nomeado
-montado sobre `/opt/airflow`, ou a URL do servidor de execução que o Task SDK
-usa. **Enquanto isso não for resolvido, a orquestração é declarativa: o DAG
-descreve a sequência certa, mas quem a executa hoje é o `spark-submit` direto.**
+Três coisas precisaram ser resolvidas para chegar aqui, e as três só apareceram
+executando:
+
+1. **Duas chamadas multi-linha no DAG passavam dois argumentos** para uma função
+   de um. `py_compile` não pega isso: é sintaxe válida. O sintoma era o run
+   preso em `queued` para sempre, sem erro visível — o scheduler não despacha um
+   DAG cuja versão atual falha ao ser lida.
+2. **O catálogo Iceberg não aguentava escrita concorrente.** O
+   `apache/iceberg-rest-fixture` usa um JDBC em memória; com as três dimensões
+   em paralelo ele devolvia `Failed to get table ... from catalog rest_backend`.
+   Resolvido dando um Postgres ao catálogo, em vez de serializar o DAG — o
+   paralelismo é do desenho, e serializar esconderia o problema em vez de
+   resolvê-lo.
+3. **`great_expectations` não estava na imagem.** Instalar à mão no contêiner
+   dura até o primeiro `docker compose down`. Agora está no Dockerfile, na mesma
+   versão que o `additional_python_modules` do `main.tf` declara para a AWS.
