@@ -124,6 +124,11 @@ a reconstrução coerente.
 
 ## Evidência no repo
 
+- **Verificado em execução (2026-08-29):** no `platform/local/lakehouse`, uma
+  tabela Iceberg escrita pelo Spark foi lida pelo Trino com os mesmos números, e
+  uma tabela escrita pelo Trino foi lida pelo Spark. Dois motores, um catálogo,
+  nenhuma cópia — que é o que este ADR afirma.
+
 - `platform/aws/foundation/main.tf:102-105` — a criação do bucket S3 Tables.
 - `platform/aws/foundation/README.md:27` — o bucket descrito como "onde as
   tabelas Iceberg vivem".

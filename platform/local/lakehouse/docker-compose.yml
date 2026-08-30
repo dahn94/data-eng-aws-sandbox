@@ -140,6 +140,27 @@ services:
     command: ["tail", "-f", "/dev/null"]
     networks: [lakehouse]
 
+  # Trino: o motor por trás do Athena. Na AWS você paga por bytes escaneados e
+  # a AWS opera o cluster; aqui é o mesmo motor, operado por você.
+  #
+  # Existe para uma pergunta que o Spark sozinho não responde: as tabelas
+  # Iceberg escritas por um motor são legíveis por outro, sem cópia e sem
+  # sincronização? É a afirmação do platform/aws/foundation/adr/0001.
+  #
+  #   docker compose --profile oss up -d
+  #   docker compose exec trino trino --execute "SELECT * FROM iceberg.ns.tabela"
+  trino:
+    profiles: ["oss"]
+    image: trinodb/trino:476
+    container_name: lakehouse-trino
+    depends_on:
+      iceberg-rest: { condition: service_started }
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./trino/catalog:/etc/trino/catalog:ro
+    networks: [lakehouse]
+
 volumes:
   minio-data:
   spark-oss-ivy:

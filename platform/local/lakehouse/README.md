@@ -54,6 +54,27 @@ docker compose exec spark-oss /opt/spark/bin/spark-submit \
 
 `spark-submit` não está no PATH da imagem aberta — use o caminho completo.
 
+## Trino: o motor por trás do Athena
+
+Sobe junto com o perfil `oss`, apontando para **o mesmo catálogo Iceberg** que o
+Spark usa. Nenhuma cópia, nenhuma sincronização.
+
+```bash
+docker compose --profile oss up -d
+docker compose exec trino trino --execute "SHOW SCHEMAS FROM iceberg"
+docker compose exec trino trino --execute "SELECT * FROM iceberg.<ns>.<tabela>"
+```
+
+Na AWS o Athena é Trino gerenciado: mesmo motor, você não opera o cluster e paga
+por bytes escaneados. O que não se reproduz aqui é o modelo de cobrança — o
+motor é o mesmo.
+
+**Verificado nos dois sentidos:** o Trino lê tabela escrita pelo Spark (2 linhas,
+soma 7.5, iguais ao que o Spark reportou), e o Spark lê tabela escrita pelo
+Trino (soma 16.5). É a afirmação do
+[`platform/aws/foundation/adr/0001`](../../aws/foundation/adr/0001-semantica-de-tabela-no-s3.md)
+— "três motores lendo as mesmas tabelas" — exercitada em vez de declarada.
+
 Os buckets nascem com **os mesmos nomes** que o `platform/aws/foundation` cria na
 AWS, com prefixo `sandbox` e ambiente `local`:
 
