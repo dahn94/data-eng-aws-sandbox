@@ -82,16 +82,28 @@ SELECT DATE_TRUNC('hour', pedido_em) AS hora,
  ORDER BY 1;
 ```
 
+## Dois datasets, não um
+
+Ser exato sobre isto evita comparar coisas diferentes:
+
+| Dataset | Quem consome | Produtor | Estado |
+|---|---|---|---|
+| **amazonsales** (16 colunas, produtos e avaliações) | `workloads/amazonsales` | `workloads/amazonsales/seed/gerar_dataset.py` | **existe e é determinístico** |
+| **`vendas`** (o contrato descrito acima) | `federated-query`, `zero-etl`, `incremental-mv`, `data-sharing` | — | **sem produtor** |
+
+O `amazonsales` tem semeador próprio porque tem schema próprio: ele não lê a
+tabela `vendas` deste contrato. O que ele empresta ao contrato é a disciplina —
+semente fixa, contagem declarada, duplicatas de propósito.
+
 ## O que ainda falta para este contrato valer
 
 Ser honesto sobre isto importa mais do que o contrato parecer pronto:
 
-- [ ] **O gerador não é determinístico.**
+- [ ] **O gerador de eventos não é determinístico.**
       `workloads/webevents-streaming/seed/script-insert-postgres-webfake-events.py`
-      não aceita `--seed` nem janela por parâmetro: hoje ele gera eventos web
-      contínuos, não a tabela de vendas descrita aqui. Enquanto isso não
-      existir, duas execuções produzem dados diferentes e **a comparação não é
-      reproduzível por terceiros** — só dentro de uma mesma rodada sua.
+      não aceita `--seed` nem janela por parâmetro. O do `amazonsales` já é
+      determinístico e serve de modelo: `random.Random(semente)`, contagem
+      declarada na saída, e nenhum uso do estado global do `random`.
 - [ ] **Ninguém publica o parquet em `datasets/vendas/`.** O caminho está
       declarado, o produtor dele não existe. Por isso `seed_bucket` nasce vazio
       nos `envs/*.tfvars`.

@@ -34,10 +34,10 @@ exige SLA de frescor não pode usar auto refresh.
 | Código próprio a operar | **0 linhas** | — |
 | Capacidade base | 4 RPU | `variables.tf:33-42` |
 | Distribuição da tabela base | `DISTKEY (customer_id)`, `SORTKEY (pedido_em)` | `main.tf:175-184` |
-| Latência da query sem a view | **não medida** (40 s é o relato da demanda, não medição) | `README.md:9` |
-| Latência da query com a view | **não medida** | — |
-| Intervalo real entre refreshes automáticos | **não medido** | — |
-| Variação desse intervalo sob carga | **não medida** | — |
+| Latência da query sem a view | **10 ms p50** sobre 2 M linhas — medido em ClickHouse, não em Redshift | `local/` |
+| Latência da query com a view | **1 ms p50**, lendo 17 linhas em vez de 2 M | `local/` |
+| Intervalo real entre refreshes automáticos | **não medido, e não medível local** — o ClickHouse atualiza na escrita; intervalo só existe no Redshift | — |
+| Variação desse intervalo sob carga | **não medível local** — mesma razão | — |
 | Defasagem máxima observada | **não medida** | — |
 
 **As três últimas linhas são o que separa este workload de um cron.** Um job
@@ -75,6 +75,34 @@ A última linha é uma limitação de IaC assumida, não um bug: alterar a view 
 por execução; Redshift Serverless cobra por RPU enquanto processa. Numa base que
 muda pouco, o auto refresh pode ser mais barato que um cron de 5 minutos — ou
 muito mais caro, se recalcular sem necessidade. Hoje é palpite.
+
+## Medições locais — em ClickHouse, não em Redshift
+
+Feitas em 2026-08-30 em `local/`, com 2 milhões de linhas geradas
+deterministicamente e agregadas em 24 grupos horários.
+
+| Caminho | p50 | p95 | linhas lidas | bytes lidos |
+|---|---|---|---|---|
+| **Sem a view** — `GROUP BY` sobre a base | 10 ms | 18 ms | 2.000.000 | 22,89 MiB |
+| **Com a view** — lendo o agregado | **1 ms** | 2 ms | **17** | **755 B** |
+
+**O número que importa não é o tempo, é o volume lido.** Dez vezes mais rápido
+impressiona pouco; ler 17 linhas em vez de dois milhões — cerca de 30.000 vezes
+menos dado — é o que a materialização compra, e é o que continua valendo quando
+o motor muda.
+
+O ClickHouse é rápido demais para essa diferença aparecer bem no relógio: 2 M
+linhas em 10 ms. **Num motor onde a leitura domina — Redshift lendo de disco, ou
+Athena escaneando S3 e cobrando por byte — a mesma razão de volume vira razão de
+tempo e de custo.** É por isso que a linha de bytes lidos é a que se deve
+carregar para a comparação, e não a de milissegundos.
+
+**O que estas medições não cobrem:** o intervalo entre refreshes e sua variação
+sob carga. Não é falta de esforço — é que a pergunta não existe aqui. O
+ClickHouse atualiza na escrita; "quando o motor decide recomputar" só faz
+sentido no Redshift, e é justamente a contrapartida que o
+[`adr/0001`](adr/0001-servir-um-agregado-sempre-pronto.md) aceita. Essas linhas
+só saem do "não medido" com a AWS de pé.
 
 ## Consequências desta tabela
 
