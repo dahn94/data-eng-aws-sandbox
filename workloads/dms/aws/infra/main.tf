@@ -13,7 +13,7 @@ data "terraform_remote_state" "network" {
 
 module "source_db" {
   count  = var.create_source_db ? 1 : 0
-  source = "../../../../modules/rds"
+  source = "../../../../platform/aws/modules/rds"
 
   name        = "dataeng-sandbox-dms-src-${var.environment}"
   environment = var.environment
@@ -57,7 +57,7 @@ locals {
 }
 
 module "dms" {
-  source = "../../../../modules/dms"
+  source = "../../../../platform/aws/modules/dms"
 
   environment                 = var.environment
   replication_subnet_group_id = data.terraform_remote_state.network.outputs.dms_subnet_group_id

@@ -4,14 +4,14 @@ on:
   pull_request:
     branches: [develop, main]
     paths:
-      - "modules/rds/**"
+      - "platform/aws/modules/rds/**"
       - "workloads/federated-query/**"
       - .github/workflows/workload-federated-query-ci.yml
       - .github/workflows/terraform-reusable.yml
   push:
     branches: [develop, main]
     paths:
-      - "modules/rds/**"
+      - "platform/aws/modules/rds/**"
       - "workloads/federated-query/**"
       - .github/workflows/workload-federated-query-ci.yml
       - .github/workflows/terraform-reusable.yml

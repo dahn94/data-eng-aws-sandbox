@@ -5,16 +5,16 @@ on:
     branches: [develop, main]
     paths:
       - "workloads/webevents-streaming/**"
-      - "modules/ec2/**"
-      - "modules/glue-job/**"
+      - "platform/aws/modules/ec2/**"
+      - "platform/aws/modules/glue-job/**"
       - .github/workflows/workload-webevents-streaming-ci.yml
       - .github/workflows/terraform-reusable.yml
   push:
     branches: [develop, main]
     paths:
       - "workloads/webevents-streaming/**"
-      - "modules/ec2/**"
-      - "modules/glue-job/**"
+      - "platform/aws/modules/ec2/**"
+      - "platform/aws/modules/glue-job/**"
       - .github/workflows/workload-webevents-streaming-ci.yml
       - .github/workflows/terraform-reusable.yml
 

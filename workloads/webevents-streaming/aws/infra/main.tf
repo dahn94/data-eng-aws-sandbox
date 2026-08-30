@@ -88,7 +88,7 @@ locals {
 
 module "streaming_host" {
   count  = local.host_enabled ? 1 : 0
-  source = "../../../../modules/ec2"
+  source = "../../../../platform/aws/modules/ec2"
 
   instance_name       = "dataeng-sandbox-streaming-host-${var.environment}"
   ami_id              = data.aws_ami.streaming_host[0].id
@@ -231,7 +231,7 @@ data "aws_subnet" "glue" {
 }
 
 module "glue_jobs_streaming" {
-  source = "../../../../modules/glue-job"
+  source = "../../../../platform/aws/modules/glue-job"
 
   project_name       = "dataeng-sandbox-webevents-streaming"
   environment        = var.environment

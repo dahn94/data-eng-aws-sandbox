@@ -7,14 +7,14 @@ on:
       - "workloads/incremental-mv/**"
       # O warehouse vem de um módulo compartilhado: mexer nele sem disparar
       # este workflow deixaria a mudança sem plan.
-      - "modules/redshift-serverless/**"
+      - "platform/aws/modules/redshift-serverless/**"
       - .github/workflows/workload-incremental-mv-ci.yml
       - .github/workflows/terraform-reusable.yml
   push:
     branches: [develop, main]
     paths:
       - "workloads/incremental-mv/**"
-      - "modules/redshift-serverless/**"
+      - "platform/aws/modules/redshift-serverless/**"
       - .github/workflows/workload-incremental-mv-ci.yml
       - .github/workflows/terraform-reusable.yml
 

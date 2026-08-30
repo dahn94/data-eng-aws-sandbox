@@ -81,7 +81,7 @@ risco aceito, e é a informação mais útil deste ADR.
 
 **Assim que o módulo `dms` passar a gravar coluna de operação e timestamp de
 commit.** Não é um gatilho de escala — é um gatilho de capacidade, e depende de
-uma mudança de uma linha em `modules/dms/main.tf` (`include_op_for_full_load` e
+uma mudança de uma linha em `../../../platform/aws/modules/dms/main.tf` (`include_op_for_full_load` e
 `timestamp_column_name` no bloco `s3_settings`). No instante em que essas colunas
 existirem, a opção 2 vira implementável e esta decisão está obsoleta.
 
@@ -117,5 +117,5 @@ Antes disso, dois gatilhos menores tornam o risco intolerável:
 - `workloads/amazonsales/scripts/glue_common.py:99-122` — o `MERGE`,
   que tem `WHEN MATCHED THEN UPDATE` e `WHEN NOT MATCHED THEN INSERT`, e
   **nenhuma** cláusula de delete.
-- `modules/dms/main.tf:111-117` — o `s3_settings` sem
+- `../../../platform/aws/modules/dms/main.tf:111-117` — o `s3_settings` sem
   `include_op_for_full_load` nem `timestamp_column_name`: a causa raiz.

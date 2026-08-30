@@ -124,5 +124,5 @@ diferentes.
   consumidor, do mesmo módulo compartilhado.
 - `workloads/data-sharing/outputs.tf` — `proof_query`, o roteiro que demonstra
   ausência de defasagem sem nenhum job entre as duas leituras.
-- `modules/redshift-serverless/outputs.tf` — o `namespace_id`, que é o endereço
+- `../../../platform/aws/modules/redshift-serverless/outputs.tf` — o `namespace_id`, que é o endereço
   citado nos dois lados do share.

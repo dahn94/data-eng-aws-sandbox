@@ -11,7 +11,7 @@ locals {
 }
 
 module "glue_jobs_s3tables" {
-  source = "../../../../modules/glue-job"
+  source = "../../../../platform/aws/modules/glue-job"
 
   project_name        = "dataeng-sandbox-amazonsales"
   environment         = var.environment
@@ -60,7 +60,7 @@ module "glue_jobs_s3tables" {
 }
 
 module "step_functions" {
-  source = "../../../../modules/step-functions"
+  source = "../../../../platform/aws/modules/step-functions"
 
   project_name = "dataeng-sandbox-amazonsales"
   environment  = var.environment

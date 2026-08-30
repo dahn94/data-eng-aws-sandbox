@@ -122,7 +122,7 @@ Essa é a regra que dá forma ao repositório: **cada workload é dono da
 infraestrutura que usa; o que não se duplica é código.** Por isso os três
 workloads de Redshift criam cada um o seu warehouse, o `webevents-streaming`
 cria a EC2 que hospeda o Kafka dele, e `dms`, `federated-query` e `zero-etl`
-criam cada um o seu Postgres de origem — todos a partir do mesmo `modules/`.
+criam cada um o seu Postgres de origem — todos a partir do mesmo `platform/aws/modules/`.
 
 Parece desperdício e não é: um experimento roda por vez, e cada pasta sobe e é
 destruída inteira. O que se ganha é que uma pasta sobe com **um comando**, sem
@@ -414,7 +414,7 @@ Cada workload **possui** a infraestrutura que usa, inclusive quando isso
 significa duas pastas criando cada uma o seu Redshift. É proposital: a pasta é
 a unidade de estudo e precisa subir sozinha, com um comando, sem mapa mental de
 pré-requisitos. O que não se duplica é **código** — o que dois workloads têm em
-comum vira módulo em `modules/`.
+comum vira módulo em `platform/aws/modules/`.
 
 Nunca amontoe um workload novo dentro do `main.tf` de outro — é exatamente
 esse acoplamento que a separação em `workloads/` evita.

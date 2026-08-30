@@ -134,9 +134,9 @@ também.
 
 ## Evidência no repo
 
-- `modules/dms/main.tf:105-118` — o endpoint S3: só compressão e
+- `../../../platform/aws/modules/dms/main.tf:105-118` — o endpoint S3: só compressão e
   formato; sem coluna de operação, sem timestamp.
-- `modules/dms/main.tf:143` — `migration_type = "full-load-and-cdc"`.
+- `../../../platform/aws/modules/dms/main.tf:143` — `migration_type = "full-load-and-cdc"`.
 - `workloads/dms/README.md:24-34` — o contrato de caminho no S3 com a pipeline.
 - `workloads/dms/README.md:43-54` — custo e ausência de "stop".
 - `platform/local/streaming-cdc/README.md:3-4` — o Debezium como alternativa.

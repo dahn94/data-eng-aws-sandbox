@@ -5,16 +5,16 @@ on:
     branches: [develop, main]
     paths:
       - "workloads/amazonsales/**"
-      - "modules/glue-job/**"
-      - "modules/step-functions/**"
+      - "platform/aws/modules/glue-job/**"
+      - "platform/aws/modules/step-functions/**"
       - .github/workflows/workload-amazonsales-ci.yml
       - .github/workflows/terraform-reusable.yml
   push:
     branches: [develop, main]
     paths:
       - "workloads/amazonsales/**"
-      - "modules/glue-job/**"
-      - "modules/step-functions/**"
+      - "platform/aws/modules/glue-job/**"
+      - "platform/aws/modules/step-functions/**"
       - .github/workflows/workload-amazonsales-ci.yml
       - .github/workflows/terraform-reusable.yml
 

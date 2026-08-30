@@ -16,7 +16,7 @@ data "terraform_remote_state" "network" {
 
 module "source_db" {
   count  = var.create_source_db ? 1 : 0
-  source = "../../../../modules/rds"
+  source = "../../../../platform/aws/modules/rds"
 
   name        = "dataeng-sandbox-zero-etl-src-${var.environment}"
   environment = var.environment
@@ -103,7 +103,7 @@ resource "aws_vpc_security_group_egress_rule" "redshift_all" {
 # ---------------------------------------------------------------------------
 
 module "warehouse" {
-  source = "../../../../modules/redshift-serverless"
+  source = "../../../../platform/aws/modules/redshift-serverless"
 
   name        = local.name
   environment = var.environment

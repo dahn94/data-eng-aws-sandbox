@@ -106,7 +106,7 @@ resource "aws_iam_role_policy" "redshift_copy_s3" {
 # O produtor: quem é dono do dado. Ele continua dono depois do share — é esse o
 # ponto do workload.
 module "producer" {
-  source = "../../../../modules/redshift-serverless"
+  source = "../../../../platform/aws/modules/redshift-serverless"
 
   name        = local.producer_name
   environment = var.environment
@@ -129,7 +129,7 @@ module "producer" {
 # O consumidor: outro time, outro namespace, outra fatura de consulta. Não
 # recebe cópia nenhuma — recebe permissão.
 module "consumer" {
-  source = "../../../../modules/redshift-serverless"
+  source = "../../../../platform/aws/modules/redshift-serverless"
 
   name        = local.consumer_name
   environment = var.environment

@@ -15,7 +15,7 @@ export PGPASSWORD=<senha-do-postgres>
 # opcionais:
 export PGUSER=postgres
 export PGPORT=5432
-export PGDATABASE=dataengsandbox    # casa com o db_name criado por modules/rds
+export PGDATABASE=dataengsandbox    # casa com o db_name criado por platform/aws/modules/rds
 export BATCH_INTERVAL_SECONDS=60
 
 python3 script-insert-postgres-webfake-events.py

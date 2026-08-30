@@ -110,7 +110,7 @@ este e o `../dms/` — de propósito. Eles não são redundantes: um entrega o e
 atual sem trabalho nenhum, o outro entrega o passado ao custo de trabalho. Ter os
 dois lado a lado, sobre o mesmo dado, é o experimento.
 
-O `modules/rds` exporta `db_instance_arn` para que este workload cite
+O `../../../platform/aws/modules/rds` exporta `db_instance_arn` para que este workload cite
 a origem por ARN.
 
 Passou a existir infraestrutura cujo custo **não cai a zero quando ninguém usa** —
@@ -128,4 +128,4 @@ os workloads de Redshift antes da plataforma.
   porque a integração replica os nomes da origem como eles são.
 - `workloads/zero-etl/outputs.tf` — o `next_step`, que é a fronteira honesta do
   Terraform aqui.
-- `modules/rds/outputs.tf` — o `db_instance_arn` exportado para isto.
+- `../../../platform/aws/modules/rds/outputs.tf` — o `db_instance_arn` exportado para isto.

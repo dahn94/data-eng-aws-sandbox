@@ -31,7 +31,7 @@ servir e a resposta volta a ser um pipeline.
 | Motor | integração gerenciada RDS → Redshift | `main.tf:123-133` |
 | Código próprio a operar | **0 linhas** | — |
 | Versão mínima da origem | PostgreSQL 15.4 | restrição do serviço |
-| Versão da origem hoje | PostgreSQL 17 | `../../modules/rds/` |
+| Versão da origem hoje | PostgreSQL 17 | `../../platform/aws/modules/rds/` |
 | Destino | Redshift Serverless, 4 RPU base | `variables.tf:43-51` |
 | `case_sensitive_identifier` | `true` — exigido pela integração | `main.tf:86` |
 | Filtro de tabelas | `dataengsandbox.public.*` | `envs/develop.tfvars:10` |

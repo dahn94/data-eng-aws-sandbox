@@ -88,7 +88,7 @@ jobs:
           terraform_version: ${{ inputs.terraform_version }}
 
       # — recursive: a versão anterior checava só o root module, então os
-      # módulos em modules/ nunca eram verificados.
+      # módulos em platform/aws/modules/ nunca eram verificados.
       - name: Terraform fmt
         run: terraform fmt -check -recursive -diff
 

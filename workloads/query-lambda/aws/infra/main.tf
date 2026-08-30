@@ -42,7 +42,7 @@ resource "aws_ecr_lifecycle_policy" "duckdb" {
 }
 
 module "lambda_function_duckdb" {
-  source = "../../../../modules/lambda_ecr"
+  source = "../../../../platform/aws/modules/lambda_ecr"
   count  = local.create_function ? 1 : 0
 
   function_name = local.function_name

@@ -5,14 +5,14 @@ on:
     branches: [develop, main]
     paths:
       - "platform/aws/network/**"
-      - "modules/vpc/**"
+      - "platform/aws/modules/vpc/**"
       - .github/workflows/platform-aws-network-ci.yml
       - .github/workflows/terraform-reusable.yml
   push:
     branches: [develop, main]
     paths:
       - "platform/aws/network/**"
-      - "modules/vpc/**"
+      - "platform/aws/modules/vpc/**"
       - .github/workflows/platform-aws-network-ci.yml
       - .github/workflows/terraform-reusable.yml
 

@@ -15,7 +15,7 @@ sozinhos se um ADR continua válido.
 | Requisito | Valor hoje | Origem / como foi obtido |
 |---|---|---|
 | Origem | Postgres (`public.amazon`), via CDC do DMS para Parquet no S3 | `../dms/README.md:24-34` |
-| Formato de entrada | Parquet + GZIP | `modules/dms/main.tf:111-117` |
+| Formato de entrada | Parquet + GZIP | `../../platform/aws/modules/dms/main.tf:111-117` |
 | Colunas esperadas | 16, declaradas explicitamente | `scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:9-26` |
 | Volume por carga | **101 linhas na origem, 50 na staged** — medido no ambiente local, dataset `v1` | `local/README.md` |
 | Crescimento esperado | **não declarado** — é projeção de negócio, não medição | — |

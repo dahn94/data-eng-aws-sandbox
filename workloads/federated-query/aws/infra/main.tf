@@ -15,7 +15,7 @@ data "terraform_remote_state" "network" {
 
 module "source_db" {
   count  = var.create_source_db ? 1 : 0
-  source = "../../../../modules/rds"
+  source = "../../../../platform/aws/modules/rds"
 
   name        = "dataeng-sandbox-federated-query-src-${var.environment}"
   environment = var.environment
@@ -172,7 +172,7 @@ resource "aws_vpc_security_group_egress_rule" "connector_all" {
 }
 
 # Quem chega depois declara o próprio acesso: o RDS não precisa conhecer seus
-# consumidores. Por isso modules/rds exporta security_group_id.
+# consumidores. Por isso platform/aws/modules/rds exporta security_group_id.
 resource "aws_vpc_security_group_ingress_rule" "rds_from_connector" {
   security_group_id            = local.src_sg_id
   description                  = "Postgres a partir do conector federado do Athena"

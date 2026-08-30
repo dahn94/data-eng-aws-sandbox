@@ -107,7 +107,7 @@ resource "aws_iam_role_policy" "redshift_copy_s3" {
 # ---------------------------------------------------------------------------
 
 module "warehouse" {
-  source = "../../../../modules/redshift-serverless"
+  source = "../../../../platform/aws/modules/redshift-serverless"
 
   name        = local.name
   environment = var.environment

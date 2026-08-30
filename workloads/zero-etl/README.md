@@ -93,7 +93,7 @@ Glue e Lambda, que cobram por execução, este custo existe porque o warehouse
 existe. **Faça `terraform destroy` ao terminar a sessão de estudo.**
 
 **Você depende de uma restrição de versão.** Postgres ≥ 15.4 e destino Redshift
-Serverless ou RA3. O `modules/rds` cria PG 17, então serve — mas isso é sorte
+Serverless ou RA3. O `../../platform/aws/modules/rds` cria PG 17, então serve — mas isso é sorte
 de configuração, não garantia.
 
 Está quantificado em [`nfr.md`](nfr.md) e decidido em

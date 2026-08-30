@@ -11,11 +11,11 @@ candidatos a revisão.
 | Requisito | Valor hoje | Origem |
 |---|---|---|
 | Origem | Postgres com `rds.logical_replication = 1` | `variables.tf` (`create_source_db`) |
-| Modo | `full-load-and-cdc` — carga inicial e CDC contínuo | `modules/dms/main.tf:143` |
-| Destino | Parquet + GZIP no S3 raw | `modules/dms/main.tf:111-117` |
+| Modo | `full-load-and-cdc` — carga inicial e CDC contínuo | `../../platform/aws/modules/dms/main.tf:143` |
+| Destino | Parquet + GZIP no S3 raw | `../../platform/aws/modules/dms/main.tf:111-117` |
 | Caminho de saída | `<bucket_folder>/<schema>/<tabela>/` | `README.md:24-34` |
-| Coluna de operação (I/U/D) | **ausente** — `include_op_for_full_load` não configurado | `modules/dms/main.tf:111-117` |
-| Timestamp de commit | **ausente** — `timestamp_column_name` não configurado | `modules/dms/main.tf:111-117` |
+| Coluna de operação (I/U/D) | **ausente** — `include_op_for_full_load` não configurado | `../../platform/aws/modules/dms/main.tf:111-117` |
+| Timestamp de commit | **ausente** — `timestamp_column_name` não configurado | `../../platform/aws/modules/dms/main.tf:111-117` |
 | Lag de replicação | **não medido** | — |
 | Consumidores do evento | **1** (as pipelines batch, lendo do S3) | `README.md:24-34` |
 
@@ -33,7 +33,7 @@ candidatos a revisão.
 |---|---|---|
 | Garantia de entrega | at-least-once (o consumidor precisa deduplicar) | característica do DMS |
 | Ordenação entre eventos da mesma chave | **não preservada no arquivo de saída** | consequência da ausência de timestamp/LSN |
-| Delete é capturado? | sim pelo CDC, mas **indistinguível** de insert no arquivo, por falta da coluna de operação | `modules/dms/main.tf:111-117` |
+| Delete é capturado? | sim pelo CDC, mas **indistinguível** de insert no arquivo, por falta da coluna de operação | `../../platform/aws/modules/dms/main.tf:111-117` |
 | Risco na origem | replication slot órfão prende o WAL e pode encher o disco | `../../platform/local/streaming-cdc/README.md:66-70` |
 
 ## Consequências desta tabela

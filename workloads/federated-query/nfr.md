@@ -49,7 +49,7 @@ federar transfere carga para o banco transacional.
 | Aumento de CPU no RDS durante a query | **não medido** | — |
 | Impacto na latência do OLTP | **não medido** | — |
 | Teto de carga aceitável na fonte | **não declarado** | — |
-| Limite de conexões do `db.t4g.micro` | herdado do `max_connections` padrão | `../../modules/rds/` |
+| Limite de conexões do `db.t4g.micro` | herdado do `max_connections` padrão | `../../platform/aws/modules/rds/` |
 
 **Os três "não medido" desta tabela são os números mais importantes do
 workload.** Sem eles, "federação sobrecarrega o banco" é folclore, não
