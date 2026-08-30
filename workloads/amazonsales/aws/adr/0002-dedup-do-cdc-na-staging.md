@@ -22,9 +22,9 @@ Spark vai devolver. Nenhuma das duas se sustenta.
 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
-| Coluna de operação (I/U/D) no arquivo | **ausente** | [`dms/nfr.md`](../../dms/nfr.md) |
-| Timestamp de commit / LSN no arquivo | **ausente** | [`dms/nfr.md`](../../dms/nfr.md) |
-| Ordenação entre eventos da mesma chave | **não preservada** | [`dms/nfr.md`](../../dms/nfr.md) |
+| Coluna de operação (I/U/D) no arquivo | **ausente** | [`dms/nfr.md`](../../../dms/aws/nfr.md) |
+| Timestamp de commit / LSN no arquivo | **ausente** | [`dms/nfr.md`](../../../dms/aws/nfr.md) |
+| Ordenação entre eventos da mesma chave | **não preservada** | [`dms/nfr.md`](../../../dms/aws/nfr.md) |
 | Consumidor em produção | nenhum | [`nfr.md`](../nfr.md) |
 | Volume por carga | não medido | [`nfr.md`](../nfr.md) |
 
@@ -110,12 +110,12 @@ Antes disso, dois gatilhos menores tornam o risco intolerável:
 
 ## Evidência no repo
 
-- `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:43`
+- `workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:43`
   — o `dropDuplicates([primary_key])`, sem ordenação.
-- `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:45`
+- `workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:45`
   — o `merge_table` que grava a staging.
-- `workloads/amazonsales/scripts/glue_common.py:99-122` — o `MERGE`,
+- `workloads/amazonsales/aws/scripts/glue_common.py:99-122` — o `MERGE`,
   que tem `WHEN MATCHED THEN UPDATE` e `WHEN NOT MATCHED THEN INSERT`, e
   **nenhuma** cláusula de delete.
-- `../../../platform/aws/modules/dms/main.tf:111-117` — o `s3_settings` sem
+- `../../../../platform/aws/modules/dms/main.tf:111-117` — o `s3_settings` sem
   `include_op_for_full_load` nem `timestamp_column_name`: a causa raiz.

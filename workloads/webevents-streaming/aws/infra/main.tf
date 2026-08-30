@@ -99,7 +99,7 @@ module "streaming_host" {
   vpc_id              = data.terraform_remote_state.network[0].outputs.vpc_id
   associate_public_ip = true
 
-  user_data = file("${path.module}/../../scripts/bootstrap/bootstrap.sh")
+  user_data = file("${path.module}/../scripts/bootstrap/bootstrap.sh")
 
   # Nada entra por default. O que entra:
   #   - o seu IP, se você declarar, para alcançar as UIs direto
@@ -238,7 +238,7 @@ module "glue_jobs_streaming" {
   region             = var.region
   s3_bucket_scripts  = var.s3_bucket_scripts
   data_buckets       = [var.s3_bucket_raw, var.s3_bucket_logs]
-  scripts_local_path = "../../scripts"
+  scripts_local_path = "../scripts"
 
   # gluestreaming, não glueetl: um job de Structured Streaming roda
   # indefinidamente e morreria no timeout de um job em lote.

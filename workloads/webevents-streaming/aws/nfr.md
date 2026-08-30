@@ -10,7 +10,7 @@ candidatos a revisão.
 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
-| Origem | tópico Kafka `ecommerce.public.web_events`, Avro do Debezium | `../../platform/local/services/streaming-cdc/README.md:37-45` |
+| Origem | tópico Kafka `ecommerce.public.web_events`, Avro do Debezium | `../../../platform/local/services/streaming-cdc/README.md:37-45` |
 | Schema | lido do Schema Registry **em runtime**, versão `latest` | `scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:47-52` |
 | Destino | índice do OpenSearch | `scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:93-108` |
 | O dado pousa no lakehouse? | **não** — o fluxo vai direto ao OpenSearch | `scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:93-108` |
@@ -27,7 +27,7 @@ candidatos a revisão.
 | Perda de dado no tópico | tolerada (`failOnDataLoss = false`) | `scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:61` |
 | Checkpoint | `s3://<prefixo>-lake-logs-<amb>/spark-checkpoints/<amb>/...` | `README.md` |
 | Como reprocessar do zero | apagar o caminho do checkpoint antes de reiniciar | `README.md` |
-| Retentativas do job | **0** | `aws/infra/main.tf:56` |
+| Retentativas do job | **0** | `infra/main.tf:56` |
 | Janela, watermark, evento atrasado | **nenhum tratamento** | não há `withWatermark` no script |
 
 ## Governança
@@ -51,7 +51,7 @@ candidatos a revisão.
 - **At-least-once sem chave de documento** somado a **`append`** é o que define a
   semântica do índice: ele é um log de eventos, não um espelho do estado da
   tabela de origem. Registrado em
-  [`adr/0002`](adr/0002-semantica-do-destino-do-streaming.md).
+  `adr/0002`.
 - **O dado não pousa no lakehouse** é a maior lacuna da arquitetura atual e o que
   o item 7 da Fase 03 do TODO vem resolver — sem isso não há janela, watermark
   nem exactly-once para estudar.

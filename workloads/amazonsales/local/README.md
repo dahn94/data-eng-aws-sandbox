@@ -11,7 +11,7 @@ stg_table
 ```
 
 É espelho de
-[`../scripts/step-functions-definitions/sfn_definition_s3tables_amazonsales.json`](../scripts/step-functions-definitions/sfn_definition_s3tables_amazonsales.json).
+[`../scripts/step-functions-definitions/sfn_definition_s3tables_amazonsales.json`](../aws/scripts/step-functions-definitions/sfn_definition_s3tables_amazonsales.json).
 Os jobs são **os mesmos arquivos** de `../scripts/`; o que muda é quem os
 dispara: lá, `glue:startJobRun` pela máquina de estado; aqui, `spark-submit` no
 contêiner do lakehouse.
@@ -42,7 +42,7 @@ docker exec airflow airflow dags trigger amazonsales
 ## Estado
 
 **A pipeline roda de ponta a ponta**, com dado semeado por
-[`../seed/`](../seed/). Verificado disparando os oito jobs em sequência no
+[`../seed/`](../aws/seed/). Verificado disparando os oito jobs em sequência no
 contêiner do lakehouse:
 
 | tabela | linhas |
@@ -62,12 +62,12 @@ Para reproduzir, do zero:
 ```bash
 # 1. semear a origem
 docker exec lakehouse-glue spark-submit \
-  /workspace/workloads/amazonsales/seed/gerar_dataset.py \
+  /workspace/workloads/amazonsales/aws/seed/gerar_dataset.py \
   --saida s3a://sandbox-lake-raw-local/amazonsales/ --produtos 50 --semente 42
 
 # 2. os oito jobs, na ordem do DAG — os argumentos estão em dags/amazonsales_dag.py
 docker exec lakehouse-glue spark-submit \
-  /workspace/workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py \
+  /workspace/workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py \
   --input_path s3a://sandbox-lake-raw-local/amazonsales/ --iceberg_table stg_amazonsales \
   --namespace staged --primary_key product_id --s3_tables_bucket_arn nao-usado-no-modo-local
 # ... e assim por diante

@@ -88,7 +88,7 @@ Ser exato sobre isto evita comparar coisas diferentes:
 
 | Dataset | Quem consome | Produtor | Estado |
 |---|---|---|---|
-| **amazonsales** (16 colunas, produtos e avaliações) | `workloads/amazonsales` | `workloads/amazonsales/seed/gerar_dataset.py` | **existe e é determinístico** |
+| **amazonsales** (16 colunas, produtos e avaliações) | `workloads/amazonsales` | `workloads/amazonsales/aws/seed/gerar_dataset.py` | **existe e é determinístico** |
 | **`vendas`** (o contrato descrito acima) | `federated-query`, `zero-etl`, `incremental-mv`, `data-sharing` | — | **sem produtor** |
 
 O `amazonsales` tem semeador próprio porque tem schema próprio: ele não lê a
@@ -100,7 +100,7 @@ semente fixa, contagem declarada, duplicatas de propósito.
 Ser honesto sobre isto importa mais do que o contrato parecer pronto:
 
 - [ ] **O gerador de eventos não é determinístico.**
-      `workloads/webevents-streaming/seed/script-insert-postgres-webfake-events.py`
+      `workloads/webevents-streaming/aws/seed/script-insert-postgres-webfake-events.py`
       não aceita `--seed` nem janela por parâmetro. O do `amazonsales` já é
       determinístico e serve de modelo: `random.Random(semente)`, contagem
       declarada na saída, e nenhum uso do estado global do `random`.

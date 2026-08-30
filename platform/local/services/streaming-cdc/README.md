@@ -74,4 +74,4 @@ curl -X DELETE http://localhost:8083/connectors/postgres-connector
 
 O repositório mantém os dois caminhos de CDC de propósito. Qual resolve qual
 problema, e o gatilho que faz a escolha mudar, está registrado em
-[`workloads/dms/adr/0001`](../../../../workloads/dms/adr/0001-captura-de-mudancas-do-postgres.md).
+[`workloads/dms/adr/0001`](../../../../workloads/dms/aws/adr/0001-captura-de-mudancas-do-postgres.md).

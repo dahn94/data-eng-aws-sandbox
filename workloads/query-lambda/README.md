@@ -70,12 +70,12 @@ recentes).
 
 ## Requisitos e decisões
 
-Requisitos não-funcionais em [`nfr.md`](nfr.md) — memória, disco efêmero e
+Requisitos não-funcionais em [`nfr.md`](aws/nfr.md) — memória, disco efêmero e
 timeout, que juntos definem o teto de escala desta abordagem.
 
-- [`adr/0001`](adr/0001-servir-consulta-sem-cluster.md) — como servir consulta ao
+- [`adr/0001`](aws/adr/0001-servir-consulta-sem-cluster.md) — como servir consulta ao
   lakehouse sem manter um motor de query de pé. O requisito que decidiu foram os
   **2 GB de memória e 2 GB de disco**: é o que torna a solução barata e é
   exatamente onde ela deixa de servir.
 
-Índice geral em [`adr/`](../../adr/).
+Índice geral em `adr/`.

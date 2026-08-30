@@ -84,7 +84,7 @@ para que a comparação seja executável e não teórica.
 | Custo de refresh sem consulta | Capacidade no mínimo (4 RPU) e teardown ao fim da sessão. Trata o sintoma; o custo segue **não medido**. |
 | Restrição de SQL do auto refresh | Não é contornado. Se o agregado crescer além do subconjunto suportado, o caminho acaba — e a opção 2 volta, com motivo. |
 | Terraform não reconcilia a definição da view | Não é contornado. `aws_redshiftdata_statement` roda uma vez, na criação; alterar a view é `DROP` + `CREATE` manual. A alternativa seria um provider de SQL mantendo estado de banco, o que troca um limite conhecido por uma dependência frágil. |
-| A tabela base sobe vazia por padrão | `seed_bucket` semeia a partir do lake quando você quiser volume. Vazio por default de propósito: o parquet de `datasets/vendas/` ainda não é publicado por ninguém — ver [`../../DATASET.md`](../../DATASET.md). |
+| A tabela base sobe vazia por padrão | `seed_bucket` semeia a partir do lake quando você quiser volume. Vazio por default de propósito: o parquet de `datasets/vendas/` ainda não é publicado por ninguém — ver [`../../DATASET.md`](../../../DATASET.md). |
 
 ## Quando esta decisão se inverte
 

@@ -21,10 +21,10 @@ depende de `MERGE INTO` e de SCD Tipo 2 sobre CDC.
 
 | Requisito | Valor exigido | Origem |
 |---|---|---|
-| Motores que leem as mesmas tabelas | **3** — Spark (Glue), DuckDB (Lambda), Athena | [`query-lambda/nfr.md`](../../../../workloads/query-lambda/nfr.md) |
-| `UPDATE`/`DELETE` por linha | exigido — a staging faz upsert por chave | [`amazonsales/nfr.md`](../../../../workloads/amazonsales/nfr.md) |
-| Leitura consistente durante escrita | exigida — dims e fatos usam `INSERT OVERWRITE` | [`amazonsales/adr/0004`](../../../../workloads/amazonsales/adr/0004-politica-de-recarga-por-camada.md) |
-| Recuperação de escrita errada | time travel por snapshot | [`amazonsales/nfr.md`](../../../../workloads/amazonsales/nfr.md) |
+| Motores que leem as mesmas tabelas | **3** — Spark (Glue), DuckDB (Lambda), Athena | [`query-lambda/nfr.md`](../../../../workloads/query-lambda/aws/nfr.md) |
+| `UPDATE`/`DELETE` por linha | exigido — a staging faz upsert por chave | [`amazonsales/nfr.md`](../../../../workloads/amazonsales/aws/nfr.md) |
+| Leitura consistente durante escrita | exigida — dims e fatos usam `INSERT OVERWRITE` | [`amazonsales/adr/0004`](../../../../workloads/amazonsales/aws/adr/0004-politica-de-recarga-por-camada.md) |
+| Recuperação de escrita errada | time travel por snapshot | [`amazonsales/nfr.md`](../../../../workloads/amazonsales/aws/nfr.md) |
 | Catálogo a operar | **nenhum** | premissa do repo |
 | Custo parado | US$0 fixo | `../README.md:56-58` |
 
@@ -129,13 +129,13 @@ a reconstrução coerente.
   uma tabela escrita pelo Trino foi lida pelo Spark. Dois motores, um catálogo,
   nenhuma cópia — que é o que este ADR afirma.
 
-- `platform/aws/foundation/main.tf:102-105` — a criação do bucket S3 Tables.
+- `platform/aws/foundation/main.tf:54-56` — a criação do bucket S3 Tables.
 - `platform/aws/foundation/README.md:27` — o bucket descrito como "onde as
   tabelas Iceberg vivem".
-- `workloads/amazonsales/scripts/glue_common.py:19-45` — a sessão
+- `workloads/amazonsales/aws/scripts/glue_common.py:19-45` — a sessão
   Spark com o catálogo Iceberg do S3 Tables, e o comentário de que os nomes de
   tabela são relativos a ele.
-- `workloads/amazonsales/scripts/glue_common.py:99-122` — o
+- `workloads/amazonsales/aws/scripts/glue_common.py:99-122` — o
   `merge_table`, o upsert que motiva a camada de tabela.
 - `workloads/amazonsales/aws/infra/main.tf:40-43` — o jar do catálogo
   enviado pelo Terraform, com o comentário de por que ele vive no repositório.

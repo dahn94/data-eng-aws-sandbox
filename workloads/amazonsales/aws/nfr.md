@@ -14,21 +14,21 @@ sozinhos se um ADR continua válido.
 
 | Requisito | Valor hoje | Origem / como foi obtido |
 |---|---|---|
-| Origem | Postgres (`public.amazon`), via CDC do DMS para Parquet no S3 | `../dms/README.md:24-34` |
-| Formato de entrada | Parquet + GZIP | `../../platform/aws/modules/dms/main.tf:111-117` |
+| Origem | Postgres (`public.amazon`), via CDC do DMS para Parquet no S3 | `../../dms/README.md:24-34` |
+| Formato de entrada | Parquet + GZIP | `../../../platform/aws/modules/dms/main.tf:111-117` |
 | Colunas esperadas | 16, declaradas explicitamente | `scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:9-26` |
 | Volume por carga | **101 linhas na origem, 50 na staged** — medido no ambiente local, dataset `v1` | `local/README.md` |
 | Crescimento esperado | **não declarado** — é projeção de negócio, não medição | — |
 | Frescor da camada analítica | sob demanda (execução manual do Step Functions) | não há agendamento no Terraform |
-| Retenção do dado bruto | **30 dias**, por ciclo de vida do bucket | `../../platform/aws/foundation/main.tf:79-95` |
+| Retenção do dado bruto | **30 dias**, por ciclo de vida do bucket | `../../../platform/aws/foundation/main.tf:33-47` |
 
 ## Execução
 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
-| Recursos por job | 3 workers `G.1X` | `aws/infra/main.tf:45-46` |
-| Timeout | 60 min | `aws/infra/main.tf:47` |
-| Retentativas | **0** | `aws/infra/main.tf:48` |
+| Recursos por job | 3 workers `G.1X` | `infra/main.tf:45-46` |
+| Timeout | 60 min | `infra/main.tf:47` |
+| Retentativas | **0** | `infra/main.tf:48` |
 | Duração de uma execução completa | **43,8 s** local, com 101 linhas — ver a ressalva abaixo | medido no Airflow |
 | Paralelismo | 3 dimensões em paralelo, depois 2 fatos em paralelo | `scripts/step-functions-definitions/` |
 
@@ -39,7 +39,7 @@ Uma linha entre as outras, não o assunto.
 | Requisito | Valor hoje | Origem |
 |---|---|---|
 | Custo parado | **US$0** | Glue e Step Functions só cobram por execução |
-| Custo por execução | centavos (Glue ~US$0,44/DPU-hora, mínimo 1 min) | `README.md:81-85` |
+| Custo por execução | centavos (Glue ~US$0,44/DPU-hora, mínimo 1 min) | `../README.md:81-85` |
 | Teto de opex aceitável | **não declarado** | — |
 
 ## Correção e recuperação
@@ -107,12 +107,12 @@ Três linhas acima são as que mais restringem o desenho atual, e cada uma
 sustenta um ADR:
 
 - **Sem consumidor em produção** → é o que torna aceitável o portão de qualidade
-  rodar depois da escrita ([`adr/0005`](adr/0005-onde-fica-o-portao-de-qualidade.md)).
+  rodar depois da escrita (`adr/0005`).
   Essa linha mudando, aquele ADR cai.
 - **Sem ordenação no CDC** → é o que impede fechar a tabela corretamente e o que
-  a Fase 01 do TODO vem resolver ([`adr/0002`](adr/0002-dedup-do-cdc-na-staging.md)).
+  a Fase 01 do TODO vem resolver (`adr/0002`).
 - **Volume medido é de laboratório, não de produção** → o full refresh do
-  [`adr/0004`](adr/0004-politica-de-recarga-por-camada.md) se sustenta em 101
+  `adr/0004` se sustenta em 101
   linhas por construção, e isso não diz nada sobre quando ele deixa de servir.
   O número que falta não é "quanto roda hoje", é **a partir de que volume
   recarregar tudo passa a custar mais que atualizar o que mudou** — e ele só sai

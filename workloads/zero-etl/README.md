@@ -65,7 +65,7 @@ INSERT INTO public.vendas VALUES (...);
 SELECT COUNT(*) FROM zeroetl_origem.public.vendas;
 ```
 
-**O que medir** (vai para o [`nfr.md`](nfr.md)):
+**O que medir** (vai para o [`nfr.md`](aws/nfr.md)):
 
 - defasagem real entre origem e destino, medida por `MAX(pedido_em)` nos dois lados
 - o que acontece com a integração quando a origem sofre `ALTER TABLE`
@@ -96,8 +96,8 @@ existe. **Faça `terraform destroy` ao terminar a sessão de estudo.**
 Serverless ou RA3. O `../../platform/aws/modules/rds` cria PG 17, então serve — mas isso é sorte
 de configuração, não garantia.
 
-Está quantificado em [`nfr.md`](nfr.md) e decidido em
-[`adr/0001`](adr/0001-manter-uma-copia-fiel-do-oltp.md).
+Está quantificado em [`nfr.md`](aws/nfr.md) e decidido em
+[`adr/0001`](aws/adr/0001-manter-uma-copia-fiel-do-oltp.md).
 
 ## Pré-requisitos
 
@@ -135,9 +135,9 @@ origem, e destruir o RDS primeiro deixa a integração órfã. O
 Não há ambiente local. Nada fora da AWS implementa integração zero-ETL nem
 motor de Redshift — um apply contra o emulador validaria sintaxe de Terraform e
 nada do comportamento que este workload existe para ensinar. Ver
-[`adr/0001` na raiz](../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
+`adr/0001` na raiz.
 
 ## Requisitos e decisões
 
-- [`nfr.md`](nfr.md) — os números
-- [`adr/0001`](adr/0001-manter-uma-copia-fiel-do-oltp.md) — como manter uma cópia fiel do OLTP sem virar dono do transporte
+- [`nfr.md`](aws/nfr.md) — os números
+- [`adr/0001`](aws/adr/0001-manter-uma-copia-fiel-do-oltp.md) — como manter uma cópia fiel do OLTP sem virar dono do transporte

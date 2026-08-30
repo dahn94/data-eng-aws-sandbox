@@ -128,9 +128,9 @@ dos jobs, porque não tem mais quem o consuma.
 
 ## Evidência no repo
 
-- `workloads/amazonsales/scripts/glue_common.py` — a seção Data Quality, com o
+- `workloads/amazonsales/aws/scripts/glue_common.py` — a seção Data Quality, com o
   comentário registrando por que `awsgluedq` não serve.
-- `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-dims-s3tables-gdq.py`
+- `workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-dims-s3tables-gdq.py`
   e `...-facts-...py` — os rulesets em GX, com a mesma cobertura do DQDL.
 - `workloads/amazonsales/aws/infra/main.tf` — `additional_python_modules` fixando a
   versão do GX para o job na AWS.

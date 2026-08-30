@@ -112,10 +112,10 @@ projeto, esse é o motivo real e vale mais.
 
 ## Evidência no repo
 
-- `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-dim-product-s3tables.py:12-21`
+- `workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-dim-product-s3tables.py:12-21`
   — a dimensão derivada por `select(...).distinct()` da staging, com
   `product_id` natural como chave.
-- `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-fact-sales-category-s3tables.py:8-25`
+- `workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-fact-sales-category-s3tables.py:8-25`
   — o fato: join com duas dimensões, `groupBy` e `sum` — o grão implícito no
   `groupBy`.
 - `workloads/amazonsales/README.md:53-56` — o grafo staging →

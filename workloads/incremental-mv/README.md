@@ -73,7 +73,7 @@ SELECT mv_name, status, refresh_type, starttime
 A linha com `refresh_type = 'Auto'` é a prova: o agregado está fresco e você não
 pediu. `terraform output check_refresh_query` traz essa consulta pronta.
 
-**O que medir** (vai para o [`nfr.md`](nfr.md)):
+**O que medir** (vai para o [`nfr.md`](aws/nfr.md)):
 
 - latência da mesma query com e sem a view (é o "40 segundos" da demanda)
 - intervalo real entre refreshes automáticos, e quanto ele varia
@@ -102,8 +102,8 @@ volta a ser a resposta, agora com motivo.
 statement, não altera o objeto no banco. Alterar a view de verdade é `DROP` e
 `CREATE` à mão. Essa fronteira é real e está no ADR.
 
-Está quantificado em [`nfr.md`](nfr.md) e decidido em
-[`adr/0001`](adr/0001-servir-um-agregado-sempre-pronto.md).
+Está quantificado em [`nfr.md`](aws/nfr.md) e decidido em
+[`adr/0001`](aws/adr/0001-servir-um-agregado-sempre-pronto.md).
 
 ## Pré-requisitos
 
@@ -148,9 +148,9 @@ processar sozinho. **Destruir ao fim da sessão não é higiene, é orçamento.*
 Não há `envs/local.tfvars`. Materialized view com auto refresh é comportamento
 de motor, e não há Redshift em contêiner — não há o que validar contra
 um emulador aqui. Ver
-[`adr/0001` na raiz](../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
+`adr/0001` na raiz.
 
 ## Requisitos e decisões
 
-- [`nfr.md`](nfr.md) — os números
-- [`adr/0001`](adr/0001-servir-um-agregado-sempre-pronto.md) — como servir um agregado sempre pronto sem virar dono do agendamento
+- [`nfr.md`](aws/nfr.md) — os números
+- [`adr/0001`](aws/adr/0001-servir-um-agregado-sempre-pronto.md) — como servir um agregado sempre pronto sem virar dono do agendamento

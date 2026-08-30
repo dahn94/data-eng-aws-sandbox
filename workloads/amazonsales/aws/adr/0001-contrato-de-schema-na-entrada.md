@@ -107,12 +107,12 @@ que diga o que pode mudar.
 
 ## Evidência no repo
 
-- `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:7-26`
+- `workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:7-26`
   — o dicionário `COLUMN_TYPES`, com o comentário que dá o motivo: "inferir do
   Parquet faz o schema da tabela Iceberg mudar sozinho quando a origem muda".
-- `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:29-32`
+- `workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:29-32`
   — o `cast` seguido de `select` apenas das colunas declaradas.
-- `workloads/amazonsales/scripts/glue_common.py:66-82` — o
+- `workloads/amazonsales/aws/scripts/glue_common.py:66-82` — o
   `assert_schema_matches`, com o motivo do erro legível.
-- `workloads/amazonsales/scripts/glue_common.py:57-64` — o
+- `workloads/amazonsales/aws/scripts/glue_common.py:57-64` — o
   `CREATE TABLE IF NOT EXISTS` que a checagem existe para compensar.

@@ -83,8 +83,8 @@ p95 estável para prometer a um dashboard.
 disso, spill. Federação é para pergunta pontual e seletiva, não para varredura.
 
 Nada disso é motivo para não usar — é motivo para saber **quando** usar. Está
-quantificado em [`nfr.md`](nfr.md) e decidido em
-[`adr/0001`](adr/0001-responder-sobre-o-estado-de-agora.md).
+quantificado em [`nfr.md`](aws/nfr.md) e decidido em
+[`adr/0001`](aws/adr/0001-responder-sobre-o-estado-de-agora.md).
 
 ## Pré-requisitos
 
@@ -128,9 +128,9 @@ Não há `envs/local.tfvars` aqui. O conector vem do Serverless Application
 Repository, que não existe fora da AWS — aplicar contra um emulador validaria
 sintaxe de Terraform e não o comportamento que este workload existe para
 ensinar. O motivo está em
-[`adr/0001` na raiz](../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
+`adr/0001` na raiz.
 
 ## Requisitos e decisões
 
-- [`nfr.md`](nfr.md) — os números
-- [`adr/0001`](adr/0001-responder-sobre-o-estado-de-agora.md) — como responder uma pergunta sobre o estado de agora
+- [`nfr.md`](aws/nfr.md) — os números
+- [`adr/0001`](aws/adr/0001-responder-sobre-o-estado-de-agora.md) — como responder uma pergunta sobre o estado de agora

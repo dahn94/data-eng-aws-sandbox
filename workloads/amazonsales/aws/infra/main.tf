@@ -19,7 +19,7 @@ module "glue_jobs_s3tables" {
   s3_bucket_scripts   = var.s3_bucket_scripts
   data_buckets        = [var.s3_bucket_raw, var.s3_bucket_curated]
   s3tables_bucket_arn = local.lakehouse_arn
-  scripts_local_path  = "../../scripts"
+  scripts_local_path  = "../scripts"
 
   job_scripts = {
     "dataeng-sandbox-amazonsales-dw-table-stg-s3tables"           = "dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py",

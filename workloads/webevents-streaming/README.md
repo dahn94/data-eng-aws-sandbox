@@ -112,15 +112,15 @@ aws glue batch-stop-job-run --job-name <nome> --job-run-ids <id>
 ## Requisitos e decisões
 
 Os requisitos não-funcionais deste fluxo — garantia de entrega, offsets,
-latência, custo enquanto roda — estão em [`nfr.md`](nfr.md).
+latência, custo enquanto roda — estão em [`nfr.md`](aws/nfr.md).
 
 | # | Problema |
 |---|---|
-| [0001](adr/0001-onde-descartar-dado-pessoal.md) | Em que ponto do fluxo o dado pessoal deixa de existir |
-| [0002](adr/0002-semantica-do-destino-do-streaming.md) | Que pergunta o índice de destino consegue responder |
+| [0001](aws/adr/0001-onde-descartar-dado-pessoal.md) | Em que ponto do fluxo o dado pessoal deixa de existir |
+| [0002](aws/adr/0002-semantica-do-destino-do-streaming.md) | Que pergunta o índice de destino consegue responder |
 
 O 0002 registra o ponto mais fácil de errar aqui: o índice é um **log de
 eventos**, não um espelho do estado da origem. Um `delete` no Postgres vira mais
 um documento no índice, não a remoção de um.
 
-Índice geral em [`adr/`](../../adr/).
+Índice geral em `adr/`.

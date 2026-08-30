@@ -55,9 +55,9 @@ de também remover o connector antes de destruir o RDS — um replication slot
 
 ## Requisitos e decisões
 
-Requisitos não-funcionais deste caminho de ingestão em [`nfr.md`](nfr.md).
+Requisitos não-funcionais deste caminho de ingestão em [`nfr.md`](aws/nfr.md).
 
-- [`adr/0001`](adr/0001-captura-de-mudancas-do-postgres.md) — como levar as
+- [`adr/0001`](aws/adr/0001-captura-de-mudancas-do-postgres.md) — como levar as
   mudanças do Postgres ao lake **e com que semântica**. O requisito que decidiu
   foi o número de consumidores do evento (hoje: um).
 
@@ -67,4 +67,4 @@ Requisitos não-funcionais deste caminho de ingestão em [`nfr.md`](nfr.md).
   commit. Isso impede deduplicar corretamente a jusante, e é pré-requisito do
   item 1 da Fase 01 do TODO.
 
-Índice geral em [`adr/`](../../adr/).
+Índice geral em `adr/`.

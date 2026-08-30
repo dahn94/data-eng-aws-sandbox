@@ -116,12 +116,12 @@ prática, e a menos óbvia.
 
 ## Evidência no repo
 
-- `workloads/webevents-streaming/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:74-83`
+- `workloads/webevents-streaming/aws/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:74-83`
   — o tratamento do envelope: `before` quando `op == 'd'`, `after` no resto, com
   `op` e `ts_ms` preservados no documento.
-- `workloads/webevents-streaming/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:93-108`
+- `workloads/webevents-streaming/aws/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:93-108`
   — a escrita: `append`, sem `opensearch.mapping.id`, logo sem chave de documento.
-- `workloads/webevents-streaming/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:61-62`
+- `workloads/webevents-streaming/aws/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:61-62`
   — `startingOffsets = earliest` e `failOnDataLoss = false`.
 - `workloads/webevents-streaming/README.md` — seção "Checkpoint":
   reprocessar do zero é apagar o caminho do checkpoint, sem menção ao índice.

@@ -4,7 +4,7 @@ A forma local deste workload. Na AWS ele usa Redshift com `AUTO REFRESH`; não
 existe Redshift em contêiner, então o que se exercita aqui é o **mecanismo**, em
 ClickHouse.
 
-O [`adr/0001`](../adr/0001-servir-um-agregado-sempre-pronto.md) é sobre trocar
+O [`adr/0001`](../aws/adr/0001-servir-um-agregado-sempre-pronto.md) é sobre trocar
 quem decide o "quando": você declara o resultado que deve valer sempre, e o
 motor cuida de mantê-lo. Os dois motores fazem isso, por caminhos diferentes:
 

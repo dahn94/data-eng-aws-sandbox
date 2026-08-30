@@ -107,16 +107,16 @@ recuperação declarada ("reexecutar do zero") deixa de funcionar para ela.
 
 ## Evidência no repo
 
-- `workloads/amazonsales/scripts/glue_common.py:84-97` — o
+- `workloads/amazonsales/aws/scripts/glue_common.py:84-97` — o
   `write_table` com `INSERT OVERWRITE`, e o comentário que declara a intenção:
   "é um full refresh de propósito: os volumes deste sandbox são pequenos e o
   resultado é sempre reproduzível".
-- `workloads/amazonsales/scripts/glue_common.py:99-122` — o
+- `workloads/amazonsales/aws/scripts/glue_common.py:99-122` — o
   `merge_table`, usado só pela staging.
-- `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:45`
+- `workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py:45`
   — a staging chamando `merge_table`.
-- `workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-dim-product-s3tables.py:23`
+- `workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-dim-product-s3tables.py:23`
   — a dimensão chamando `write_table`.
-- `platform/aws/foundation/main.tf:86-93` — o ciclo de vida de 30 dias que torna
+- `platform/aws/foundation/main.tf:33-47` — o ciclo de vida de 30 dias que torna
   a staging insubstituível.
 - `workloads/amazonsales/aws/infra/main.tf:48` — `max_retries = 0`.

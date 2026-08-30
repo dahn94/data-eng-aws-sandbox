@@ -101,7 +101,7 @@ escrever.
   imagem), o que é mais empacotamento do que uma consulta de Athena exigiria.
 - Vira um segundo leitor das tabelas Iceberg, ao lado do Spark — que é
   exatamente o requisito que decidiu o formato de tabela em
-  [`foundation/adr/0001`](../../../platform/aws/foundation/adr/0001-semantica-de-tabela-no-s3.md).
+  [`foundation/adr/0001`](../../../../platform/aws/foundation/adr/0001-semantica-de-tabela-no-s3.md).
 
 ## ⚠️ Inferido
 

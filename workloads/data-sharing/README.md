@@ -66,7 +66,7 @@ SELECT COUNT(*), MAX(pedido_em)
 no consumidor. O `MAX` muda, e nenhum job rodou entre as duas execuções.
 `terraform output proof_query` traz o roteiro pronto.
 
-**O que medir** (vai para o [`nfr.md`](nfr.md)):
+**O que medir** (vai para o [`nfr.md`](aws/nfr.md)):
 
 - defasagem entre escrita no produtor e leitura no consumidor (a expectativa é zero)
 - latência da mesma query no produtor × no consumidor
@@ -95,8 +95,8 @@ apaga o dado para os dois. Não existe mais uma cópia velha para salvar ningué
 objeto inteiro. Mascaramento por coluna, filtro por linha e auditoria de quem
 leu o quê são outro problema, e ele não está resolvido aqui.
 
-Está quantificado em [`nfr.md`](nfr.md) e decidido em
-[`adr/0001-entregar-dado-sem-criar-uma-segunda-copia.md`](adr/0001-entregar-dado-sem-criar-uma-segunda-copia.md).
+Está quantificado em [`nfr.md`](aws/nfr.md) e decidido em
+[`adr/0001-entregar-dado-sem-criar-uma-segunda-copia.md`](aws/adr/0001-entregar-dado-sem-criar-uma-segunda-copia.md).
 
 ## Pré-requisitos
 
@@ -131,9 +131,9 @@ Dois workgroups cobrando por RPU. **Não deixe de pé entre sessões.**
 
 Não há `envs/local.tfvars`. Datashare é um mecanismo do motor do Redshift, e o
 Não há motor de Redshift que se rode em contêiner. Ver
-[`adr/0001` na raiz](../../adr/0001-rodar-local-sem-emular-a-nuvem.md).
+`adr/0001` na raiz.
 
 ## Requisitos e decisões
 
-- [`nfr.md`](nfr.md) — os números
-- [`adr/0001`](adr/0001-entregar-dado-sem-criar-uma-segunda-copia.md) — como entregar dado a outro time sem criar uma segunda cópia
+- [`nfr.md`](aws/nfr.md) — os números
+- [`adr/0001`](aws/adr/0001-entregar-dado-sem-criar-uma-segunda-copia.md) — como entregar dado a outro time sem criar uma segunda cópia

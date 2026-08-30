@@ -77,7 +77,7 @@ endpoint S3 configura compressão e formato, e só. Sem `include_op_for_full_loa
 e `timestamp_column_name`, o Parquet que chega ao lake não distingue um delete de
 um insert e não carrega instante de commit. A jusante, isso se manifesta como a
 impossibilidade de deduplicar corretamente — ver
-[`amazonsales/adr/0002`](../../amazonsales/adr/0002-dedup-do-cdc-na-staging.md).
+[`amazonsales/adr/0002`](../../../amazonsales/aws/adr/0002-dedup-do-cdc-na-staging.md).
 Não é limitação do DMS: é configuração ausente neste módulo.
 
 ## Mitigações
@@ -134,16 +134,16 @@ também.
 
 ## Evidência no repo
 
-- `../../../platform/aws/modules/dms/main.tf:105-118` — o endpoint S3: só compressão e
+- `../../../../platform/aws/modules/dms/main.tf:105-118` — o endpoint S3: só compressão e
   formato; sem coluna de operação, sem timestamp.
-- `../../../platform/aws/modules/dms/main.tf:143` — `migration_type = "full-load-and-cdc"`.
+- `../../../../platform/aws/modules/dms/main.tf:143` — `migration_type = "full-load-and-cdc"`.
 - `workloads/dms/README.md:24-34` — o contrato de caminho no S3 com a pipeline.
 - `workloads/dms/README.md:43-54` — custo e ausência de "stop".
 - `platform/local/services/streaming-cdc/README.md:3-4` — o Debezium como alternativa.
 - `platform/local/services/streaming-cdc/README.md:37-45` — o tópico consumido por dois
   outros componentes: a evidência do fan-out que justifica o Kafka no streaming.
 - `platform/local/services/streaming-cdc/README.md:66-70` — o replication slot órfão.
-- `workloads/webevents-streaming/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:76-83`
+- `workloads/webevents-streaming/aws/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:76-83`
   — o envelope do Debezium com `before`, `after` e `op`: exatamente a informação
   que o caminho do DMS descarta.
 - `README.md:211-212` — o `rds.logical_replication`, pré-requisito comum aos dois.

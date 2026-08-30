@@ -114,8 +114,8 @@ exatamente o modo de falha que a detecção automática de PII existe para cobri
 
 ## Evidência no repo
 
-- `workloads/webevents-streaming/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:23-35`
+- `workloads/webevents-streaming/aws/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:23-35`
   — a lista `COLS_TO_DROP`, com o comentário que declara a intenção: colunas que
   "não interessam ao índice e que carregam dado pessoal", removidas antes de sair.
-- `workloads/webevents-streaming/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:90`
+- `workloads/webevents-streaming/aws/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:90`
   — o `drop` no fim da transformação, antes de qualquer escrita.

@@ -127,7 +127,7 @@ origem usava, esse é o motivo real e vale mais do que a reconstrução.
 
 - `workloads/amazonsales/aws/infra/main.tf:56-85` — a máquina de estado, os
   `template_variables` e a restrição da role aos jobs desta pipeline.
-- `workloads/amazonsales/scripts/step-functions-definitions/sfn_definition_s3tables_amazonsales.json`
+- `workloads/amazonsales/aws/scripts/step-functions-definitions/sfn_definition_s3tables_amazonsales.json`
   — a definição, com os `${...}` preenchidos pelo Terraform.
 - `workloads/amazonsales/README.md:53-56` — o grafo de dependências.
 - `workloads/amazonsales/README.md:60-62` — o `Catch` por estado

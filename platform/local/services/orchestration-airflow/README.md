@@ -8,7 +8,7 @@ duas vezes — no `main.tf` do workload para a AWS, e num DAG para cá — enqua
 os jobs orquestrados continuam sendo **os mesmos arquivos**.
 
 Os DAGs não moram aqui. Eles moram no workload que orquestram
-([`workloads/amazonsales/local/dags/`](../../../workloads/amazonsales/local/dags/)),
+([`workloads/amazonsales/local/dags/`](../../../../workloads/amazonsales/local/dags/)),
 pela mesma razão que a Step Function mora no `main.tf` do workload: a sequência
 pertence a quem é sequenciado. Aqui fica só o motor.
 

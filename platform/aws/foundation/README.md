@@ -73,8 +73,8 @@ motivo de **nunca** apontar este módulo para uma conta com dado que importa.
 
 ## Decisões de arquitetura
 
-- [`adr/0001`](adr/0001-semantica-de-tabela-no-s3.md) — como dar semântica de
+- `adr/0001` — como dar semântica de
   tabela a arquivos soltos no S3. O requisito que decidiu não foi o formato em
   si, foi **quem lê**: Spark, DuckDB e Athena sobre as mesmas tabelas.
 
-Índice geral em [`adr/`](../../../adr/).
+Índice geral em `adr/`.

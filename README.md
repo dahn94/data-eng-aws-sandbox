@@ -188,24 +188,31 @@ workload:
 
 ```
 workloads/amazonsales/
-  README.md  nfr.md  adr/   do workload — valem para os dois alvos
-  scripts/                  o código dos jobs, UM só
-  seed/                     o que semeia a origem
+  README.md            o problema — a única coisa comum aos dois caminhos
   aws/
-    infra/                  Terraform: jobs Glue, Step Functions, envs, backends
+    infra/             Terraform: jobs Glue, Step Functions, envs, backends
+    scripts/           os jobs, como o Glue os exige
+    seed/              o que semeia a origem
+    adr/  nfr.md       as decisões e os números DESTE caminho
   local/
-    infra/                  Docker: compõe as plataformas locais que ele usa
-    dags/                   o DAG que substitui o Step Functions
+    infra/             Docker: compõe as peças de platform/local
+    scripts/           a solução local — livre para divergir
+    dags/              o DAG que substitui o Step Functions
 ```
 
-Orquestração é o exemplo: Step Functions e Airflow não são a mesma coisa com
-outra configuração, são produtos diferentes. Então a sequência é declarada duas
-vezes — em `aws/infra/` para a AWS, em `local/` para o Airflow — enquanto os
-jobs orquestrados continuam sendo os mesmos arquivos.
+**`aws/` e `local/` são duas soluções para o mesmo problema, não uma cópia da
+outra.** O caminho AWS é o que o Glue exige; o local é onde se busca a melhor
+solução possível, medindo contra o `nfr.md`. Por isso cada lado tem os seus
+scripts, as suas decisões e os seus números — e o `README.md` na raiz do
+workload é o que os une, porque enuncia o problema que os dois resolvem.
 
-A simetria é a regra: **`aws/infra/` tem o Terraform, `local/infra/` tem o
-Docker**, e tudo o que é do workload — código, semeador, ADRs, NFR — fica acima
-dos dois, porque não pertence a alvo nenhum.
+Orquestração é o exemplo: Step Functions e Airflow não são a mesma coisa com
+outra configuração, são produtos diferentes.
+
+**`aws/infra/` tem o Terraform, `local/infra/` tem o Docker** — e cada lado
+carrega o resto do que é dele. O que fica na raiz do workload é só o `README.md`
+com o problema, porque é a única coisa que os dois caminhos compartilham de
+fato.
 
 **A ausência de `local/` é informação:** significa que o workload só existe na
 AWS. É o caso de `zero-etl`, `incremental-mv`, `data-sharing`, `federated-query`
@@ -399,7 +406,7 @@ seguindo o padrão já estabelecido:
   que dizia ter terminado deixando recurso ligado.
 
   Depois, para o repositório não passar a mentir: a tabela de taxonomia e a de
-  NFR/ADR neste README, e a seção correspondente em [`adr/README.md`](adr/).
+  NFR/ADR neste README, e a seção correspondente em `adr/README.md`.
 - **Motor local novo** (o workload consome) → `platform/local/<motor>/`.
 - **Semeador de dado** → dentro do workload cuja fonte ele alimenta, como
   `workloads/webevents-streaming/seed/`. Ele pertence a quem consome o dado
@@ -433,18 +440,18 @@ em dois lugares, ao lado do código que justificam:
 
 | Fluxo | Requisitos | Decisões |
 |---|---|---|
-| Ingestão por CDC | [`dms/nfr.md`](workloads/dms/nfr.md) | [`dms/adr/`](workloads/dms/adr/) |
+| Ingestão por CDC | [`dms/nfr.md`](workloads/dms/aws/nfr.md) | [`dms/adr/`](workloads/dms/aws/adr/) |
 | Lakehouse | — | [`foundation/adr/`](platform/aws/foundation/adr/) |
-| Pipeline batch | [`amazonsales/nfr.md`](workloads/amazonsales/nfr.md) | [`amazonsales/adr/`](workloads/amazonsales/adr/) |
-| Pipeline streaming | [`webevents-streaming/nfr.md`](workloads/webevents-streaming/nfr.md) | [`webevents-streaming/adr/`](workloads/webevents-streaming/adr/) |
-| Consulta federada | [`federated-query/nfr.md`](workloads/federated-query/nfr.md) | [`federated-query/adr/`](workloads/federated-query/adr/) |
-| Replicação gerenciada | [`zero-etl/nfr.md`](workloads/zero-etl/nfr.md) | [`zero-etl/adr/`](workloads/zero-etl/adr/) |
-| Estado declarativo | [`incremental-mv/nfr.md`](workloads/incremental-mv/nfr.md) | [`incremental-mv/adr/`](workloads/incremental-mv/adr/) |
-| Entrega sem cópia | [`data-sharing/nfr.md`](workloads/data-sharing/nfr.md) | [`data-sharing/adr/`](workloads/data-sharing/adr/) |
-| Camada de consulta | [`query-lambda/nfr.md`](workloads/query-lambda/nfr.md) | [`query-lambda/adr/`](workloads/query-lambda/adr/) |
+| Pipeline batch | [`amazonsales/nfr.md`](workloads/amazonsales/aws/nfr.md) | [`amazonsales/adr/`](workloads/amazonsales/aws/adr/) |
+| Pipeline streaming | [`webevents-streaming/nfr.md`](workloads/webevents-streaming/aws/nfr.md) | [`webevents-streaming/adr/`](workloads/webevents-streaming/aws/adr/) |
+| Consulta federada | [`federated-query/nfr.md`](workloads/federated-query/aws/nfr.md) | [`federated-query/adr/`](workloads/federated-query/aws/adr/) |
+| Replicação gerenciada | [`zero-etl/nfr.md`](workloads/zero-etl/aws/nfr.md) | [`zero-etl/adr/`](workloads/zero-etl/aws/adr/) |
+| Estado declarativo | [`incremental-mv/nfr.md`](workloads/incremental-mv/aws/nfr.md) | [`incremental-mv/adr/`](workloads/incremental-mv/aws/adr/) |
+| Entrega sem cópia | [`data-sharing/nfr.md`](workloads/data-sharing/aws/nfr.md) | [`data-sharing/adr/`](workloads/data-sharing/aws/adr/) |
+| Camada de consulta | [`query-lambda/nfr.md`](workloads/query-lambda/aws/nfr.md) | [`query-lambda/adr/`](workloads/query-lambda/aws/adr/) |
 
 Os quatro workloads do meio comparam caminhos diferentes **sobre o mesmo
 dado** — o contrato que garante isso está em
 [`workloads/DATASET.md`](workloads/DATASET.md).
 
-Índice geral e o método em [`adr/`](adr/).
+Índice geral e o método em `adr/`.

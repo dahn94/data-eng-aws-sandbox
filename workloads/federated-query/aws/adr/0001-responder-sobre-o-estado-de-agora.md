@@ -78,8 +78,8 @@ para contínua, a conta mudaria de lado — ver "Quando esta decisão se inverte
 | A query bate no banco de produção | **Não é contornado.** É um risco aceito, e o `nfr.md` registra que o impacto nunca foi medido. Esta é a fragilidade principal da decisão. |
 | Latência imprevisível — depende da saúde do OLTP | Não é contornado. Aceitável porque o consumo é humano e sob demanda, não um dashboard com SLA. |
 | Sem histórico: `UPDATE` in-place apaga o passado | Não é contornado aqui, e nem deveria ser — é papel do `dms/` e do lake. Este caminho é complementar a eles, não substituto. |
-| Resultado grande estoura o payload da Lambda | Spill para S3, com expiração em 3 dias (`../aws/infra/main.tf:63-77`). Trata o sintoma; a premissa de seletividade é o que evita o caso. |
-| Credencial do Postgres num segundo lugar | Vai para o Secrets Manager e é lida em runtime pela Lambda — não fica no state nem como argumento (`../aws/infra/main.tf:96-110`). |
+| Resultado grande estoura o payload da Lambda | Spill para S3, com expiração em 3 dias (`../infra/main.tf:63-77`). Trata o sintoma; a premissa de seletividade é o que evita o caso. |
+| Credencial do Postgres num segundo lugar | Vai para o Secrets Manager e é lida em runtime pela Lambda — não fica no state nem como argumento (`../infra/main.tf:96-110`). |
 | Conector é aplicação de terceiro, instalada do SAR | Não é contornado. A alternativa seria manter build próprio de um jar da AWS, o que troca um risco por um custo de manutenção maior. |
 
 ## Quando esta decisão se inverte

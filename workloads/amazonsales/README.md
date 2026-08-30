@@ -87,20 +87,20 @@ cobrando parado.
 ## Requisitos e decisões
 
 Os requisitos não-funcionais desta pipeline — frescor, volume, retenção,
-recuperação, custo — estão quantificados em [`nfr.md`](nfr.md). Os ADRs citam as
+recuperação, custo — estão quantificados em [`nfr.md`](aws/nfr.md). Os ADRs citam as
 linhas de lá em vez de rederivar os números, e seguem a ordem do fluxo de dados:
 
 | # | Problema |
 |---|---|
-| [0001](adr/0001-contrato-de-schema-na-entrada.md) | Como impedir que uma mudança na origem entre calada |
-| [0002](adr/0002-dedup-do-cdc-na-staging.md) | Como escolher uma linha por chave quando o CDC entrega várias |
-| [0003](adr/0003-modelagem-da-camada-analitica.md) | Como modelar a camada que o BI consulta |
-| [0004](adr/0004-politica-de-recarga-por-camada.md) | Reconstruir a camada do zero ou atualizar só o que mudou |
-| [0005](adr/0005-onde-fica-o-portao-de-qualidade.md) | Onde fica o portão de qualidade em relação à escrita |
-| [0006](adr/0006-orquestracao-de-pipeline-batch.md) | Como orquestrar os jobs |
+| [0001](aws/adr/0001-contrato-de-schema-na-entrada.md) | Como impedir que uma mudança na origem entre calada |
+| [0002](aws/adr/0002-dedup-do-cdc-na-staging.md) | Como escolher uma linha por chave quando o CDC entrega várias |
+| [0003](aws/adr/0003-modelagem-da-camada-analitica.md) | Como modelar a camada que o BI consulta |
+| [0004](aws/adr/0004-politica-de-recarga-por-camada.md) | Reconstruir a camada do zero ou atualizar só o que mudou |
+| [0005](aws/adr/0005-onde-fica-o-portao-de-qualidade.md) | Onde fica o portão de qualidade em relação à escrita |
+| [0006](aws/adr/0006-orquestracao-de-pipeline-batch.md) | Como orquestrar os jobs |
 
 A "Limitação honesta" da seção de Data Quality acima está registrada em
-[0005](adr/0005-onde-fica-o-portao-de-qualidade.md) como decisão datada, com
+[0005](aws/adr/0005-onde-fica-o-portao-de-qualidade.md) como decisão datada, com
 mitigações e gatilho de revisão.
 
-Índice geral em [`adr/`](../../adr/).
+Índice geral em `adr/`.

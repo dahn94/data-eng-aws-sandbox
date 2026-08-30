@@ -26,11 +26,11 @@ download() {
 }
 
 echo "==> workloads/amazonsales (catálogo S3 Tables para Iceberg)"
-download "$REPO_ROOT/workloads/amazonsales/jars" \
+download "$REPO_ROOT/workloads/amazonsales/aws/infra/jars" \
   "$MAVEN/software/amazon/s3tables/s3-tables-catalog-for-iceberg-runtime/0.1.7/s3-tables-catalog-for-iceberg-runtime-0.1.7.jar"
 
 echo "==> workloads/webevents-streaming (Kafka + Avro + OpenSearch para Spark)"
-WEB="$REPO_ROOT/workloads/webevents-streaming/jars"
+WEB="$REPO_ROOT/workloads/webevents-streaming/aws/infra/jars"
 download "$WEB" "$MAVEN/org/apache/spark/spark-sql-kafka-0-10_2.12/3.3.4/spark-sql-kafka-0-10_2.12-3.3.4.jar"
 download "$WEB" "$MAVEN/org/apache/spark/spark-avro_2.12/3.3.4/spark-avro_2.12-3.3.4.jar"
 download "$WEB" "$MAVEN/org/apache/kafka/kafka-clients/3.5.2/kafka-clients-3.5.2.jar"

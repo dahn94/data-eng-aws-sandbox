@@ -111,10 +111,10 @@ consultar nesse intervalo lê dado ruim.
 
 ## Evidência no repo
 
-- `workloads/amazonsales/scripts/glue_common.py:162-193` — o
+- `workloads/amazonsales/aws/scripts/glue_common.py:162-193` — o
   `run_data_quality_gate`, com o comentário explicando que sem o `raise` a
   pipeline ficava verde com dado ruim.
-- `workloads/amazonsales/scripts/glue_common.py:128-159` — a
+- `workloads/amazonsales/aws/scripts/glue_common.py:128-159` — a
   avaliação do ruleset e a publicação de métricas.
 - `workloads/amazonsales/README.md:60-62` — o `Catch` por estado
   interrompendo a execução.
