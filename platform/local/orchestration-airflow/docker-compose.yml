@@ -1,0 +1,42 @@
+# Airflow: o orquestrador local, no lugar do Step Functions.
+#
+# Orquestração é a única diferença entre AWS e local que NÃO é configuração —
+# Step Functions e Airflow são produtos diferentes, então a sequência é
+# declarada duas vezes. Os jobs orquestrados continuam sendo os mesmos arquivos.
+#
+# Modo `standalone` de propósito: um contêiner, banco embutido, sem Celery nem
+# Redis. É um laboratório para ver a sequência rodar, não uma instalação de
+# produção — e a diferença está registrada no README.
+#
+#   docker compose up -d
+#   # usuário admin e senha aparecem no log:
+#   docker compose logs airflow | grep -i password
+
+name: dataeng-airflow
+
+services:
+  airflow:
+    build: .
+    image: dataeng-sandbox/airflow:3.1.3-docker
+    container_name: airflow
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      # O DAG dispara os jobs com `docker exec` no contêiner do Spark, então
+      # este contêiner precisa falar com o Docker da máquina.
+      DOCKER_HOST: unix:///var/run/docker.sock
+      # O socket pertence ao root no host; sem isto o usuário airflow não o lê.
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    volumes:
+      # Os DAGs moram nos workloads, não aqui: a definição da sequência
+      # pertence a quem é orquestrado, como a Step Function pertence ao main.tf
+      # do workload.
+      - ../../../workloads/amazonsales/local/dags:/opt/airflow/dags/amazonsales:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - airflow-db:/opt/airflow
+    ports:
+      - "8090:8080"
+    command: ["airflow", "standalone"]
+
+volumes:
+  airflow-db:

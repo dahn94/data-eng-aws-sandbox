@@ -155,6 +155,7 @@ platform/                # O SUBSTRATO QUE OS WORKLOADS CONSOMEM. São DUAS
     olap-clickhouse/     #     ClickHouse
     bi-metabase/         #     Metabase
     bi-superset/         #     Apache Superset
+    orchestration-airflow/ #   Airflow, no lugar do Step Functions
 
 modules/                 # Código compartilhado, nunca infraestrutura
                          #   compartilhada. Um workload instancia o módulo e
