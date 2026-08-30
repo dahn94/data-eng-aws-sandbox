@@ -76,9 +76,24 @@ concluir que algo "está validado".
   falhar na AWS por falta de política — e isso é `terraform plan` e `apply`,
   não este ambiente.
 
-## Estado
+## Estado: verificado em execução
 
-**Este ambiente ainda não executa nenhum script.** O compose sobe a
-infraestrutura; ligar os scripts dos workloads a ela é a fase seguinte, e está
-descrita no `TODO.md` na raiz. Enquanto isso não existir, o que há aqui é o
-alicerce, não o teste.
+Este ambiente foi executado de verdade em 2026-08-29, em `aarch64`, e o
+resultado está registrado abaixo porque muda o que dá para afirmar.
+
+**Funciona:** os cinco buckets nascem, o catálogo REST responde, e o
+`glue_common.py` do `amazonsales` cria namespace, cria tabela, escreve e lê uma
+tabela Iceberg — com os parquet e os snapshots aparecendo no MinIO. O
+`INSERT OVERWRITE` foi conferido de fato substituindo, e não somando: reescrever
+com uma linha devolve uma linha.
+
+**Não funciona:** `awsgluedq` **não existe na imagem oficial da AWS**. Só as
+libs `awsglue` estão lá. Como o portão de qualidade do `amazonsales` depende de
+`awsgluedq.transforms.EvaluateDataQuality`, os jobs que passam por ele não rodam
+aqui — e o `workloads/amazonsales/adr/0005` continua sem verificação local.
+
+**Pegadinha da imagem:** ela traz `spark.sql.catalogImplementation hive`, e nem
+todo comando SQL resolve pelo `defaultCatalog`. `CREATE TABLE ns.tbl` ia para o
+catálogo Iceberg, mas `INSERT OVERWRITE ns.tbl` caía no Hive e tentava falar com
+o Glue Data Catalog, falhando com `StsException`. Por isso todas as referências
+a tabela em `glue_common.py` passaram a ser qualificadas com o catálogo.

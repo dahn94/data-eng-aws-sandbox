@@ -17,8 +17,16 @@ import sys
 from awsglue.utils import getResolvedOptions
 from pyspark.sql import DataFrame, SparkSession
 
-# Nome do catálogo Spark que aponta para o bucket S3 Tables. Os nomes de tabela
-# usados nos jobs são relativos a ele (é o defaultCatalog).
+# Nome do catálogo Spark do lakehouse. TODA referência a tabela neste arquivo é
+# qualificada com ele — `{CATALOG}.{namespace}.{table}` — e não apenas
+# `{namespace}.{table}`.
+#
+# Não é preciosismo: a imagem do Glue traz `spark.sql.catalogImplementation
+# hive`, e nem todo comando SQL resolve pelo `defaultCatalog`. Medido rodando:
+# `CREATE TABLE ns.tbl` resolvia para o catálogo Iceberg, mas
+# `INSERT OVERWRITE ns.tbl` caía no Hive e tentava falar com o Glue Data
+# Catalog — falhando com StsException. Qualificar remove a ambiguidade nos dois
+# ambientes; na AWS o resultado é idêntico ao de antes.
 CATALOG = "s3tablesbucket"
 
 
@@ -81,7 +89,7 @@ def create_spark_session(s3_warehouse_arn, app_name="glue-s3-tables"):
 
 def read_table(spark: SparkSession, table: str) -> DataFrame:
     """Lê uma tabela do catálogo, no formato `namespace.tabela`."""
-    return spark.sql(f"SELECT * FROM {table}")
+    return spark.sql(f"SELECT * FROM {CATALOG}.{table}")
 
 
 def ensure_namespace(spark: SparkSession, namespace: str) -> None:
@@ -94,7 +102,7 @@ def ensure_table(spark: SparkSession, namespace: str, table: str, schema) -> Non
     Aceita tanto `df.dtypes` quanto uma lista escrita à mão.
     """
     ddl = ", ".join(f"{name} {dtype}" for name, dtype in schema)
-    spark.sql(f"CREATE TABLE IF NOT EXISTS {namespace}.{table} ({ddl})")
+    spark.sql(f"CREATE TABLE IF NOT EXISTS {CATALOG}.{namespace}.{table} ({ddl})")
 
 
 def assert_schema_matches(spark: SparkSession, namespace: str, table: str, df: DataFrame) -> None:
@@ -104,7 +112,7 @@ def assert_schema_matches(spark: SparkSession, namespace: str, table: str, df: D
     existe com outro formato — e o INSERT seguinte falha com um erro de Spark
     difícil de ler. Melhor dizer exatamente qual coluna divergiu.
     """
-    existing = [f.name for f in spark.table(f"{namespace}.{table}").schema.fields]
+    existing = [f.name for f in spark.table(f"{CATALOG}.{namespace}.{table}").schema.fields]
     incoming = [f.name for f in df.schema.fields]
     if existing != incoming:
         raise ValueError(
@@ -127,7 +135,7 @@ def write_table(spark: SparkSession, df: DataFrame, namespace: str, table: str) 
 
     view = f"_write_{table}"
     df.createOrReplaceTempView(view)
-    spark.sql(f"INSERT OVERWRITE {namespace}.{table} SELECT * FROM {view}")
+    spark.sql(f"INSERT OVERWRITE {CATALOG}.{namespace}.{table} SELECT * FROM {view}")
 
 
 def merge_table(
@@ -147,7 +155,7 @@ def merge_table(
 
     spark.sql(
         f"""
-        MERGE INTO {namespace}.{table} AS target
+        MERGE INTO {CATALOG}.{namespace}.{table} AS target
         USING {view} AS source
         ON {on_clause}
         WHEN MATCHED THEN UPDATE SET {set_clause}

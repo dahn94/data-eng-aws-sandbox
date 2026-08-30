@@ -93,9 +93,14 @@ services:
       ICEBERG_REST_URI: http://iceberg-rest:8181
     volumes:
       # O repositório inteiro, para rodar os scripts sem copiar nada.
-      - ../..:/workspace:ro
+      # Três níveis: este compose está em platform/local/lakehouse/.
+      - ../../..:/workspace:ro
     working_dir: /workspace
-    command: ["tail", "-f", "/dev/null"]
+    # O ENTRYPOINT da imagem é `bash -l`, então o command entra como argumento
+    # dele. `["tail","-f","/dev/null"]` viraria `bash -l tail -f /dev/null` —
+    # bash trataria "tail" como nome de script, não acharia, e sairia com 0 sem
+    # dizer nada. Foi o que aconteceu na primeira tentativa.
+    command: ["-c", "tail -f /dev/null"]
     networks: [lakehouse]
 
 volumes:
