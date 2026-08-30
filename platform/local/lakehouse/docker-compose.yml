@@ -103,8 +103,46 @@ services:
     command: ["-c", "tail -f /dev/null"]
     networks: [lakehouse]
 
+  # A MESMA pilha, sem nada da AWS. Apache Spark de código aberto, com os jars
+  # do Iceberg baixados por --packages no primeiro uso.
+  #
+  # Por que existir tendo o `glue`: os dois respondem a perguntas diferentes.
+  #   glue       fidelidade — é o runtime que roda na nuvem, com as libs awsglue
+  #   spark-oss  portabilidade — prova que o código não depende de fornecedor
+  #
+  # Se um script roda aqui, ele roda em qualquer Spark: EMR, Databricks,
+  # Kubernetes, sua máquina. Se só roda no `glue`, alguma amarra existe — e
+  # descobrir qual é justamente o exercício.
+  #
+  #   docker compose --profile oss up -d
+  #   docker compose exec spark-oss spark-submit \
+  #     --packages org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.9.2,org.apache.iceberg:iceberg-aws-bundle:1.9.2 \
+  #     /workspace/<script>.py
+  spark-oss:
+    profiles: ["oss"]
+    image: spark:3.5.7-scala2.12-java17-python3-ubuntu
+    container_name: lakehouse-spark-oss
+    user: root
+    depends_on:
+      iceberg-rest: { condition: service_started }
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ENDPOINT_URL_S3: http://minio:9000
+      ICEBERG_REST_URI: http://iceberg-rest:8181
+      # Cache dos jars entre execuções, para o --packages não rebaixar tudo.
+      HOME: /tmp
+    volumes:
+      - ../../..:/workspace:ro
+      - spark-oss-ivy:/tmp/.ivy2
+    working_dir: /workspace
+    command: ["tail", "-f", "/dev/null"]
+    networks: [lakehouse]
+
 volumes:
   minio-data:
+  spark-oss-ivy:
 
 networks:
   lakehouse:

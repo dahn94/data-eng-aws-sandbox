@@ -18,7 +18,41 @@ O raciocínio completo está em
 |---|---|---|
 | S3 | **MinIO** | nada de relevante: mesma API, mesmos nomes de bucket |
 | S3 Tables | **catálogo Iceberg REST** | mesma especificação de tabela, sem o gerenciamento |
-| Glue (Spark) | **`public.ecr.aws/glue/aws-glue-libs:5.0.10`** | imagem oficial da AWS, mesmo Spark e mesmas libs do Glue 5.0 |
+| Glue (Spark) | **dois caminhos** — veja abaixo | fidelidade ou portabilidade, você escolhe |
+
+## Dois motores de Spark, de propósito
+
+Eles respondem a perguntas diferentes, e ter os dois é o exercício:
+
+| | `glue` (padrão) | `spark-oss` (perfil `oss`) |
+|---|---|---|
+| Imagem | `public.ecr.aws/glue/aws-glue-libs:5.0.10` | `spark:3.5.7-...-python3-ubuntu` |
+| Origem | oficial da AWS | Apache, sem fornecedor |
+| Tamanho | **12,4 GB** | **1,8 GB** |
+| `awsglue` | sim | **não** |
+| Jars do Iceberg | já embutidos | por `--packages`, na primeira execução |
+| Responde | "roda como na nuvem?" | "o código depende de fornecedor?" |
+
+**Se um script roda no `spark-oss`, ele roda em qualquer Spark** — EMR,
+Databricks, Kubernetes, sua máquina. Se só roda no `glue`, existe uma amarra —
+e descobrir qual é o ponto do exercício.
+
+Foi assim que o `glue_common.py` deixou de importar `awsglue` no topo: o import
+virou opcional, com um equivalente próprio de `getResolvedOptions`. Verificado
+rodando nos dois.
+
+```bash
+# fidelidade ao que roda na nuvem
+docker compose exec glue spark-submit /workspace/<script>.py
+
+# portabilidade, sem nada da AWS
+docker compose --profile oss up -d
+docker compose exec spark-oss /opt/spark/bin/spark-submit \
+  --packages org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.9.2,org.apache.iceberg:iceberg-aws-bundle:1.9.2 \
+  /workspace/<script>.py
+```
+
+`spark-submit` não está no PATH da imagem aberta — use o caminho completo.
 
 Os buckets nascem com **os mesmos nomes** que o `platform/aws/foundation` cria na
 AWS, com prefixo `sandbox` e ambiente `local`:
@@ -87,10 +121,11 @@ tabela Iceberg — com os parquet e os snapshots aparecendo no MinIO. O
 `INSERT OVERWRITE` foi conferido de fato substituindo, e não somando: reescrever
 com uma linha devolve uma linha.
 
-**Não funciona:** `awsgluedq` **não existe na imagem oficial da AWS**. Só as
-libs `awsglue` estão lá. Como o portão de qualidade do `amazonsales` depende de
-`awsgluedq.transforms.EvaluateDataQuality`, os jobs que passam por ele não rodam
-aqui — e o `workloads/amazonsales/adr/0005` continua sem verificação local.
+**O portão de qualidade também roda** — nos dois motores. Ele usava
+`awsgluedq.EvaluateDataQuality`, que não existe nem na imagem oficial da AWS;
+passou a usar Great Expectations, e foi verificado barrando dado com nulo e
+duplicado tanto no `glue` quanto no `spark-oss`. Ver
+[`../../../workloads/amazonsales/adr/0007`](../../../workloads/amazonsales/adr/0007-portao-de-qualidade-que-roda-nos-dois-lugares.md).
 
 **Pegadinha da imagem:** ela traz `spark.sql.catalogImplementation hive`, e nem
 todo comando SQL resolve pelo `defaultCatalog`. `CREATE TABLE ns.tbl` ia para o

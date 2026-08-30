@@ -14,8 +14,20 @@ significava editar oito arquivos.
 import os
 import sys
 
-from awsglue.utils import getResolvedOptions
 from pyspark.sql import DataFrame, SparkSession
+
+# `awsglue` só existe no runtime do Glue e na imagem que a AWS publica. Importar
+# no topo tornaria este módulo — e portanto todos os jobs — impossíveis de rodar
+# num Spark de código aberto. Com o fallback abaixo, os mesmos scripts rodam nos
+# dois: na imagem do Glue (fidelidade ao que roda na AWS) e num Apache Spark
+# puro (portabilidade, e sem biblioteca de fornecedor nenhuma).
+try:
+    from awsglue.utils import getResolvedOptions
+
+    TEM_AWSGLUE = True
+except ImportError:  # pragma: no cover - depende da imagem
+    getResolvedOptions = None
+    TEM_AWSGLUE = False
 
 # Nome do catálogo Spark do lakehouse. TODA referência a tabela neste arquivo é
 # qualificada com ele — `{CATALOG}.{namespace}.{table}` — e não apenas
@@ -30,9 +42,35 @@ from pyspark.sql import DataFrame, SparkSession
 CATALOG = "s3tablesbucket"
 
 
+def _resolver_args(argv, names):
+    """Lê `--nome valor` do argv. Equivalente ao getResolvedOptions do Glue.
+
+    O Glue tolera argumentos que ninguém pediu e exige os pedidos; este faz o
+    mesmo, e falha com a mesma clareza quando falta um.
+    """
+    valores = {}
+    for i, arg in enumerate(argv):
+        if arg.startswith("--") and i + 1 < len(argv):
+            chave = arg[2:]
+            if chave in names:
+                valores[chave] = argv[i + 1]
+
+    faltando = [n for n in names if n not in valores]
+    if faltando:
+        raise KeyError(f"argumentos obrigatórios ausentes: {', '.join(faltando)}")
+    return valores
+
+
 def get_args(names):
-    """Lê os argumentos nomeados do job (`--nome valor`)."""
-    return getResolvedOptions(sys.argv, list(names))
+    """Lê os argumentos nomeados do job (`--nome valor`).
+
+    Usa o `getResolvedOptions` do Glue quando ele existe, para não divergir do
+    comportamento da AWS; cai no equivalente próprio quando não existe.
+    """
+    names = list(names)
+    if TEM_AWSGLUE:
+        return getResolvedOptions(sys.argv, names)
+    return _resolver_args(sys.argv, names)
 
 
 def create_spark_session(s3_warehouse_arn, app_name="glue-s3-tables"):
