@@ -1,0 +1,13 @@
+# A rede compartilhada do ambiente local — o análogo da VPC em platform/aws.
+#
+# Não é um compose completo de propósito: um arquivo só com `networks` não sobe
+# nada sozinho (o Compose recusa: "no service selected"). Ele existe para ser
+# incluído. A rede nasce junto do primeiro serviço que a usar, e some quando o
+# último for embora.
+#
+# O `name` fixo é o que faz a rede ser a MESMA entre projetos diferentes. Sem
+# ele, cada projeto criaria a sua, com prefixo próprio, e os serviços não se
+# enxergariam — que é exatamente o problema que esta pasta resolve.
+networks:
+  dados:
+    name: dataeng-local

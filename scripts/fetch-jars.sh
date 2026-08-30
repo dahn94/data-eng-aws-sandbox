@@ -37,8 +37,8 @@ download "$WEB" "$MAVEN/org/apache/kafka/kafka-clients/3.5.2/kafka-clients-3.5.2
 download "$WEB" "$MAVEN/org/apache/commons/commons-pool2/2.12.1/commons-pool2-2.12.1.jar"
 download "$WEB" "$MAVEN/org/opensearch/client/opensearch-spark-30_2.12/1.3.0/opensearch-spark-30_2.12-1.3.0.jar"
 
-echo "==> platform/local/streaming-cdc (Avro + Schema Registry para o Kafka Connect)"
-CDC="$REPO_ROOT/platform/local/streaming-cdc/jars/debezium"
+echo "==> platform/local/services/streaming-cdc (Avro + Schema Registry para o Kafka Connect)"
+CDC="$REPO_ROOT/platform/local/services/streaming-cdc/jars/debezium"
 CONFLUENT="https://packages.confluent.io/maven/io/confluent"
 for artifact in kafka-connect-avro-converter kafka-connect-avro-data kafka-avro-serializer \
                 kafka-schema-serializer kafka-schema-converter kafka-schema-registry-client \

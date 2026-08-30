@@ -1,0 +1,22 @@
+# Trino: o motor por trás do Athena. Na AWS você paga por bytes escaneados e a
+# AWS opera o cluster; aqui é o mesmo motor, operado por você.
+#
+# Aponta para o MESMO catálogo Iceberg que o Spark usa — é assim que se verifica
+# que tabelas escritas por um motor são legíveis por outro, sem cópia.
+#
+#   docker compose exec trino trino --execute "SHOW SCHEMAS FROM iceberg"
+
+name: dataeng-trino
+
+include:
+  - path: ../../network/rede.yml
+
+services:
+  trino:
+    image: trinodb/trino:476
+    container_name: lakehouse-trino
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./catalog:/etc/trino/catalog:ro
+    networks: [dados]

@@ -21,7 +21,7 @@ Perder isso na ingestão é irreversível a jusante — nenhum job de transforma
 reconstrói uma ordem que não chegou.
 
 O repositório mantém **os dois** caminhos: DMS em `workloads/dms/` e
-Debezium+Kafka em `platform/local/streaming-cdc/`. A decisão aqui não é "qual
+Debezium+Kafka em `platform/local/services/streaming-cdc/`. A decisão aqui não é "qual
 vence", é qual problema cada um resolve e qual é o caminho padrão.
 
 ## Requisitos que decidem
@@ -139,10 +139,10 @@ também.
 - `../../../platform/aws/modules/dms/main.tf:143` — `migration_type = "full-load-and-cdc"`.
 - `workloads/dms/README.md:24-34` — o contrato de caminho no S3 com a pipeline.
 - `workloads/dms/README.md:43-54` — custo e ausência de "stop".
-- `platform/local/streaming-cdc/README.md:3-4` — o Debezium como alternativa.
-- `platform/local/streaming-cdc/README.md:37-45` — o tópico consumido por dois
+- `platform/local/services/streaming-cdc/README.md:3-4` — o Debezium como alternativa.
+- `platform/local/services/streaming-cdc/README.md:37-45` — o tópico consumido por dois
   outros componentes: a evidência do fan-out que justifica o Kafka no streaming.
-- `platform/local/streaming-cdc/README.md:66-70` — o replication slot órfão.
+- `platform/local/services/streaming-cdc/README.md:66-70` — o replication slot órfão.
 - `workloads/webevents-streaming/scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:76-83`
   — o envelope do Debezium com `before`, `after` e `op`: exatamente a informação
   que o caminho do DMS descarta.

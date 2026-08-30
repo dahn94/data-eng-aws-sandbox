@@ -13,7 +13,7 @@ do Debezium), limpa os dados e grava no OpenSearch em tempo real.
    — veja "Onde o job roda" logo abaixo. É o pré-requisito mais incômodo deste
    workload, e o único que não se resolve com `terraform apply`.
 4. **O connector Debezium registrado**, publicando no tópico
-   `ecommerce.public.web_events` — veja `platform/local/streaming-cdc`.
+   `ecommerce.public.web_events` — veja `platform/local/services/streaming-cdc`.
 
 ## Aplicar
 

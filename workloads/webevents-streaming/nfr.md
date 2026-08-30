@@ -10,7 +10,7 @@ candidatos a revisão.
 
 | Requisito | Valor hoje | Origem |
 |---|---|---|
-| Origem | tópico Kafka `ecommerce.public.web_events`, Avro do Debezium | `../../platform/local/streaming-cdc/README.md:37-45` |
+| Origem | tópico Kafka `ecommerce.public.web_events`, Avro do Debezium | `../../platform/local/services/streaming-cdc/README.md:37-45` |
 | Schema | lido do Schema Registry **em runtime**, versão `latest` | `scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:47-52` |
 | Destino | índice do OpenSearch | `scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:93-108` |
 | O dado pousa no lakehouse? | **não** — o fluxo vai direto ao OpenSearch | `scripts/dataeng-sandbox-webevents-streaming-kafka-opensearch.py:93-108` |

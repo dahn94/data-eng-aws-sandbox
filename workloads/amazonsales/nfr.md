@@ -64,7 +64,7 @@ Uma linha entre as outras, não o assunto.
 
 ## Medições locais — e o que elas não são
 
-Feitas em 2026-08-30 no `platform/local/lakehouse`, com o dataset semeado por
+Feitas em 2026-08-30 no `platform/local/foundation`, com o dataset semeado por
 `seed/gerar_dataset.py` (semente 42, 50 produtos, 101 linhas, 51 duplicatas).
 
 | Medição | Valor |

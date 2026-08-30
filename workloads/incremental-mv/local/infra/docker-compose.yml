@@ -10,4 +10,4 @@
 name: incremental-mv-local
 
 include:
-  - path: ../../../../platform/local/olap-clickhouse/docker-compose.yml
+  - path: ../../../../platform/local/services/olap-clickhouse/docker-compose.yml

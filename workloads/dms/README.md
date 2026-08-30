@@ -49,7 +49,7 @@ em `workloads/amazonsales`. Se mudar um, mude o outro.
 terraform destroy -var-file=envs/develop.tfvars
 ```
 
-Se estiver usando Debezium (`platform/local/streaming-cdc`) em vez do DMS, lembre
+Se estiver usando Debezium (`platform/local/services/streaming-cdc`) em vez do DMS, lembre
 de também remover o connector antes de destruir o RDS — um replication slot
 órfão prende o WAL e pode encher o storage.
 

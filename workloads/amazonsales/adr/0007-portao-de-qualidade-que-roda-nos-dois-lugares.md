@@ -83,7 +83,7 @@ segundo protege mais — que é o propósito de um portão.
 Ganho de desenho que veio junto: `run_data_quality_gate` deixou de receber
 `GlueContext`. O portão agora opera sobre um DataFrame comum do Spark, então
 não depende do Glue para nada — é o que o torna executável no
-`platform/local/lakehouse`.
+`platform/local/foundation`.
 
 Isto **não** revisa o `0005`. Onde o portão fica, e o fato de ele falhar o job,
 continuam como estavam.
@@ -134,5 +134,5 @@ dos jobs, porque não tem mais quem o consuma.
   e `...-facts-...py` — os rulesets em GX, com a mesma cobertura do DQDL.
 - `workloads/amazonsales/aws/infra/main.tf` — `additional_python_modules` fixando a
   versão do GX para o job na AWS.
-- `platform/local/lakehouse/README.md` — o que a execução local cobre e o que
+- `platform/local/foundation/README.md` — o que a execução local cobre e o que
   não cobre.

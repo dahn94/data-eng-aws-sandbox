@@ -108,8 +108,8 @@ variable "network_state_key" {
 
 variable "enable_streaming_host" {
   description = <<-EOT
-    Cria uma EC2 para hospedar `platform/local/streaming-cdc` e
-    `platform/local/search-opensearch` dentro da AWS.
+    Cria uma EC2 para hospedar `platform/local/services/streaming-cdc` e
+    `platform/local/services/search-opensearch` dentro da AWS.
 
     Existe por um motivo só: o job Glue roda na AWS e não alcança o Docker da
     sua máquina. Rodando os serviços de `platform/local/` na sua máquina, job e

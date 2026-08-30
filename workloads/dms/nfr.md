@@ -25,7 +25,7 @@ candidatos a revisão.
 |---|---|---|
 | Custo parado | **~US$28/mês** — `dms.t3.micro` + 20 GB | `README.md:43-54` |
 | Pode ser pausado? | **não** — a instância não tem "stop", só delete | `README.md:43-54` |
-| Alternativa de custo zero | Kafka + Debezium local (`platform/local/streaming-cdc`) | `../../platform/local/streaming-cdc/README.md:3-4` |
+| Alternativa de custo zero | Kafka + Debezium local (`platform/local/services/streaming-cdc`) | `../../platform/local/services/streaming-cdc/README.md:3-4` |
 
 ## Correção e recuperação
 
@@ -34,7 +34,7 @@ candidatos a revisão.
 | Garantia de entrega | at-least-once (o consumidor precisa deduplicar) | característica do DMS |
 | Ordenação entre eventos da mesma chave | **não preservada no arquivo de saída** | consequência da ausência de timestamp/LSN |
 | Delete é capturado? | sim pelo CDC, mas **indistinguível** de insert no arquivo, por falta da coluna de operação | `../../platform/aws/modules/dms/main.tf:111-117` |
-| Risco na origem | replication slot órfão prende o WAL e pode encher o disco | `../../platform/local/streaming-cdc/README.md:66-70` |
+| Risco na origem | replication slot órfão prende o WAL e pode encher o disco | `../../platform/local/services/streaming-cdc/README.md:66-70` |
 
 ## Consequências desta tabela
 

@@ -1,0 +1,53 @@
+# O catálogo Iceberg — o análogo do S3 Tables da AWS.
+#
+# Vem com um Postgres por trás, e não com o backend em memória do fixture: com
+# três jobs escrevendo em paralelo (como a máquina de estado do amazonsales faz),
+# o padrão devolve "Failed to get table ... from catalog rest_backend".
+#
+# Precisa do foundation de pé — o warehouse do catálogo é um bucket do MinIO.
+
+name: dataeng-iceberg-catalog
+
+include:
+  - path: ../../network/rede.yml
+
+services:
+  catalog-db:
+    image: postgres:16
+    container_name: lakehouse-catalog-db
+    environment:
+      POSTGRES_USER: iceberg
+      POSTGRES_PASSWORD: iceberg
+      POSTGRES_DB: iceberg
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iceberg"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - catalog-db-data:/var/lib/postgresql/data
+    networks: [dados]
+
+  iceberg-rest:
+    build: .
+    image: dataeng-sandbox/iceberg-rest:1.9.2-pg
+    container_name: lakehouse-iceberg-rest
+    depends_on:
+      catalog-db: { condition: service_healthy }
+    environment:
+      CATALOG_URI: jdbc:postgresql://catalog-db:5432/iceberg
+      CATALOG_JDBC_USER: iceberg
+      CATALOG_JDBC_PASSWORD: iceberg
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      CATALOG_WAREHOUSE: s3://sandbox-lakehouse/
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: http://minio:9000
+      CATALOG_S3_PATH__STYLE__ACCESS: "true"
+    ports:
+      - "8181:8181"
+    networks: [dados]
+
+volumes:
+  catalog-db-data:

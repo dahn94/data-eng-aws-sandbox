@@ -33,7 +33,7 @@ docker exec airflow airflow dags trigger amazonsales
 ```
 
 > **Escolha um ponto de entrada e fique nele.** Subir por
-> `platform/local/lakehouse/docker-compose.yml` cria o projeto
+> `platform/local/foundation/docker-compose.yml` cria o projeto
 > `dataeng-lakehouse`; subir por aqui cria `amazonsales-local`. Os contêineres
 > têm o mesmo nome nos dois casos, mas **os volumes levam o prefixo do
 > projeto** — alternar deixa os dados anteriores órfãos, sem aviso. Para este

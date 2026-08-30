@@ -83,7 +83,7 @@ def create_spark_session(s3_warehouse_arn, app_name="glue-s3-tables"):
 
     Sem `ICEBERG_REST_URI` no ambiente, o comportamento é o de antes: S3 Tables,
     com o warehouse vindo do ARN passado pelo job. Com a variável definida
-    (é o que `platform/local/lakehouse` faz), o mesmo script fala com o catálogo
+    (é o que `platform/local/foundation` faz), o mesmo script fala com o catálogo
     REST sobre o MinIO.
     """
     rest_uri = os.environ.get("ICEBERG_REST_URI", "")

@@ -100,7 +100,7 @@ def write_to_opensearch(df, host, index, user, password, checkpoint_path):
         .option("opensearch.net.http.auth.pass", password)
         .option("opensearch.nodes.wan.only", "true")
         .option("opensearch.net.ssl", "true")
-        # O OpenSearch do local-services sobe com certificado autoassinado.
+        # O OpenSearch de platform/local sobe com certificado autoassinado.
         .option("opensearch.net.ssl.cert.allow.self.signed", "true")
         .option("checkpointLocation", checkpoint_path)
         .outputMode("append")

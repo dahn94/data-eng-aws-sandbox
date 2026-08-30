@@ -76,7 +76,7 @@ antes cada um dos oito scripts tinha sua cópia.
 | Acoplamento ao S3 Tables como catálogo | Parcial: o **formato** (Iceberg) é portável; migrar significa trocar o catálogo, não reescrever o dado |
 | Dependência de jar de ~15 MB fora do Git | Contornado: `scripts/fetch-jars.sh` baixa e o Terraform envia ao S3, em vez de upload manual |
 | ARN do lakehouse é contrato implícito entre módulos | Contornado por convenção de nome determinística, com variável para sobrescrever |
-| Nenhum emulador cobre S3 Tables | **Não é contornado.** O caminho honesto para exercitar a lógica é PySpark local contra MinIO e um catálogo Iceberg — é o que `platform/local/lakehouse/` passa a oferecer |
+| Nenhum emulador cobre S3 Tables | **Não é contornado.** O caminho honesto para exercitar a lógica é PySpark local contra MinIO e um catálogo Iceberg — é o que `platform/local/foundation/` passa a oferecer |
 | Manutenção de tabela (arquivos pequenos, snapshots) | Delegada ao serviço hoje; quando não bastar, vira job explícito — item 2 da Fase 01 do TODO |
 
 ## Quando esta decisão se inverte
@@ -124,7 +124,7 @@ a reconstrução coerente.
 
 ## Evidência no repo
 
-- **Verificado em execução (2026-08-29):** no `platform/local/lakehouse`, uma
+- **Verificado em execução (2026-08-29):** no `platform/local/foundation`, uma
   tabela Iceberg escrita pelo Spark foi lida pelo Trino com os mesmos números, e
   uma tabela escrita pelo Trino foi lida pelo Spark. Dois motores, um catálogo,
   nenhuma cópia — que é o que este ADR afirma.

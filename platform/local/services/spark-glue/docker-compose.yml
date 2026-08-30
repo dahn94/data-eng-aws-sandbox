@@ -1,0 +1,34 @@
+# O Spark da AWS: a imagem oficial de desenvolvimento do Glue, com as mesmas
+# libs `awsglue` que rodam na nuvem. Responde "roda como na nuvem?".
+#
+# Compare com ../spark-oss, que responde "o código depende de fornecedor?".
+#
+#   docker compose exec glue spark-submit /workspace/<script>.py
+
+name: dataeng-spark-glue
+
+include:
+  - path: ../../network/rede.yml
+
+services:
+  glue:
+    build: .
+    image: dataeng-sandbox/glue:5.0.10-gx
+    container_name: lakehouse-glue
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ENDPOINT_URL_S3: http://minio:9000
+      ICEBERG_REST_URI: http://iceberg-rest:8181
+    volumes:
+      # A raiz do repositório: daqui a platform/local/services/spark-glue são
+      # quatro níveis.
+      - ../../../..:/workspace:ro
+    working_dir: /workspace
+    # O ENTRYPOINT da imagem é `bash -l`, então o command entra como argumento
+    # dele. Uma lista tipo ["tail","-f","/dev/null"] viraria
+    # `bash -l tail -f /dev/null` — bash trataria "tail" como nome de script,
+    # não acharia, e sairia com 0 sem dizer nada.
+    command: ["-c", "tail -f /dev/null"]
+    networks: [dados]

@@ -148,14 +148,12 @@ platform/                # O SUBSTRATO QUE OS WORKLOADS CONSOMEM. São DUAS
   aws/                   #   plataformas, e os mesmos workloads miram qualquer
     foundation/          #   uma delas.
     network/             #
-  local/                 #   Tudo que sobe em Docker localmente — motores de
-    lakehouse/           #   verdade, não emulação
-    streaming-cdc/       #     Kafka + Debezium
-    search-opensearch/   #     OpenSearch + Dashboards
-    olap-clickhouse/     #     ClickHouse
-    bi-metabase/         #     Metabase
-    bi-superset/         #     Apache Superset
-    orchestration-airflow/ #   Airflow, no lugar do Step Functions
+  local/                 #   A mesma forma, em Docker: alicerce, rede e peças
+    network/             #     a rede compartilhada — o análogo da VPC
+    foundation/          #     MinIO e os buckets, com os nomes que a AWS usa
+    services/            #     os motores, um por pasta: spark-glue, spark-oss,
+                         #     trino, iceberg-catalog, streaming-cdc,
+                         #     search-opensearch, olap-clickhouse, airflow, BI
 
 modules/                 # Código compartilhado, nunca infraestrutura
                          #   compartilhada. Um workload instancia o módulo e
@@ -276,7 +274,7 @@ aws sts get-caller-identity  # confirma que funcionou
 
 **2. Explore local primeiro (zero custo)**
 Escolha um stack em `platform/local/` e suba com `docker compose up -d` dentro da
-pasta dele. Comece por `platform/local/bi-metabase/` — é o mais simples de ver
+pasta dele. Comece por `platform/local/services/bi-metabase/` — é o mais simples de ver
 funcionando. Os stacks que precisam de `.env` avisam no README deles.
 
 **3. Crie os buckets**
@@ -304,7 +302,7 @@ ninguém entra de fora da VPC.
 
 **5. Gere dados fake e veja o CDC funcionando**
 `workloads/webevents-streaming/seed/` insere eventos continuamente no Postgres. Depois
-suba `workloads/dms/` (ou `platform/local/streaming-cdc/`) pra ver essas mudanças
+suba `workloads/dms/` (ou `platform/local/services/streaming-cdc/`) pra ver essas mudanças
 sendo capturadas em tempo real.
 
 O RDS já sobe com `rds.logical_replication = 1` — sem esse parâmetro, o CDC

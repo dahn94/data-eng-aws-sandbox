@@ -1,20 +1,25 @@
 # A infraestrutura local deste workload — o espelho do que `../../aws/infra`
 # declara para a nuvem.
 #
-# Ele não redefine serviço nenhum: compõe as plataformas locais de que precisa,
-# por `include`. É a mesma relação que o Terraform tem com `platform/aws` —
-# o workload consome a plataforma, não a duplica.
+# Não redefine serviço nenhum: compõe as peças de `platform/local` de que
+# precisa, por `include`. É a mesma relação que o Terraform tem com
+# `platform/aws/modules` — o workload consome a plataforma, não a duplica.
 #
-#   docker compose up -d      # sobe o lakehouse e o orquestrador
-#   docker compose down       # derruba os dois
+#   docker compose up -d
 #
 # O que este workload precisa, e por quê:
-#   lakehouse              MinIO + catálogo Iceberg + Spark, onde os jobs rodam
-#   orchestration-airflow  o DAG que substitui o Step Functions
+#   foundation        MinIO e os buckets, com os nomes que a AWS usa
+#   iceberg-catalog   o catálogo Iceberg (o análogo do S3 Tables)
+#   spark-glue        onde os jobs rodam, com as libs do Glue
+#   trino             para consultar o star schema por outro motor
+#   airflow           o DAG que substitui o Step Functions
 
 name: amazonsales-local
 
 include:
-  - path: ../../../../platform/local/lakehouse/docker-compose.yml
-    env_file: ../../../../platform/local/lakehouse/.env
-  - path: ../../../../platform/local/orchestration-airflow/docker-compose.yml
+  - path: ../../../../platform/local/foundation/docker-compose.yml
+    env_file: ../../../../platform/local/foundation/.env
+  - path: ../../../../platform/local/services/iceberg-catalog/docker-compose.yml
+  - path: ../../../../platform/local/services/spark-glue/docker-compose.yml
+  - path: ../../../../platform/local/services/trino/docker-compose.yml
+  - path: ../../../../platform/local/services/orchestration-airflow/docker-compose.yml

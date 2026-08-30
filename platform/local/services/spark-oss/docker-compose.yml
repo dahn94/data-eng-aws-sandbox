@@ -1,0 +1,41 @@
+# Apache Spark de código aberto, sem nada da AWS. Responde à pergunta que o
+# ../spark-glue não responde: o código depende de fornecedor?
+#
+# Se um script roda aqui, roda em qualquer Spark — EMR, Databricks, Kubernetes,
+# a sua máquina. Se só roda no glue, existe uma amarra, e achar qual é o
+# exercício.
+#
+#   docker compose exec spark-oss /opt/spark/bin/spark-submit \
+#     --packages org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.9.2,org.apache.iceberg:iceberg-aws-bundle:1.9.2 \
+#     /workspace/<script>.py
+#
+# `spark-submit` não está no PATH desta imagem: use o caminho completo.
+
+name: dataeng-spark-oss
+
+include:
+  - path: ../../network/rede.yml
+
+services:
+  spark-oss:
+    build: .
+    image: dataeng-sandbox/spark-oss:3.5.7-gx
+    container_name: lakehouse-spark-oss
+    user: root
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ENDPOINT_URL_S3: http://minio:9000
+      ICEBERG_REST_URI: http://iceberg-rest:8181
+      # Cache dos jars entre execuções, para o --packages não rebaixar tudo.
+      HOME: /tmp
+    volumes:
+      - ../../../..:/workspace:ro
+      - spark-oss-ivy:/tmp/.ivy2
+    working_dir: /workspace
+    command: ["tail", "-f", "/dev/null"]
+    networks: [dados]
+
+volumes:
+  spark-oss-ivy:

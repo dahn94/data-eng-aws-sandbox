@@ -21,7 +21,7 @@ o ADR aceita. O que ele reproduz é o essencial — **ninguém agenda recomputa�
 ## Rodar
 
 ```bash
-docker compose -f ../../../platform/local/olap-clickhouse/docker-compose.yml up -d
+docker compose -f ../../../platform/local/services/olap-clickhouse/docker-compose.yml up -d
 docker exec -i clickhouse clickhouse-client --multiquery < materialized-view.sql
 ```
 
