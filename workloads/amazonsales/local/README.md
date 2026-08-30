@@ -35,10 +35,49 @@ docker exec airflow airflow dags trigger amazonsales
 
 ## Estado
 
-O DAG está registrado e sem erros de importação, e o cliente do Docker alcança
-o contêiner do lakehouse a partir do Airflow — as duas coisas verificadas.
+**A pipeline roda de ponta a ponta**, com dado semeado por
+[`../seed/`](../seed/). Verificado disparando os oito jobs em sequência no
+contêiner do lakehouse:
 
-**A pipeline inteira ainda não foi executada de ponta a ponta**, porque falta o
-dado de origem: nada publica os parquet que o `stg_table` lê. É a pendência do
-[`../../DATASET.md`](../../DATASET.md), e enquanto ela existir o que está
-verificado é a orquestração, não o resultado.
+| tabela | linhas |
+|---|---|
+| `staged.stg_amazonsales` | 50 (de 101 na origem — o dedup descartou 51) |
+| `datawarehouse.dim_product` | 50 |
+| `datawarehouse.dim_rating` | 50 |
+| `datawarehouse.dim_user` | 23 |
+| `datawarehouse.fact_product_rating` | 50 |
+| `datawarehouse.fact_sales_category` | 44 |
+
+Os dois portões de qualidade passaram, e o star schema foi consultado pelo
+Trino — outro motor, mesmo catálogo.
+
+Para reproduzir, do zero:
+
+```bash
+# 1. semear a origem
+docker exec lakehouse-glue spark-submit \
+  /workspace/workloads/amazonsales/seed/gerar_dataset.py \
+  --saida s3a://sandbox-lake-raw-local/amazonsales/ --produtos 50 --semente 42
+
+# 2. os oito jobs, na ordem do DAG — os argumentos estão em dags/amazonsales_dag.py
+docker exec lakehouse-glue spark-submit \
+  /workspace/workloads/amazonsales/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py \
+  --input_path s3a://sandbox-lake-raw-local/amazonsales/ --iceberg_table stg_amazonsales \
+  --namespace staged --primary_key product_id --s3_tables_bucket_arn nao-usado-no-modo-local
+# ... e assim por diante
+```
+
+### O que NÃO funciona: o disparo pelo Airflow
+
+O DAG é lido sem erro, as oito tarefas aparecem, e o cliente do Docker alcança
+o `lakehouse-glue` de dentro do Airflow. Mas **um `dags trigger` fica preso em
+`queued`**: as instâncias de tarefa são criadas com estado nulo e o scheduler
+nunca as despacha, mesmo com o `LocalExecutor` carregado e sem erro no log.
+
+O que já foi descartado: DAG com erro de importação, DAG pausado, executor não
+carregado, e o override de `AIRFLOW__CORE__EXECUTOR` que eu tinha posto.
+
+Suspeita não confirmada: o modo `standalone` do Airflow 3 com o volume nomeado
+montado sobre `/opt/airflow`, ou a URL do servidor de execução que o Task SDK
+usa. **Enquanto isso não for resolvido, a orquestração é declarativa: o DAG
+descreve a sequência certa, mas quem a executa hoje é o `spark-submit` direto.**

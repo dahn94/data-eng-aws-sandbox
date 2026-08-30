@@ -25,8 +25,6 @@ services:
       # O DAG dispara os jobs com `docker exec` no contêiner do Spark, então
       # este contêiner precisa falar com o Docker da máquina.
       DOCKER_HOST: unix:///var/run/docker.sock
-      # O socket pertence ao root no host; sem isto o usuário airflow não o lê.
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
     volumes:
       # Os DAGs moram nos workloads, não aqui: a definição da sequência
       # pertence a quem é orquestrado, como a Step Function pertence ao main.tf

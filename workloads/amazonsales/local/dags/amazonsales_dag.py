@@ -26,24 +26,72 @@ from airflow.providers.standard.operators.bash import BashOperator
 
 CONTAINER = "lakehouse-glue"
 SCRIPTS = "/workspace/workloads/amazonsales/scripts"
-NAMESPACE = "lakehouse"
 
-# O `arn` só é usado no caminho AWS; local, o catálogo vem de ICEBERG_REST_URI.
-ARGS_COMUNS = f"--namespace {NAMESPACE} --s3_tables_bucket_arn nao-usado-local"
+# Os mesmos argumentos que a máquina de estado passa a cada job. Estão aqui
+# literalmente, e não montados por conveniência, para que divergir da forma AWS
+# seja visível numa comparação lado a lado com o JSON.
+#
+# `s3_tables_bucket_arn` é exigido pela assinatura dos scripts mas ignorado
+# localmente: o catálogo vem de ICEBERG_REST_URI.
+ARN = "nao-usado-no-modo-local"
+STG = "staged.stg_amazonsales"
+DW = "datawarehouse"
+
+JOBS = {
+    "stg_table": (
+        "dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py",
+        f"--input_path s3a://sandbox-lake-raw-local/amazonsales/ "
+        f"--iceberg_table stg_amazonsales --namespace staged "
+        f"--primary_key product_id --s3_tables_bucket_arn {ARN}",
+    ),
+    "dim_product": (
+        "dataeng-sandbox-amazonsales-dw-dim-product-s3tables.py",
+        f"--stg_table_sales {STG} --output_table dim_product "
+        f"--namespace_destino {DW} --s3_tables_bucket_arn {ARN}",
+    ),
+    "dim_rating": (
+        "dataeng-sandbox-amazonsales-dw-dim-rating-s3tables.py",
+        f"--stg_table_sales {STG} --output_table dim_rating "
+        f"--namespace_destino {DW} --s3_tables_bucket_arn {ARN}",
+    ),
+    "dim_user": (
+        "dataeng-sandbox-amazonsales-dw-dim-user-s3tables.py",
+        f"--stg_table_sales {STG} --output_table dim_user "
+        f"--namespace_destino {DW} --s3_tables_bucket_arn {ARN}",
+    ),
+    "portao_qualidade_dims": (
+        "dataeng-sandbox-amazonsales-dw-dims-s3tables-gdq.py",
+        f"--namespace {DW} --s3_tables_bucket_arn {ARN}",
+    ),
+    "fact_product_rating": (
+        "dataeng-sandbox-amazonsales-dw-fact-product-rating-s3tables.py",
+        f"--stg_table_sales {STG} --dim_product_table {DW}.dim_product "
+        f"--dim_rating_table {DW}.dim_rating --output_table fact_product_rating "
+        f"--namespace_destino {DW} --s3_tables_bucket_arn {ARN}",
+    ),
+    "fact_sales_category": (
+        "dataeng-sandbox-amazonsales-dw-fact-sales-category-s3tables.py",
+        f"--stg_table_sales {STG} --dim_product_table {DW}.dim_product "
+        f"--dim_user_table {DW}.dim_user --output_table fact_sales_category "
+        f"--namespace_destino {DW} --s3_tables_bucket_arn {ARN}",
+    ),
+    "portao_qualidade_fatos": (
+        "dataeng-sandbox-amazonsales-dw-facts-s3tables-gdq.py",
+        f"--namespace {DW} --s3_tables_bucket_arn {ARN}",
+    ),
+}
 
 
-def job(nome_tarefa: str, script: str) -> BashOperator:
+def job(nome_tarefa: str) -> BashOperator:
     """Dispara um job no contêiner do lakehouse.
 
     Falha do spark-submit falha a tarefa, e a tarefa falhada interrompe o resto
     do DAG — que é o mesmo contrato do `Catch` da máquina de estado.
     """
+    script, argumentos = JOBS[nome_tarefa]
     return BashOperator(
         task_id=nome_tarefa,
-        bash_command=(
-            f"docker exec {CONTAINER} spark-submit "
-            f"{SCRIPTS}/{script} {ARGS_COMUNS}"
-        ),
+        bash_command=f"docker exec {CONTAINER} spark-submit {SCRIPTS}/{script} {argumentos}",
     )
 
 
@@ -55,12 +103,12 @@ with DAG(
     catchup=False,
     tags=["amazonsales", "local"],
 ) as dag:
-    stg = job("stg_table", "dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py")
+    stg = job("stg_table")
 
     dims = [
-        job("dim_product", "dataeng-sandbox-amazonsales-dw-dim-product-s3tables.py"),
-        job("dim_rating", "dataeng-sandbox-amazonsales-dw-dim-rating-s3tables.py"),
-        job("dim_user", "dataeng-sandbox-amazonsales-dw-dim-user-s3tables.py"),
+        job("dim_product"),
+        job("dim_rating"),
+        job("dim_user"),
     ]
 
     portao_dims = job(
@@ -68,8 +116,8 @@ with DAG(
     )
 
     fatos = [
-        job("fact_product_rating", "dataeng-sandbox-amazonsales-dw-fact-product-rating-s3tables.py"),
-        job("fact_sales_category", "dataeng-sandbox-amazonsales-dw-fact-sales-category-s3tables.py"),
+        job("fact_product_rating"),
+        job("fact_sales_category"),
     ]
 
     portao_fatos = job(

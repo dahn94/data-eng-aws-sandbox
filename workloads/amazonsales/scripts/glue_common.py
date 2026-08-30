@@ -100,6 +100,24 @@ def create_spark_session(s3_warehouse_arn, app_name="glue-s3-tables"):
 
     if rest_uri:
         s3_endpoint = os.environ.get("AWS_ENDPOINT_URL_S3", "")
+        # O catálogo Iceberg usa o S3FileIO, configurado logo abaixo. Mas o
+        # `stg_table` lê Parquet cru com spark.read.parquet("s3://..."), e isso
+        # passa pelo S3A do Hadoop, que tem configuração própria. Sem estas
+        # linhas o job falha ao ler a origem, mesmo com o catálogo funcionando.
+        if s3_endpoint:
+            for esquema in ("s3", "s3a"):
+                builder = (
+                    builder.config(f"spark.hadoop.fs.{esquema}.impl",
+                                   "org.apache.hadoop.fs.s3a.S3AFileSystem")
+                    .config(f"spark.hadoop.fs.{esquema}.endpoint", s3_endpoint)
+                    .config(f"spark.hadoop.fs.{esquema}.path.style.access", "true")
+                    .config(f"spark.hadoop.fs.{esquema}.access.key",
+                            os.environ.get("AWS_ACCESS_KEY_ID", ""))
+                    .config(f"spark.hadoop.fs.{esquema}.secret.key",
+                            os.environ.get("AWS_SECRET_ACCESS_KEY", ""))
+                    .config(f"spark.hadoop.fs.{esquema}.aws.credentials.provider",
+                            "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider")
+                )
         builder = (
             builder.config(f"spark.sql.catalog.{CATALOG}.catalog-impl",
                            "org.apache.iceberg.rest.RESTCatalog")
