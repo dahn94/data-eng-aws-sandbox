@@ -1,0 +1,21 @@
+variable "environment" {
+  description = "Ambiente de implantação (dev, prod)"
+  type        = string
+  default     = "dev"
+}
+
+variable "region" {
+  description = "Região AWS onde os recursos serão criados"
+  type        = string
+  default     = "us-east-2"
+}
+
+variable "network_state_bucket" {
+  description = "S3 bucket com o state de platform/aws/network. Sem default de propósito — é o seu bucket, definido em envs/*.tfvars."
+  type        = string
+}
+
+variable "network_state_key" {
+  description = "S3 key do state de platform/aws/network para este ambiente"
+  type        = string
+}

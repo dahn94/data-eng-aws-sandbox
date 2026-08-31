@@ -1,0 +1,8 @@
+# Outputs são a interface deste workload: o que outra pessoa (ou você em duas
+# semanas) precisa saber para usar o que subiu. Prefira o que responde "e agora,
+# onde eu olho?" — nome de recurso, endpoint, onde está o log.
+
+output "environment" {
+  description = "Ambiente em que este workload foi aplicado"
+  value       = var.environment
+}

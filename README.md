@@ -164,7 +164,9 @@ platform/                # O SUBSTRATO QUE OS WORKLOADS CONSOMEM. São DUAS
 
 scripts/                 # Utilitários de setup e governança de custo
                          #   (inclui budget.md: o alerta de orçamento que se
-                         #   configura ANTES do primeiro apply)
+                         #   configura ANTES do primeiro apply), mais
+                         #   novo-workload.sh (cria um workload no padrão) e
+                         #   verifica.sh (falha quando o repo passa a mentir)
 .github/workflows/       # CI/CD do Terraform (um workflow reutilizável +
                          # um arquivo curto por root module)
 ```
@@ -392,23 +394,45 @@ Este repositório nasceu de um treinamento e foi reorganizado pra crescer
 como um projeto sério. A ideia é ir adicionando novos workloads aqui dentro
 seguindo o padrão já estabelecido:
 
-- **Workload novo** → uma pasta em `workloads/<nome>/` com `main.tf`,
-  `variables.tf`, `outputs.tf`, `versions.tf`, `envs/` e `backends/` dentro de
-  `aws/infra/`, mais `nfr.md` e `adr/` em `aws/` e o `README.md` com o problema
-  na raiz do workload. Ganha state próprio. Copie a estrutura de
-  `workloads/amazonsales/` se for um pipeline, ou a de
-  `workloads/federated-query/` se não for.
+- **Workload novo** → um comando:
 
-  Fora da pasta, **só uma coisa é obrigatória**: o workflow de CI em
-  `.github/workflows/workload-<nome>-ci.yml`, um arquivo de ~20 linhas que
-  chama `terraform-reusable.yml`. Os scripts de operação descobrem o workload
-  sozinhos — `scripts/_common.sh` varre `workloads/*/aws/infra/main.tf`, e o
+  ```bash
+  ./scripts/novo-workload.sh <nome>            # só a forma AWS
+  ./scripts/novo-workload.sh <nome> --local    # com a forma local em Docker
+  ```
+
+  Ele cria a pasta em `workloads/<nome>/` com `main.tf`, `variables.tf`,
+  `outputs.tf`, `versions.tf`, `envs/` e `backends/` dentro de `aws/infra/`,
+  mais `nfr.md` (já com as linhas **"não medido"**) e `adr/` em `aws/`, e o
+  `README.md` com o problema na raiz do workload. Ganha state próprio.
+
+  Ele também cria a **única coisa obrigatória fora da pasta**: o workflow de CI
+  em `.github/workflows/workload-<nome>-ci.yml`, um arquivo de ~20 linhas que
+  chama `terraform-reusable.yml`. O resto dos scripts descobre o workload
+  sozinho — `scripts/_common.sh` varre `workloads/*/aws/infra/main.tf`, e o
   `teardown.sh` deriva a ordem de destruição dali. Isso é deliberado: a lista
   escrita à mão já existiu, e esquecer uma linha nela significava um `teardown`
   que dizia ter terminado deixando recurso ligado.
 
+  O molde fica em `scripts/template-workload/`, **fora** de `workloads/` de
+  propósito: um template com um `main.tf` de verdade lá dentro viraria um
+  workload fantasma para os scripts que varrem a pasta.
+
+  Se preferir copiar em vez de gerar, copie `workloads/amazonsales/` para um
+  pipeline ou `workloads/federated-query/` para o que não é.
+
   Depois, para o repositório não passar a mentir: a tabela de taxonomia e a de
   NFR/ADR neste README, e o diagrama da estrutura logo acima.
+
+- **Depois de mexer em qualquer coisa** → `./scripts/verifica.sh`.
+
+  A documentação daqui cita **arquivo e linha**, e os filtros de path da CI
+  citam módulos: as duas coisas apodrecem em silêncio quando algo é movido.
+  O script falha quando isso acontece — e também quando um workload perde uma
+  peça obrigatória, quando um link relativo quebra, ou quando um
+  `docker-compose.yml` deixa de renderizar. É o que torna refatorar barato:
+  um comando diz o que quebrou, em vez de você descobrir meses depois lendo o
+  README.
 - **Motor local novo** (o workload consome) → `platform/local/services/<motor>/`.
 - **Semeador de dado** → dentro do workload cuja fonte ele alimenta, como
   `workloads/webevents-streaming/aws/seed/`. Ele pertence a quem consome o dado

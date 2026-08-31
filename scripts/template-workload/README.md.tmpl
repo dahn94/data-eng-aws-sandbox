@@ -1,0 +1,24 @@
+# workloads/{{NOME}}
+
+<!-- O PROBLEMA, não a ferramenta. É a única coisa que os caminhos `aws/` e
+     `local/` compartilham, e é por isso que ele mora aqui na raiz. Uma ou duas
+     frases: que pergunta sobre dado este workload responde? -->
+
+TODO: enuncie o problema.
+
+## Taxonomia
+
+<!-- Pipeline? Caminho de consulta? Mecanismo gerenciado? Isso define com qual
+     workload existente vale copiar a estrutura. -->
+
+TODO.
+
+## Como rodar
+
+```bash
+cd aws/infra
+terraform init -backend-config=backends/develop.hcl
+terraform apply -var-file=envs/develop.tfvars
+```
+
+Depois de estudar, **destrua**: `terraform destroy -var-file=envs/develop.tfvars`.

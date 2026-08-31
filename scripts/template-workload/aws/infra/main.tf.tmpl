@@ -1,0 +1,26 @@
+# A infraestrutura da forma AWS deste workload.
+#
+# Regra do repositório: **este workload é dono do que usa.** Se ele precisa de
+# um Postgres, de um warehouse ou de um bucket, ele os cria a partir de
+# ../../../../platform/aws/modules — não os pede emprestado de outro workload.
+# Parece desperdício e não é: uma pasta sobe com um comando e é destruída
+# inteira.
+
+data "aws_caller_identity" "current" {}
+
+data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    bucket = var.network_state_bucket
+    key    = var.network_state_key
+    region = var.region
+  }
+}
+
+# ---------------------------------------------------------------------------
+# TODO: os recursos deste workload.
+#
+# Ao instanciar um módulo, acrescente o path dele aos filtros do workflow em
+# .github/workflows/workload-{{NOME}}-ci.yml — senão a CI deixa de rodar quando
+# o módulo mudar. O `./scripts/verifica.sh` reclama quando isso é esquecido.
+# ---------------------------------------------------------------------------

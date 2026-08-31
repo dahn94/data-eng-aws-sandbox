@@ -1,0 +1,16 @@
+# A infraestrutura local deste workload — o espelho do que `../../aws/infra`
+# declara para a nuvem.
+#
+# Não redefine serviço nenhum: compõe as peças de `platform/local` de que
+# precisa, por `include`. É a mesma relação que o Terraform tem com
+# `platform/aws/modules` — o workload consome a plataforma, não a duplica.
+#
+#   docker compose up -d
+#
+# TODO: liste aqui o que este workload precisa, e por quê.
+
+name: {{NOME}}-local
+
+include:
+  - path: ../../../../platform/local/foundation/docker-compose.yml
+    env_file: ./parametros.env
