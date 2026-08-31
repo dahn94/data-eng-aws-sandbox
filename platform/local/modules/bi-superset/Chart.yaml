@@ -1,0 +1,6 @@
+apiVersion: v2
+name: bi-superset
+description: Superset — a segunda ferramenta de BI sobre os mesmos motores
+type: application
+version: 0.1.0
+appVersion: "latest"

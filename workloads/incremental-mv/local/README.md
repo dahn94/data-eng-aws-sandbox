@@ -25,6 +25,14 @@ docker compose -f ../../../platform/local/services/olap-clickhouse/docker-compos
 docker exec -i incremental-mv-clickhouse clickhouse-client --multiquery < materialized-view.sql
 ```
 
+No Kubernetes, o mesmo arquivo entra pelo pod:
+
+```bash
+cd infra && helm dependency build
+helm install incremental-mv . -n incremental-mv --create-namespace
+kubectl -n incremental-mv exec -i deploy/clickhouse -- clickhouse-client --multiquery < ../materialized-view.sql
+```
+
 Depois, para ver o motor trabalhando sem você:
 
 ```sql

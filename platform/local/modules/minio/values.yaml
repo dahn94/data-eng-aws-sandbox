@@ -1,0 +1,29 @@
+# Os buckets nascem com OS MESMOS NOMES que a AWS usa: se divergissem, o script
+# que roda local deixaria de ser o script que roda lá.
+image:
+  repository: minio/minio
+  tag: RELEASE.2025-04-22T22-12-26Z
+mc:
+  repository: minio/mc
+  tag: RELEASE.2025-04-16T18-13-26Z
+
+# Não são credenciais da AWS e não têm valor fora daqui. Viram
+# AWS_ACCESS_KEY_ID/SECRET para o Spark e para o catálogo, porque MinIO fala a
+# API do S3 — o mesmo código autentica nos dois.
+credentials:
+  accessKey: minioadmin
+  secretKey: minioadmin
+
+buckets:
+  - sandbox-lake-configs
+  - sandbox-lake-raw-local
+  - sandbox-lake-curated-local
+  - sandbox-lake-logs-local
+  - sandbox-lakehouse
+
+persistence:
+  size: 10Gi
+
+resources:
+  requests: {cpu: 100m, memory: 512Mi}
+  limits: {memory: 2Gi}

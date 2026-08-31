@@ -92,3 +92,7 @@ docs/
 TODO.md
 # Jars: baixados por ./scripts/fetch-jars.sh, não versionados (~15 MB de binário)
 *.jar
+
+# Helm: dependências resolvidas em tempo de build por `helm dependency build`.
+# O padrão precisa do ** — com barra e sem ele, o git ancora na raiz.
+**/charts/*.tgz

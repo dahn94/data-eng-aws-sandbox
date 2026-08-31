@@ -1,0 +1,6 @@
+apiVersion: v2
+name: iceberg-catalog
+description: Catálogo Iceberg REST com Postgres por trás — o análogo do S3 Tables
+type: application
+version: 0.1.0
+appVersion: "1.9.2-pg"

@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: catalog-db-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: {requests: {storage: {{ .Values.db.persistence.size }}}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-db
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app: catalog-db}}
+  template:
+    metadata: {labels: {app: catalog-db}}
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.db.image.repository }}:{{ .Values.db.image.tag }}"
+          env:
+            - {name: POSTGRES_USER, value: "{{ .Values.db.user }}"}
+            - {name: POSTGRES_PASSWORD, value: "{{ .Values.db.password }}"}
+            - {name: POSTGRES_DB, value: "{{ .Values.db.name }}"}
+            - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+          ports: [{name: pg, containerPort: 5432}]
+          readinessProbe:
+            exec: {command: ["pg_isready", "-U", "{{ .Values.db.user }}"]}
+            periodSeconds: 5
+          volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+          resources: {{- toYaml .Values.db.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: catalog-db-data}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-db
+spec:
+  selector: {app: catalog-db}
+  ports: [{name: pg, port: 5432, targetPort: pg}]

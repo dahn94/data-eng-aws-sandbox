@@ -1,0 +1,18 @@
+dependencies:
+- name: minio
+  repository: file://../../../../platform/local/modules/minio
+  version: 0.1.0
+- name: iceberg-catalog
+  repository: file://../../../../platform/local/modules/iceberg-catalog
+  version: 0.1.0
+- name: spark-glue
+  repository: file://../../../../platform/local/modules/spark-glue
+  version: 0.1.0
+- name: trino
+  repository: file://../../../../platform/local/modules/trino
+  version: 0.1.0
+- name: orchestration-airflow
+  repository: file://../../../../platform/local/modules/orchestration-airflow
+  version: 0.1.0
+digest: sha256:945e0302db30008af26adb4ab5a77d5d7af5d25819ccd6d91cedb5bd9969b9d8
+generated: "2026-08-30T21:36:00.47902-03:00"

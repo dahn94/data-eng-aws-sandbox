@@ -1,0 +1,12 @@
+image:
+  repository: metabase/metabase
+  tag: v0.56.5
+db:
+  image: {repository: postgres, tag: "13"}
+  name: metabaseappdb
+  user: metabaseuser
+  password: metabasepassword
+  persistence: {size: 5Gi}
+resources:
+  requests: {cpu: 200m, memory: 1Gi}
+  limits: {memory: 3Gi}

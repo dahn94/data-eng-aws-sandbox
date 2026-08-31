@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trino-catalog
+data:
+  iceberg.properties: |
+    connector.name=iceberg
+    iceberg.catalog.type=rest
+    iceberg.rest-catalog.uri={{ .Values.catalog.restUri }}
+    iceberg.rest-catalog.warehouse={{ .Values.catalog.warehouse }}
+    fs.native-s3.enabled=true
+    s3.endpoint={{ .Values.catalog.s3.endpoint }}
+    s3.region={{ .Values.catalog.s3.region }}
+    s3.path-style-access=true
+    s3.aws-access-key={{ .Values.catalog.s3.accessKey }}
+    s3.aws-secret-key={{ .Values.catalog.s3.secretKey }}

@@ -1,0 +1,10 @@
+# Service sem porta útil: existe para dar nome estável ao pod, do mesmo jeito
+# que o `container_name` dava no Compose.
+apiVersion: v1
+kind: Service
+metadata:
+  name: glue
+spec:
+  clusterIP: None
+  selector: {app: glue}
+  ports: [{name: placeholder, port: 4040}]

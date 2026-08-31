@@ -1,0 +1,6 @@
+apiVersion: v2
+name: spark-glue
+description: A imagem oficial do Glue, com as mesmas libs awsglue que rodam na nuvem
+type: application
+version: 0.1.0
+appVersion: "5.0.10-gx"

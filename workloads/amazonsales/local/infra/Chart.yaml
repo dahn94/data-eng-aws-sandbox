@@ -1,0 +1,22 @@
+# A infraestrutura local deste workload no Kubernetes — o espelho do que
+# `../../aws/infra` declara para a nuvem, e o irmão do docker-compose.yml
+# ao lado.
+#
+# Não define recurso nenhum: instancia os modelos de platform/local/modules.
+# É a mesma relação que o Terraform tem com platform/aws/modules — o workload
+# consome a plataforma, não a duplica.
+#
+#   helm dependency build
+#   helm install amazonsales . -n amazonsales --create-namespace
+apiVersion: v2
+name: amazonsales-local
+description: O lakehouse e o orquestrador de que a pipeline amazonsales precisa
+type: application
+version: 0.1.0
+
+dependencies:
+  - {name: minio, version: 0.1.0, repository: "file://../../../../platform/local/modules/minio"}
+  - {name: iceberg-catalog, version: 0.1.0, repository: "file://../../../../platform/local/modules/iceberg-catalog"}
+  - {name: spark-glue, version: 0.1.0, repository: "file://../../../../platform/local/modules/spark-glue"}
+  - {name: trino, version: 0.1.0, repository: "file://../../../../platform/local/modules/trino"}
+  - {name: orchestration-airflow, version: 0.1.0, repository: "file://../../../../platform/local/modules/orchestration-airflow"}

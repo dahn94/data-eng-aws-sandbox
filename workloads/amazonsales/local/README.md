@@ -23,14 +23,38 @@ DAG útil como verificação, e não apenas como conveniência.
 ## Rodar
 
 A infraestrutura local deste workload está em [`infra/`](infra/), do mesmo jeito
-que a da AWS está em [`../aws/infra/`](../aws/infra/). Ela não redefine serviço
-nenhum: compõe as plataformas de que precisa, por `include`.
+que a da AWS está em [`../aws/infra/`](../aws/infra/). Ela não define serviço
+nenhum: consome as peças de `platform/local`. **Há dois caminhos**, e a
+plataforma está em transição de um para o outro.
+
+### Kubernetes (o destino)
+
+```bash
+./scripts/k8s-up.sh && ./scripts/k8s-images.sh   # cluster e imagens, uma vez
+
+cd workloads/amazonsales/local/infra
+helm dependency build
+helm install amazonsales . -n amazonsales --create-namespace
+
+kubectl -n amazonsales exec deploy/airflow -- airflow dags unpause amazonsales
+kubectl -n amazonsales exec deploy/airflow -- airflow dags trigger amazonsales
+```
+
+Aqui cada tarefa do DAG vira **um pod**, criado e destruído por execução — o
+análogo do `glue:startJobRun`, onde cada job é uma execução isolada. Quem decide
+é `MODO_EXECUCAO`, que o chart do Airflow define; o arquivo do DAG é o mesmo nos
+dois caminhos.
+
+### Compose (o que ainda é o caminho verificado)
 
 ```bash
 cd infra
 docker compose up -d          # sobe o lakehouse e o orquestrador
 docker compose exec airflow airflow dags trigger amazonsales
 ```
+
+Aqui cada tarefa é um `docker exec` no contêiner do Spark, que fica de pé o
+tempo todo.
 
 > **Escolha um ponto de entrada e fique nele.** Subir por
 > `platform/local/foundation/docker-compose.yml` cria o projeto

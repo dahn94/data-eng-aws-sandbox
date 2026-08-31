@@ -1,0 +1,6 @@
+apiVersion: v2
+name: search-opensearch
+description: OpenSearch e os Dashboards — o destino do streaming de eventos
+type: application
+version: 0.1.0
+appVersion: "2.17.1"

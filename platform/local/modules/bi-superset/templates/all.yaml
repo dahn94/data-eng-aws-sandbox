@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: superset-db}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: {requests: {storage: {{ .Values.db.persistence.size }}}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: superset-home}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: {requests: {storage: {{ .Values.persistence.size }}}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: superset-db}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app: superset-db}}
+  template:
+    metadata: {labels: {app: superset-db}}
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.db.image.repository }}:{{ .Values.db.image.tag }}"
+          env:
+            - {name: POSTGRES_DB, value: "{{ .Values.db.name }}"}
+            - {name: POSTGRES_USER, value: "{{ .Values.db.user }}"}
+            - {name: POSTGRES_PASSWORD, value: "{{ .Values.db.password }}"}
+            - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+          ports: [{name: pg, containerPort: 5432}]
+          readinessProbe:
+            exec: {command: ["pg_isready", "-U", "{{ .Values.db.user }}"]}
+            periodSeconds: 10
+          volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: superset-db}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: superset-db}
+spec:
+  selector: {app: superset-db}
+  ports: [{name: pg, port: 5432, targetPort: pg}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: superset}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app: superset}}
+  template:
+    metadata: {labels: {app: superset}}
+    spec:
+      initContainers:
+        - name: espera-o-banco
+          image: "{{ .Values.db.image.repository }}:{{ .Values.db.image.tag }}"
+          command: ["sh", "-c", "until pg_isready -h superset-db -U {{ .Values.db.user }}; do sleep 2; done"]
+      containers:
+        - name: superset
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["bash", "-c"]
+          args:
+            - |
+              superset db upgrade &&
+              superset fab create-admin --username {{ .Values.admin.username }} \
+                --firstname admin --lastname admin --email admin@admin.com \
+                --password {{ .Values.admin.password }} || true &&
+              superset init &&
+              superset run -h 0.0.0.0 -p 8088
+          env:
+            - {name: SUPERSET_SECRET_KEY, value: "{{ .Values.secretKey }}"}
+            - name: SUPERSET_DATABASE_URI
+              value: "postgresql+psycopg2://{{ .Values.db.user }}:{{ .Values.db.password }}@superset-db:5432/{{ .Values.db.name }}"
+          ports: [{name: http, containerPort: 8088}]
+          volumeMounts: [{name: home, mountPath: /app/superset_home}]
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: home
+          persistentVolumeClaim: {claimName: superset-home}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: superset}
+spec:
+  selector: {app: superset}
+  ports: [{name: http, port: 8088, targetPort: http}]

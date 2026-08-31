@@ -1,0 +1,29 @@
+# Postgres por trás, e não o backend em memória do fixture: com três jobs
+# escrevendo em paralelo (como a máquina de estado do amazonsales faz), o padrão
+# devolve "Failed to get table ... from catalog rest_backend".
+rest:
+  image:
+    repository: dataeng-sandbox/iceberg-rest
+    tag: 1.9.2-pg
+  warehouse: sandbox-lakehouse
+  s3:
+    endpoint: http://minio:9000
+    region: us-east-1
+    accessKey: minioadmin
+    secretKey: minioadmin
+  resources:
+    requests: {cpu: 100m, memory: 512Mi}
+    limits: {memory: 2Gi}
+
+db:
+  image:
+    repository: postgres
+    tag: "16"
+  user: iceberg
+  password: iceberg
+  name: iceberg
+  persistence:
+    size: 5Gi
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {memory: 1Gi}
