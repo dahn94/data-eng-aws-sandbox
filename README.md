@@ -386,7 +386,52 @@ Além disso:
   os recursos acima
 - Terraform >= 1.10 (usa lock de state nativo do S3 e `templatestring`)
 - Docker e Docker Compose
-- Python 3.9+ (pro `data-generator`)
+
+Nada de Python é exigido para rodar o repositório: **os scripts rodam dentro
+dos contêineres**, e a imagem do Glue é a referência do que executa de verdade.
+Python no host só é preciso para o que vem a seguir.
+
+### Debugar um job na sua IDE
+
+Os jobs do `amazonsales` foram escritos para rodar **também** fora da imagem do
+Glue: `glue_common.py` cai num parser de argv próprio quando `awsglue` não
+existe ([`workloads/amazonsales/aws/scripts/glue_common.py:19-31`](workloads/amazonsales/aws/scripts/glue_common.py)).
+É isso que permite abrir um deles no PyCharm, pôr um breakpoint e rodar.
+
+```bash
+uv sync                      # cria .venv com o Python e os pins de pyproject.toml
+```
+
+O ambiente **espelha a imagem** de propósito — Python 3.11, `pyspark` 3.5.2,
+`great-expectations` 1.21.0 são as mesmas versões que o Glue roda. Um ambiente
+de debug que diverge do que executa é pior que nenhum.
+
+Depois: no PyCharm, aponte o interpretador para `.venv/bin/python`. Falta uma
+coisa que o `uv` não gerencia, o **JDK** — sem ele o `pyspark` sobe e morre em
+"Unable to locate a Java Runtime":
+
+```bash
+brew install --cask temurin@17     # Spark 3.5 aceita Java 8, 11 ou 17
+```
+
+Como o job fala com o MinIO e o catálogo **de fora** do Compose, o endereço
+muda: dentro da rede é `minio:9000`, do host é a porta publicada. Na
+configuração de execução da IDE:
+
+```
+AWS_ENDPOINT_URL_S3=http://localhost:9002
+ICEBERG_REST_URI=http://localhost:8181
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=minioadmin
+AWS_REGION=us-east-1
+```
+
+**O que não resolve no host, e por quê:** o job do `webevents-streaming` importa
+`awsglue` direto (`GlueContext`), e `awsglue` não existe no PyPI — esse roda só
+na imagem. O DAG importa `airflow`, que fica de fora do ambiente por peso: ele é
+declaração, e é exercitado no contêiner. Para os dois, o caminho é apontar o
+interpretador do PyCharm para o contêiner (**Add Interpreter → On Docker
+Compose**), em vez do `.venv`.
 
 ## Roadmap
 

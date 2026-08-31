@@ -2,4 +2,6 @@
 pandas==2.2.3
 SQLAlchemy==2.0.36
 psycopg2-binary==2.9.10
-fake-web-events==0.3.2
+# 0.2.5 é a última publicada: a 0.3.2 que estava aqui nunca existiu no PyPI,
+# e o `pip install -r` deste arquivo falhava.
+fake-web-events==0.2.5

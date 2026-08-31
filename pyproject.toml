@@ -1,0 +1,48 @@
+# Ambiente de desenvolvimento local, gerenciado por uv.
+#
+# NÃO é como o código roda: os jobs rodam dentro da imagem do Glue, e é ela que
+# vale como referência. Isto existe para uma coisa só — abrir um job no PyCharm,
+# pôr um breakpoint e rodar.
+#
+#   uv sync                       # cria .venv com o Python e os pins abaixo
+#   uv run python <script>.py     # ou aponte o interpretador do PyCharm p/ .venv
+#
+# Os pins seguem o que já está fixado no repositório, para o ambiente de debug
+# não divergir do que executa de verdade:
+#   python 3.11              = o da imagem do Glue (3.11.15)
+#   pyspark 3.5.2            = o da imagem do Glue
+#   great-expectations 1.21  = o da imagem do Glue
+#   duckdb, pandas, ...      = os requirements.txt de cada workload
+[project]
+name = "data-eng-aws-sandbox"
+version = "0"
+description = "Ambiente de desenvolvimento local — o repositório não é um pacote"
+requires-python = "==3.11.*"
+dependencies = []
+
+[dependency-groups]
+# O que os jobs do amazonsales precisam para rodar fora do contêiner. Eles
+# foram escritos para isso: `glue_common.py` cai num parser de argv próprio
+# quando `awsglue` não existe.
+spark = [
+  "pyspark==3.5.2",
+  "great-expectations==1.21.0",
+]
+# Os scripts que não são Spark, com os mesmos pins dos requirements.txt deles.
+scripts = [
+  "duckdb==1.1.3",           # workloads/query-lambda/aws/scripts
+  "pandas==2.2.3",           # workloads/webevents-streaming/aws/seed
+  "SQLAlchemy==2.0.36",
+  "psycopg2-binary==2.9.10",
+  "fake-web-events==0.2.5",
+  "boto3>=1.35",
+]
+dev = [
+  {include-group = "spark"},
+  {include-group = "scripts"},
+  "ruff>=0.14",
+]
+
+[tool.uv]
+# O repositório é uma coleção de workloads, não uma biblioteca instalável.
+package = false
