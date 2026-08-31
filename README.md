@@ -155,17 +155,12 @@ platform/                # O SUBSTRATO QUE OS WORKLOADS CONSOMEM. São DUAS
     modules/             #     Código compartilhado, nunca infraestrutura
                          #     compartilhada: o workload instancia o módulo e
                          #     passa a ser dono do recurso que ele cria
-  local/                 #   A mesma forma, fora da nuvem — EM TRANSIÇÃO do
-    modules/             #     Docker Compose para o Kubernetes:
-                         #       os charts, um motor por pasta: spark-glue,
-                         #       spark-oss, trino, iceberg-catalog, minio,
-                         #       streaming-cdc, search-opensearch,
-                         #       olap-clickhouse, airflow, metabase, superset
-    cluster/             #       o cluster local (kind), declarado
-    adr/                 #       por que a transição existe
-    services/            #     os MESMOS motores em docker-compose.yml — o
-    network/             #       caminho que ainda é o verificado, com a rede
-    foundation/          #       compartilhada e o MinIO
+  local/                 #   A mesma forma, em Docker: alicerce, rede e peças
+    network/             #     a rede compartilhada — o análogo da VPC
+    foundation/          #     MinIO e os buckets, com os nomes que a AWS usa
+    services/            #     os motores, um por pasta: spark-glue, spark-oss,
+                         #     trino, iceberg-catalog, streaming-cdc,
+                         #     search-opensearch, olap-clickhouse, airflow, BI
 
 scripts/                 # Utilitários de setup e governança de custo
                          #   (inclui budget.md: o alerta de orçamento que se
@@ -449,7 +444,6 @@ em dois lugares, ao lado do código que justificam:
 |---|---|---|
 | Ingestão por CDC | [`dms/nfr.md`](workloads/dms/aws/nfr.md) | [`dms/adr/`](workloads/dms/aws/adr/) |
 | Lakehouse | — | [`foundation/adr/`](platform/aws/foundation/adr/) |
-| Isolamento do dado local | — | [`local/adr/`](platform/local/adr/) |
 | Pipeline batch | [`amazonsales/nfr.md`](workloads/amazonsales/aws/nfr.md) | [`amazonsales/adr/`](workloads/amazonsales/aws/adr/) |
 | Pipeline streaming | [`webevents-streaming/nfr.md`](workloads/webevents-streaming/aws/nfr.md) | [`webevents-streaming/adr/`](workloads/webevents-streaming/aws/adr/) |
 | Consulta federada | [`federated-query/nfr.md`](workloads/federated-query/aws/nfr.md) | [`federated-query/adr/`](workloads/federated-query/aws/adr/) |

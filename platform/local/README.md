@@ -1,68 +1,25 @@
 # platform/local
 
-A plataforma local, com a mesma forma da `../aws/`: um alicerce, uma rede e as
-peças que os workloads consomem.
-
-**Ela está em transição.** Há dois caminhos aqui, e os dois funcionam:
+A plataforma local, com a mesma forma da `../aws/`: um alicerce, uma rede, e as
+peças reutilizáveis.
 
 ```
-modules/                os charts: um motor por pasta, INSTANCIÁVEL      ← o destino
-cluster/     kind.yaml  o cluster local — o análogo da VPC
-adr/                    por que a transição existe
-
-services/               os mesmos motores em docker-compose.yml          ← a origem
-network/     rede.yml   a rede compartilhada do Compose
-foundation/             MinIO e os buckets, na forma Compose
+network/     rede.yml   a rede compartilhada — o análogo da VPC
+foundation/             MinIO e os buckets — o análogo do S3 do foundation
+services/               os motores, um por pasta
 ```
 
-O Compose só sai quando o caminho equivalente estiver verificado no cluster —
-não se troca um ambiente que funciona por um que ainda não foi exercitado. Os
-Dockerfiles seguem em `services/`, e os dois caminhos constroem **a mesma
-imagem**; quando o Compose sair, eles vão junto para `modules/`.
-
-## Por que `modules/` e não `services/`
+## Por que `services/` e não `modules/`
 
 Na AWS, `modules/` guarda **modelos**: Terraform que não sobe nada sozinho e só
-existe instanciado. Um `docker-compose.yml` não é isso — ele sobe sozinho, e
-**não é instanciável**: incluir o mesmo arquivo duas vezes no mesmo projeto,
-com parâmetros diferentes, não dá dois serviços, dá um só com os parâmetros
-embaralhados, em silêncio. Por isso `services/` era o nome honesto para ele.
+existe instanciado. Aqui não é assim — cada pasta de `services/` sobe algo real
+com `docker compose up`, sem ninguém instanciar. Por isso `services/` é o nível
+dos *root modules* da AWS, não o dos módulos.
 
-Um chart é instanciável: `helm install a` e `helm install b`, em namespaces
-diferentes, dão duas instalações independentes, cada uma com o seu Service, o
-seu PVC e o seu DNS. É a mesma relação que `workloads/*/aws/infra` tem com
-`platform/aws/modules` — e é o que faz os dois lados do repositório passarem a
-ter modelo e instanciação com o mesmo significado.
-
-O porquê disso importar está no
-[ADR 0001](adr/0001-isolar-o-dado-que-cada-workload-mede.md): não é estética de
-nomenclatura, é que hoje dois workloads locais escrevem no mesmo MinIO e no
-mesmo catálogo, então um pode alterar o número que o outro mediu.
-
-## Como se usa o caminho novo
-
-```bash
-./scripts/k8s-up.sh        # cria o cluster (kind) e fixa o contexto
-./scripts/k8s-images.sh    # constrói o que falta e carrega no cluster
-
-cd workloads/amazonsales/local/infra
-helm dependency build      # resolve os modelos de platform/local/modules
-helm install amazonsales . -n amazonsales --create-namespace
-```
-
-> **`helm dependency build` tira uma fotografia.** Os modelos entram em
-> `charts/*.tgz` no momento em que você roda o comando; editar um chart de
-> `modules/` depois disso **não** muda o que o `helm upgrade` instala. Rode o
-> `dependency build` de novo — foi assim que uma variável editada não chegou no
-> cluster durante esta migração.
-
-Detalhes do cluster, do acesso às interfaces e do limite de RAM em
-[`cluster/README.md`](cluster/README.md).
-
-## O caminho do Compose
-
-O que está descrito daqui até o fim vale para `services/`, que continua sendo o
-caminho verificado enquanto a transição não termina.
+O que um serviço aceita são **parâmetros com default**, não argumentos
+obrigatórios: `${TRINO_PORT:-8080}` sobe sozinho na 8080, e sobe na porta do
+workload se o workload disser outra. É a diferença entre um formulário com os
+campos já preenchidos e um formulário em branco.
 
 ## Os parâmetros
 

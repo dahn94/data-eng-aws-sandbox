@@ -1,6 +1,0 @@
-dependencies:
-- name: olap-clickhouse
-  repository: file://../../../../platform/local/modules/olap-clickhouse
-  version: 0.1.0
-digest: sha256:1a11e113ab8f2edb78314ea1a0fbc47ddd5b5ce4c2f95bacabead9bbacc190c3
-generated: "2026-08-30T21:36:00.50876-03:00"

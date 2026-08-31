@@ -1,6 +1,0 @@
-apiVersion: v2
-name: olap-clickhouse
-description: ClickHouse — o mecanismo de materialized view incremental, local
-type: application
-version: 0.1.0
-appVersion: "24.8"

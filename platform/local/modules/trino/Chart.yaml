@@ -1,6 +1,0 @@
-apiVersion: v2
-name: trino
-description: Trino — o motor por trás do Athena, operado por você
-type: application
-version: 0.1.0
-appVersion: "476"

@@ -1,6 +1,0 @@
-apiVersion: v2
-name: minio
-description: MinIO e os buckets do lake — o análogo do S3 do platform/aws/foundation
-type: application
-version: 0.1.0
-appVersion: "RELEASE.2025-04-22T22-12-26Z"

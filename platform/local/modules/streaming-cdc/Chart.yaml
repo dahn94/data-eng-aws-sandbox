@@ -1,6 +1,0 @@
-apiVersion: v2
-name: streaming-cdc
-description: Kafka, Zookeeper, Debezium e Schema Registry — CDC do Postgres, o análogo do DMS
-type: application
-version: 0.1.0
-appVersion: "2.7.3.Final"
