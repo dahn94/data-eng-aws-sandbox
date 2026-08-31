@@ -7,20 +7,20 @@ include:
 
 services:
   clickhouse:
-    image: clickhouse/clickhouse-server:24.8
+    image: clickhouse/clickhouse-server:${CLICKHOUSE_VERSION:-24.8}
 
-    container_name: clickhouse
+    container_name: ${CLICKHOUSE_CONTAINER_NAME:-clickhouse}
 
     restart: unless-stopped
 
     ports:
-      - "8123:8123"
-      - "9000:9000"
+      - "${CLICKHOUSE_HTTP_PORT:-8123}:8123"
+      - "${CLICKHOUSE_NATIVE_PORT:-9000}:9000"
 
     environment:
-      CLICKHOUSE_DB: analytics
-      CLICKHOUSE_USER: admin
-      CLICKHOUSE_PASSWORD: admin123
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-analytics}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-admin}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-admin123}
 
     ulimits:
       nofile:
@@ -28,6 +28,11 @@ services:
         hard: 262144
 
     volumes:
-      - /mnt/s3files/clickhouse:/var/lib/clickhouse
+      # Volume nomeado, e não um caminho de host: `/mnt/s3files` não existe
+      # em toda máquina, e o bind silenciosamente criava um diretório vazio.
+      - clickhouse-data:/var/lib/clickhouse
 
     networks: [dados]
+
+volumes:
+  clickhouse-data:

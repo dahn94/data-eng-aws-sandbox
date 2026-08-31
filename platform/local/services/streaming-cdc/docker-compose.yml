@@ -14,9 +14,9 @@ include:
 services:
   zookeeper:
     image: debezium/zookeeper:${DEBEZIUM_VERSION}
-    container_name: zookeeper
+    container_name: ${ZOOKEEPER_CONTAINER_NAME:-zookeeper}
     ports:
-      - "2181:2181"
+      - "${ZOOKEEPER_PORT:-2181}:2181"
     networks: [dados]
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -32,10 +32,10 @@ services:
 
   kafka:
     image: debezium/kafka:${DEBEZIUM_VERSION}
-    container_name: kafka
+    container_name: ${KAFKA_CONTAINER_NAME:-kafka}
     ports:
-      - "9092:9092"
-      - "29092:29092" # acesso de fora do Docker (job Glue, sua máquina)
+      - "${KAFKA_PORT:-9092}:9092"
+      - "${KAFKA_EXTERNAL_PORT:-29092}:29092" # acesso de fora do Docker (job Glue, sua máquina)
     networks: [dados]
     environment:
       KAFKA_BROKER_ID: 1
@@ -59,10 +59,10 @@ services:
       retries: 10
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:7.5.0
-    container_name: schema-registry
+    image: confluentinc/cp-schema-registry:${SCHEMA_REGISTRY_VERSION:-7.5.0}
+    container_name: ${SCHEMA_REGISTRY_CONTAINER_NAME:-schema-registry}
     ports:
-      - "8081:8081"
+      - "${SCHEMA_REGISTRY_PORT:-8081}:8081"
     networks: [dados]
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
@@ -74,9 +74,9 @@ services:
 
   connect:
     image: debezium/connect:${DEBEZIUM_VERSION}
-    container_name: connect
+    container_name: ${CONNECT_CONTAINER_NAME:-connect}
     ports:
-      - "8083:8083"
+      - "${CONNECT_PORT:-8083}:8083"
     networks: [dados]
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
@@ -113,11 +113,12 @@ services:
       retries: 10
 
   kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: ${KAFKA_UI_CONTAINER_NAME:-kafka-ui}
+    image: provectuslabs/kafka-ui:${KAFKA_UI_VERSION:-v0.7.2}
     networks: [dados]
+    # 8080 é a mesma porta do trino: se os dois subirem juntos, mude uma.
     ports:
-      - "8080:8080"
+      - "${KAFKA_UI_PORT:-8080}:8080"
     depends_on:
       kafka:
         condition: service_healthy

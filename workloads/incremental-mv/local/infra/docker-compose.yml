@@ -5,9 +5,12 @@
 # o README diz exatamente onde eles divergem.
 #
 #   docker compose up -d
-#   docker exec -i clickhouse clickhouse-client --multiquery < ../materialized-view.sql
+#   docker compose exec -T clickhouse clickhouse-client --multiquery < ../materialized-view.sql
+#
+# O nome do contêiner (`incremental-mv-clickhouse`) vem de parametros.env.
 
 name: incremental-mv-local
 
 include:
   - path: ../../../../platform/local/services/olap-clickhouse/docker-compose.yml
+    env_file: ./parametros.env

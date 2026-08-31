@@ -23,23 +23,28 @@ services:
   airflow:
     networks: [dados]
     build: .
-    image: dataeng-sandbox/airflow:3.1.3-docker
-    container_name: airflow
+    image: dataeng-sandbox/airflow:${AIRFLOW_VERSION:-3.1.3-docker}
+    container_name: ${AIRFLOW_CONTAINER_NAME:-airflow}
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
       # O DAG dispara os jobs com `docker exec` no contêiner do Spark, então
       # este contêiner precisa falar com o Docker da máquina.
       DOCKER_HOST: unix:///var/run/docker.sock
+      # O nome do contêiner alvo do `docker exec` do DAG. Chega aqui pelo
+      # .env do workload, para que o DAG não precise adivinhá-lo.
+      GLUE_CONTAINER_NAME: ${GLUE_CONTAINER_NAME:-lakehouse-glue}
     volumes:
       # Os DAGs moram nos workloads, não aqui: a definição da sequência
       # pertence a quem é orquestrado, como a Step Function pertence ao main.tf
       # do workload.
-      - ../../../workloads/amazonsales/local/dags:/opt/airflow/dags/amazonsales:ro
+      # Caminhos relativos AQUI resolvem a partir desta pasta, não da pasta do
+      # workload que inclui — por isso o default aponta para amazonsales.
+      - ${AIRFLOW_DAGS_PATH:-../../../../workloads/amazonsales/local/dags}:/opt/airflow/dags/${AIRFLOW_DAGS_NAME:-amazonsales}:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - airflow-db:/opt/airflow
     ports:
-      - "8090:8080"
+      - "${AIRFLOW_PORT:-8090}:8080"
     command: ["airflow", "standalone"]
 
 volumes:

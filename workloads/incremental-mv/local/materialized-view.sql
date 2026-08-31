@@ -11,7 +11,7 @@
 -- caminhos diferentes.
 --
 --   docker compose -f ../../../platform/local/olap-clickhouse/docker-compose.yml up -d
---   docker exec -i clickhouse clickhouse-client --multiquery < materialized-view.sql
+--   docker exec -i incremental-mv-clickhouse clickhouse-client --multiquery < materialized-view.sql
 
 DROP VIEW IF EXISTS receita_por_hora;
 DROP TABLE IF EXISTS receita_por_hora_dados;

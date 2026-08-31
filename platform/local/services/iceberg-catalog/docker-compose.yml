@@ -13,14 +13,14 @@ include:
 
 services:
   catalog-db:
-    image: postgres:16
-    container_name: lakehouse-catalog-db
+    image: postgres:${ICEBERG_CATALOG_DB_VERSION:-16}
+    container_name: ${ICEBERG_CATALOG_DB_CONTAINER_NAME:-lakehouse-catalog-db}
     environment:
-      POSTGRES_USER: iceberg
-      POSTGRES_PASSWORD: iceberg
-      POSTGRES_DB: iceberg
+      POSTGRES_USER: ${ICEBERG_CATALOG_DB_USER:-iceberg}
+      POSTGRES_PASSWORD: ${ICEBERG_CATALOG_DB_PASSWORD:-iceberg}
+      POSTGRES_DB: ${ICEBERG_CATALOG_DB_NAME:-iceberg}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U iceberg"]
+      test: ["CMD-SHELL", "pg_isready -U ${ICEBERG_CATALOG_DB_USER:-iceberg}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -30,23 +30,23 @@ services:
 
   iceberg-rest:
     build: .
-    image: dataeng-sandbox/iceberg-rest:1.9.2-pg
-    container_name: lakehouse-iceberg-rest
+    image: dataeng-sandbox/iceberg-rest:${ICEBERG_REST_VERSION:-1.9.2-pg}
+    container_name: ${ICEBERG_REST_CONTAINER_NAME:-lakehouse-iceberg-rest}
     depends_on:
       catalog-db: { condition: service_healthy }
     environment:
-      CATALOG_URI: jdbc:postgresql://catalog-db:5432/iceberg
-      CATALOG_JDBC_USER: iceberg
-      CATALOG_JDBC_PASSWORD: iceberg
+      CATALOG_URI: jdbc:postgresql://catalog-db:5432/${ICEBERG_CATALOG_DB_NAME:-iceberg}
+      CATALOG_JDBC_USER: ${ICEBERG_CATALOG_DB_USER:-iceberg}
+      CATALOG_JDBC_PASSWORD: ${ICEBERG_CATALOG_DB_PASSWORD:-iceberg}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
       AWS_REGION: ${AWS_REGION:-us-east-1}
-      CATALOG_WAREHOUSE: s3://sandbox-lakehouse/
+      CATALOG_WAREHOUSE: s3://${ICEBERG_WAREHOUSE_BUCKET:-sandbox-lakehouse}/
       CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
       CATALOG_S3_ENDPOINT: http://minio:9000
       CATALOG_S3_PATH__STYLE__ACCESS: "true"
     ports:
-      - "8181:8181"
+      - "${ICEBERG_REST_PORT:-8181}:8181"
     networks: [dados]
 
 volumes:

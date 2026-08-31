@@ -29,15 +29,16 @@ nenhum: compõe as plataformas de que precisa, por `include`.
 ```bash
 cd infra
 docker compose up -d          # sobe o lakehouse e o orquestrador
-docker exec airflow airflow dags trigger amazonsales
+docker compose exec airflow airflow dags trigger amazonsales
 ```
 
 > **Escolha um ponto de entrada e fique nele.** Subir por
 > `platform/local/foundation/docker-compose.yml` cria o projeto
-> `dataeng-lakehouse`; subir por aqui cria `amazonsales-local`. Os contêineres
-> têm o mesmo nome nos dois casos, mas **os volumes levam o prefixo do
-> projeto** — alternar deixa os dados anteriores órfãos, sem aviso. Para este
-> workload, o ponto de entrada é `infra/`.
+> `dataeng-foundation`; subir por aqui cria `amazonsales-local`. Os contêineres
+> têm nomes diferentes nos dois casos — `lakehouse-minio` lá, `amazonsales-minio`
+> aqui, por causa de [`infra/parametros.env`](infra/parametros.env) — mas **os
+> volumes levam o prefixo do projeto**, então alternar deixa os dados anteriores
+> órfãos, sem aviso. Para este workload, o ponto de entrada é `infra/`.
 
 ## Estado
 
@@ -61,12 +62,12 @@ Para reproduzir, do zero:
 
 ```bash
 # 1. semear a origem
-docker exec lakehouse-glue spark-submit \
+docker exec amazonsales-glue spark-submit \
   /workspace/workloads/amazonsales/aws/seed/gerar_dataset.py \
   --saida s3a://sandbox-lake-raw-local/amazonsales/ --produtos 50 --semente 42
 
 # 2. os oito jobs, na ordem do DAG — os argumentos estão em dags/amazonsales_dag.py
-docker exec lakehouse-glue spark-submit \
+docker exec amazonsales-glue spark-submit \
   /workspace/workloads/amazonsales/aws/scripts/dataeng-sandbox-amazonsales-dw-table-stg-s3tables.py \
   --input_path s3a://sandbox-lake-raw-local/amazonsales/ --iceberg_table stg_amazonsales \
   --namespace staged --primary_key product_id --s3_tables_bucket_arn nao-usado-no-modo-local
@@ -76,8 +77,13 @@ docker exec lakehouse-glue spark-submit \
 ### Disparo pelo Airflow
 
 ```bash
-docker exec airflow airflow dags trigger amazonsales
+docker compose exec airflow airflow dags trigger amazonsales   # de dentro de infra/
 ```
+
+Os nomes de contêiner (`amazonsales-glue`, `amazonsales-airflow`, …) vêm de
+[`infra/parametros.env`](infra/parametros.env) — é o que faz o `docker ps` dizer
+de qual workload é cada peça. Sem esse arquivo, valem os defaults da plataforma
+(`lakehouse-glue`, `airflow`).
 
 **Verificado:** as oito tarefas em `success`, com as três dimensões rodando em
 paralelo — o mesmo paralelismo da máquina de estado.

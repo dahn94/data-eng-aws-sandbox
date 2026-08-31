@@ -28,6 +28,11 @@ os jobs com `docker exec` no contêiner do lakehouse, e a imagem do Airflow não
 traz o binário. O daemon continua sendo o da sua máquina, alcançado pelo socket
 montado.
 
+Qual contêiner é esse, o DAG não adivinha: chega em `GLUE_CONTAINER_NAME`, que
+o `parametros.env` do workload define e este compose repassa para dentro do
+Airflow. O DAG do amazonsales lê a variável e cai no default (`lakehouse-glue`)
+se ninguém disser nada.
+
 Instalar por `pip` como root é bloqueado pela imagem do Airflow — foi o que
 derrubou a primeira tentativa. Por isso o que precisa vir de fora vem em tempo
 de build.

@@ -19,8 +19,8 @@ include:
 services:
   spark-oss:
     build: .
-    image: dataeng-sandbox/spark-oss:3.5.7-gx
-    container_name: lakehouse-spark-oss
+    image: dataeng-sandbox/spark-oss:${SPARK_OSS_VERSION:-3.5.7-gx}
+    container_name: ${SPARK_OSS_CONTAINER_NAME:-lakehouse-spark-oss}
     user: root
     environment:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}

@@ -9,15 +9,15 @@ services:
 
   postgres:
     networks: [dados]
-    image: postgres:15
-    container_name: superset-postgres
+    image: postgres:${SUPERSET_DB_VERSION:-15}
+    container_name: ${SUPERSET_DB_CONTAINER_NAME:-superset-postgres}
 
     restart: always
 
     environment:
-      POSTGRES_DB: superset
-      POSTGRES_USER: superset
-      POSTGRES_PASSWORD: superset
+      POSTGRES_DB: ${SUPERSET_DB_NAME:-superset}
+      POSTGRES_USER: ${SUPERSET_DB_USER:-superset}
+      POSTGRES_PASSWORD: ${SUPERSET_DB_PASSWORD:-superset}
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -26,7 +26,7 @@ services:
     networks: [dados]
     build: .
 
-    container_name: superset
+    container_name: ${SUPERSET_CONTAINER_NAME:-superset}
 
     restart: always
 
@@ -34,12 +34,12 @@ services:
       - postgres
 
     ports:
-      - "8088:8088"
+      - "${SUPERSET_PORT:-8088}:8088"
 
     environment:
-      SUPERSET_SECRET_KEY: "4ba9fdc27cdba4735e1a39e93948875890ebb3b297824898abd1685d6cb9fc7b"
+      SUPERSET_SECRET_KEY: "${SUPERSET_SECRET_KEY:-4ba9fdc27cdba4735e1a39e93948875890ebb3b297824898abd1685d6cb9fc7b}"
 
-      SUPERSET_DATABASE_URI: postgresql+psycopg2://superset:superset@postgres:5432/superset
+      SUPERSET_DATABASE_URI: postgresql+psycopg2://${SUPERSET_DB_USER:-superset}:${SUPERSET_DB_PASSWORD:-superset}@postgres:5432/${SUPERSET_DB_NAME:-superset}
 
     volumes:
       - superset_home:/app/superset_home

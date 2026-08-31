@@ -16,10 +16,21 @@
 
 name: amazonsales-local
 
+# `parametros.env` em toda entrada do include: é ele que dá a cada peça os
+# valores DESTE workload (nome de contêiner, porta, versão). Precisa ser
+# repetido por entrada — o `include` não tem um env_file de projeto.
 include:
+  # Sem o `.env` do foundation: ele é gitignored, e um env_file inexistente é
+  # erro fatal — num clone novo o `up` morria aqui. As credenciais do MinIO já
+  # têm default no compose dele; para trocá-las, use um `.env` NESTE diretório,
+  # que tem precedência sobre tudo isto.
   - path: ../../../../platform/local/foundation/docker-compose.yml
-    env_file: ../../../../platform/local/foundation/.env
+    env_file: ./parametros.env
   - path: ../../../../platform/local/services/iceberg-catalog/docker-compose.yml
+    env_file: ./parametros.env
   - path: ../../../../platform/local/services/spark-glue/docker-compose.yml
+    env_file: ./parametros.env
   - path: ../../../../platform/local/services/trino/docker-compose.yml
+    env_file: ./parametros.env
   - path: ../../../../platform/local/services/orchestration-airflow/docker-compose.yml
+    env_file: ./parametros.env

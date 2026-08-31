@@ -13,10 +13,10 @@ include:
 
 services:
   trino:
-    image: trinodb/trino:476
-    container_name: lakehouse-trino
+    image: trinodb/trino:${TRINO_VERSION:-476}
+    container_name: ${TRINO_CONTAINER_NAME:-lakehouse-trino}
     ports:
-      - "8080:8080"
+      - "${TRINO_PORT:-8080}:8080"
     volumes:
       - ./catalog:/etc/trino/catalog:ro
     networks: [dados]

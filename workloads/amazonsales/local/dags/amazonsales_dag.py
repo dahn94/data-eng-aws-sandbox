@@ -19,13 +19,16 @@ sequência estiver errado, ele erra igual nos dois lugares, que é o que torna
 este DAG útil como verificação.
 """
 
+import os
 from datetime import datetime
 
 from airflow import DAG
 from airflow.providers.standard.operators.bash import BashOperator
 
-CONTAINER = "lakehouse-glue"
-SCRIPTS = "/workspace/workloads/amazonsales/scripts"
+# O nome do contêiner do Spark vem do compose (parametros.env do workload),
+# porque cada workload nomeia o seu. O default é o do serviço sem parâmetro.
+CONTAINER = os.environ.get("GLUE_CONTAINER_NAME", "lakehouse-glue")
+SCRIPTS = "/workspace/workloads/amazonsales/aws/scripts"
 
 # Os mesmos argumentos que a máquina de estado passa a cada job. Estão aqui
 # literalmente, e não montados por conveniência, para que divergir da forma AWS
