@@ -1,0 +1,37 @@
+# O contêiner em que a IDE roda — não é um serviço da plataforma, é o seu posto
+# de trabalho dentro dela.
+#
+# Usa a MESMA imagem do Glue que executa os jobs: ela já traz Java 17, Python
+# 3.11, pyspark, awsglue e great-expectations. É o que dispensa instalar JDK no
+# host e o que faz `awsglue` finalmente resolver na IDE.
+#
+# Entra na rede compartilhada, então daqui os endereços são os de dentro
+# (`minio:9000`, `iceberg-rest:8181`) — os mesmos do job em produção, sem a
+# tradução para porta publicada que o debug pelo host exige.
+
+name: dataeng-devcontainer
+
+include:
+  - path: ../platform/local/network/rede.yml
+
+services:
+  dev:
+    image: dataeng-sandbox/glue:5.0.10-gx
+    # Não usa o service `glue` da plataforma de propósito: lá o repositório é
+    # montado :ro, para um job não escrever no repo por acidente. Aqui você
+    # edita, então precisa ser de escrita.
+    volumes:
+      - ..:/workspace:cached
+    working_dir: /workspace
+    # A IDE mata e recria o processo dela; o contêiner precisa continuar vivo.
+    # É `command` e não `entrypoint`: o ENTRYPOINT da imagem é `bash -l`, e o
+    # comando entra como argumento dele. Substituir o entrypoint faria o Docker
+    # tentar executar `-c` como binário.
+    command: ["-c", "sleep infinity"]
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ENDPOINT_URL_S3: http://minio:9000
+      ICEBERG_REST_URI: http://iceberg-rest:8181
+    networks: [dados]

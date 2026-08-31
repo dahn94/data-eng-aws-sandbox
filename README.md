@@ -395,8 +395,34 @@ Python no host só é preciso para o que vem a seguir.
 
 Os jobs do `amazonsales` foram escritos para rodar **também** fora da imagem do
 Glue: `glue_common.py` cai num parser de argv próprio quando `awsglue` não
-existe ([`workloads/amazonsales/aws/scripts/glue_common.py:19-31`](workloads/amazonsales/aws/scripts/glue_common.py)).
-É isso que permite abrir um deles no PyCharm, pôr um breakpoint e rodar.
+existe
+([`workloads/amazonsales/aws/scripts/glue_common.py:19-31`](workloads/amazonsales/aws/scripts/glue_common.py)).
+É isso que permite abrir um deles na IDE, pôr um breakpoint e rodar.
+
+Há dois caminhos, e eles servem para coisas diferentes:
+
+| | **Dev container** | **venv com `uv`** |
+|---|---|---|
+| onde o código roda | dentro da imagem do Glue | no seu host |
+| Java | já vem (Corretto 17) | **você instala** |
+| `awsglue` | resolve | não existe no PyPI, nunca resolve |
+| endereço do MinIO | `minio:9000` — o mesmo do job na AWS | `localhost:9002`, a porta publicada |
+| indexação da IDE | mais lenta | imediata |
+| serve para | os jobs Spark, inclusive o do `webevents-streaming` | os scripts que não são Spark, o `ruff`, uma execução rápida |
+
+**Dev container** — nada a instalar no seu Mac:
+
+```
+PyCharm → Remote Development → Dev Containers → .devcontainer/devcontainer.json
+```
+
+Ele usa a mesma imagem que executa os jobs, entra na rede compartilhada e monta
+o repositório com escrita. Os motores continuam vindo do compose do workload
+(`workloads/<nome>/local/infra`) — o dev container não os sobe, só os alcança.
+Verificado: um `spark-submit` do job de staging, de dentro dele, commitou um
+snapshot Iceberg com as 50 linhas.
+
+**venv com `uv`** — quando você não quer contêiner no caminho:
 
 ```bash
 uv sync                      # cria .venv com o Python e os pins de pyproject.toml
@@ -404,18 +430,13 @@ uv sync                      # cria .venv com o Python e os pins de pyproject.to
 
 O ambiente **espelha a imagem** de propósito — Python 3.11, `pyspark` 3.5.2,
 `great-expectations` 1.21.0 são as mesmas versões que o Glue roda. Um ambiente
-de debug que diverge do que executa é pior que nenhum.
+de debug que diverge do que executa é pior que nenhum. Aponte o interpretador
+do PyCharm para `.venv/bin/python`.
 
-Depois: no PyCharm, aponte o interpretador para `.venv/bin/python`. Falta uma
-coisa que o `uv` não gerencia, o **JDK** — sem ele o `pyspark` sobe e morre em
-"Unable to locate a Java Runtime":
-
-```bash
-brew install --cask temurin@17     # Spark 3.5 aceita Java 8, 11 ou 17
-```
-
-Como o job fala com o MinIO e o catálogo **de fora** do Compose, o endereço
-muda: dentro da rede é `minio:9000`, do host é a porta publicada. Na
+Para rodar Spark aqui falta uma coisa que o `uv` não gerencia, o **JDK** — sem
+ele o `pyspark` sobe e morre em "Unable to locate a Java Runtime"
+(`brew install --cask temurin@17`; Spark 3.5 aceita Java 8, 11 ou 17). E como o
+job fala com a plataforma **de fora** do Compose, o endereço muda; na
 configuração de execução da IDE:
 
 ```
@@ -426,12 +447,8 @@ AWS_SECRET_ACCESS_KEY=minioadmin
 AWS_REGION=us-east-1
 ```
 
-**O que não resolve no host, e por quê:** o job do `webevents-streaming` importa
-`awsglue` direto (`GlueContext`), e `awsglue` não existe no PyPI — esse roda só
-na imagem. O DAG importa `airflow`, que fica de fora do ambiente por peso: ele é
-declaração, e é exercitado no contêiner. Para os dois, o caminho é apontar o
-interpretador do PyCharm para o contêiner (**Add Interpreter → On Docker
-Compose**), em vez do `.venv`.
+O DAG do Airflow não resolve em nenhum dos dois: ele importa `airflow`, que fica
+de fora por peso — é declaração, e é exercitado no contêiner do orquestrador.
 
 ## Roadmap
 
